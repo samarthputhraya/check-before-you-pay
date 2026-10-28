@@ -59,3 +59,32 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
   - The second verifier found 1 blocker (the API could serve any file, including `.env`) and 10 majors. All fixed, with tests (140 passing).
   - New docs in the FraudLens repo: `docs/RESILIENCE.md`, `docs/INNOVATION.md`, `docs/MORNING_RUNBOOK.md`.
 - **03:00:** running all 18 cases with Gemini on to check the model-written text.
+- **03:30:** a data-quality report (challenge 11).
+  - For all 11 score alerts, the alert's own score disagrees with the score stored on the transaction.
+  - HHF-011's case names a different card from the bank's record.
+  - Protective actions on a card's other charges now apply only to signatures with a clean history.
+
+## For Samarth in the morning
+
+**1. TigerGraph (the deadline-critical one)**
+- Resume the Savanna workspace and turn on auto-start, or send Devanshu your org ID for credits.
+- Then follow `Fraud Detection HHGoa/docs/MORNING_RUNBOOK.md` top to bottom, about 60–90 minutes.
+- Three GSQL files (`03`, `19`, `20`) haven't compiled on TigerGraph yet. The parity check (step 5) is how you'll know they match the mirror.
+
+**2. Add to FraudLens `.env`**
+- `FRAUDLENS_APPROVER_TOKENS`
+- `FRAUDLENS_AUDIT_KEY`
+
+The runbook's step 0 shows the format.
+
+**3. Push FraudLens when you're ready.** The `round2` branch has about 10 local commits that aren't pushed, because the repo is public and the other 5 finalist teams could read the approach. Push at the freeze.
+
+**4. Main app**
+- Deploy to Railway: run `railway login`, add a volume at `/data`, then `railway up`. The README has the steps.
+- Add Risheeth and Rishabh as collaborators on GitHub. Rishabh already merged a PR, so check what access they have.
+- Tell B and C to pull. The skeleton contract, its tests and the web shell are ready.
+
+**5. Ask Devanshu**
+- When are the freeze and the demo slots?
+- Do the drills run on our machine?
+- Is Vertex AI acceptable as the model provider?
