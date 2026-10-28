@@ -1,0 +1,12 @@
+{
+  "users": 1234,
+  "checks": 4021,
+  "reports": 310,
+  "languages": { "hi": 1800, "en": 900, "mr": 400 },
+  "rings": 42,
+  "share_rate": 0.31,
+  "k_factor": 0.42,
+  "p50_ms": 3100,
+  "p95_ms": 7400,
+  "updated_at": "2026-10-30T10:00:00+05:30"
+}
