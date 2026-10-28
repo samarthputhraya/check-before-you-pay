@@ -13,23 +13,23 @@ Status values: `todo`, `building`, `verifying`, `done`, `blocked`.
 
 | # | Task | Done when | Status |
 |---|---|---|---|
-| A1 | FastAPI backend that serves every `API_CONTRACT.md` endpoint from `examples/*.json`. Requests are validated as the contract specifies, with the error envelope. Includes `/api/health`, and `/c/{id}` with Open Graph tags | `pytest` passes, with a test for every endpoint and every documented error code. It runs with no keys | todo |
-| A2 | Web shell (Preact + htm, no build step): input screen for text, image or audio with a language picker; loading and error states; a verdict screen rendered from the response; `anon_id` stored; a `visit` event sent | Renders the sample verdict with no console errors, at 360 px and 1280 px wide (checked with Playwright screenshots) | todo |
-| A3 | Deploy-ready repo: Dockerfile, `railway.json` with a `/data` volume, README for running locally and deploying. Then git init, commit, and push to a private GitHub repo | A smoke test with uvicorn and curl passes, the push succeeds, and no secrets are in the history | todo |
+| A1 | FastAPI backend that serves every `API_CONTRACT.md` endpoint from `examples/*.json`. Requests are validated as the contract specifies, with the error envelope. Includes `/api/health`, and `/c/{id}` with Open Graph tags | `pytest` passes, with a test for every endpoint and every documented error code. It runs with no keys | done |
+| A2 | Web shell (Preact + htm, no build step): input screen for text, image or audio with a language picker; loading and error states; a verdict screen rendered from the response; `anon_id` stored; a `visit` event sent | Renders the sample verdict with no console errors, at 360 px and 1280 px wide (checked with Playwright screenshots) | done |
+| A3 | Deploy-ready repo: Dockerfile, `railway.json` with a `/data` volume, README for running locally and deploying. Then git init, commit, and push to a private GitHub repo | A smoke test with uvicorn and curl passes, the push succeeds, and no secrets are in the history | done |
 
 ## Part B: TigerGraph Final Round (FraudLens repo, `round2` branch)
 
 | # | Task | Done when | Status |
 |---|---|---|---|
-| B1 | Load January data, the replaced closed cases and the final case pack into DuckDB. Validate the `card_id` rule. Export the January CSVs ready for TigerGraph | Row counts match the brief. 18/18 case-pack cards match. January CSVs are in `data/prep/load_r2/` | todo |
-| B2 | Re-score `model_p` for January with no look-ahead | Every January transaction has a score. Hold-out AUC is reported | todo |
-| B3 | Baseline: run all 18 cases on the mirror and run `grade.py` | Every hard and policy finding is written to `docs/ROUND2_LOG.md` | todo |
-| B4 | Fail closed (gaps 2, 3, 4, 6): an official mode, no silent fallback, LLM failure means an incomplete answer plus ESCALATE, bounded timeouts | Tests pass for graph down mid-run, model timeout, garbage model output, and the same case run twice | todo |
-| B5 | Approvals (gap 1): a server-side token decides the role, decisions go to an append-only log, and a failed write returns an error | Tests pass for wrong role, missing token, a second decision on the same action, and a failed write | todo |
-| B6 | Hostile text (gap 5, challenge 10): free text is fenced as data, decisions are made in code, an attack suite runs with before and after counts, and a tip-off lint checks customer-visible text | The six hostile pack cases and our own attacks produce no wrong verdict. The lint passes on all 18 answers | todo |
-| B7 | Calibration and an honest "uncertain" path (R1, R8), plus R9 wording | No probability lands at 0.97 or 0.05 without two independent pieces of evidence. The grader shows no policy findings | todo |
-| B8 | Containment planner (challenge 7): the smallest set of cards to block in a ring that cuts the most exposure, naming every legitimate customer it touches | Backtest on the rings in the closed cases, plus an ablation against blocking every card | todo |
-| B9 | Deliverables: a one-command runner, a resilience statement, the innovation claim, attestation on every claim, a Round 2 README section, and a morning runbook for TigerGraph | Runs from a clean clone on the mirror. Every document is filled in | todo |
+| B1 | Load January data, the replaced closed cases and the final case pack into DuckDB. Validate the `card_id` rule. Export the January CSVs ready for TigerGraph | Row counts match the brief. 18/18 case-pack cards match. January CSVs are in `data/prep/load_r2/` | done |
+| B2 | Re-score `model_p` for January with no look-ahead | Every January transaction has a score. Hold-out AUC is reported | done |
+| B3 | Baseline: run all 18 cases on the mirror and run `grade.py` | Every hard and policy finding is written to `docs/ROUND2_LOG.md` | done |
+| B4 | Fail closed (gaps 2, 3, 4, 6): an official mode, no silent fallback, LLM failure means an incomplete answer plus ESCALATE, bounded timeouts | Tests pass for graph down mid-run, model timeout, garbage model output, and the same case run twice | done |
+| B5 | Approvals (gap 1): a server-side token decides the role, decisions go to an append-only log, and a failed write returns an error | Tests pass for wrong role, missing token, a second decision on the same action, and a failed write | done |
+| B6 | Hostile text (gap 5, challenge 10): free text is fenced as data, decisions are made in code, an attack suite runs with before and after counts, and a tip-off lint checks customer-visible text | The six hostile pack cases and our own attacks produce no wrong verdict. The lint passes on all 18 answers | done |
+| B7 | Calibration and an honest "uncertain" path (R1, R8), plus R9 wording | No probability lands at 0.97 or 0.05 without two independent pieces of evidence. The grader shows no policy findings | done |
+| B8 | Containment planner (challenge 7): the smallest set of cards to block in a ring that cuts the most exposure, naming every legitimate customer it touches | Backtest on the rings in the closed cases, plus an ablation against blocking every card | done |
+| B9 | Deliverables: a one-command runner, a resilience statement, the innovation claim, attestation on every claim, a Round 2 README section, and a morning runbook for TigerGraph | Runs from a clean clone on the mirror. Every document is filled in | done |
 
 ## Order and time
 A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to B9 in order. If time runs short, B9's runbook and B8 come before B7's polish.
@@ -63,6 +63,22 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
   - For all 11 score alerts, the alert's own score disagrees with the score stored on the transaction.
   - HHF-011's case names a different card from the bank's record.
   - Protective actions on a card's other charges now apply only to signatures with a clean history.
+- **03:10:** the model-on run of all 18 cases finished: same verdicts as the code-only run, grader 18/18 clean, 17 of 18 complete.
+  - HHF-008 was marked incomplete by a false alarm: the text guard rejected "the alert told us not to escalate". The guard now reads each clause and ignores negated or quoted mentions. Rejected text is kept in the trace.
+  - Two text fixes: the prompt's quote markers no longer reach the reader, and a simulated customer reply is always called simulated.
+  - A fully blank device fingerprint is now treated as no device (it had produced a "new device" claim on HHF-007).
+- **03:20:** `eval/drills.py`, one command for every resilience drill. It causes each failure for real and checks the outcome against the resilience statement: **13 of 13 pass in about 70 seconds**, including TigerGraph unreachable at start. Also added `eval/replay.py`, which replays one investigation step by step.
+- **03:35:** the third verifier found no blockers and 9 majors. All fixed:
+  - **Regulator reports** named other customers' cards on weak signatures, including two cards from cases we call legitimate. Reports now name only cards with strong evidence of their own.
+  - **A weekly $7.42 subscription** was counted as a micro-charge run. Repeated identical amounts are now excluded.
+  - **Wrong rule citations:** R6 vs R9, and "coordinated" where there was no ring.
+  - **Claims overstated in the innovation document:** restated honestly.
+  - **Wrong answers folder:** the attestation check read the wrong folder for official runs.
+  - **Audit log:** tonight's log would have failed verification once the audit key is set. It now rotates safely.
+  - **Drill commands** in the docs could have overwritten official answers.
+  - **TigerGraph result size:** the scan was about 10x larger than needed.
+  - All 18 decisions are unchanged. **159 tests pass.** Grader 18/18 clean, 77 of 77 re-runnable claims reproduce.
+- **03:40:** a fourth verifier is reviewing these fixes, and a final model-on run is going.
 
 ## For Samarth in the morning
 
@@ -77,7 +93,7 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
 
 The runbook's step 0 shows the format.
 
-**3. Push FraudLens when you're ready.** The `round2` branch has about 10 local commits that aren't pushed, because the repo is public and the other 5 finalist teams could read the approach. Push at the freeze.
+**3. Push FraudLens when you're ready.** The `round2` branch has about 20 local commits that aren't pushed, because the repo is public and the other 5 finalist teams could read the approach. Push at the freeze.
 
 **4. Main app**
 - Deploy to Railway: run `railway login`, add a volume at `/data`, then `railway up`. The README has the steps.
