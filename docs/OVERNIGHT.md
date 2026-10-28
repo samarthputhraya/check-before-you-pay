@@ -83,7 +83,7 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
   - **Report narratives still named monitored cards.** They now name only the cards in the report's subject list.
   - **One evidence sentence was false.** It said a low January score "is not used as evidence of innocence". It's actually weak evidence of innocence.
   - The text guard was also rewritten to read the words that actually govern a phrase, with every probe from the review now a test.
-- **04:40:** final model-on run of all 18 cases:
+- **04:15:** final model-on run of all 18 cases:
   - **18 of 18 complete, exit 0.** No model text was rejected.
   - **Grader 18/18 clean.**
   - Every card named in a report narrative is a report subject.
