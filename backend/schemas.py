@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, StringConstraints
+from pydantic import BaseModel, Field, StrictBool, StringConstraints
 
 Lang = Literal["en", "hi", "mr", "ta", "te", "kn", "bn", "hinglish"]
 Band = Literal["high_risk", "caution", "no_known_signals"]
@@ -18,6 +18,10 @@ QuizAnswer = Literal["scam", "genuine"]
 AnonId = Annotated[str, StringConstraints(pattern=r"^u_[A-Za-z0-9_-]{1,40}$")]
 CheckId = Annotated[str, StringConstraints(pattern=r"^chk_[A-Za-z0-9_-]{1,40}$")]
 QuizId = Annotated[str, StringConstraints(pattern=r"^q_[a-z]+_v[0-9]+$")]
+HttpsUrl = Annotated[str, StringConstraints(pattern=r"^https://", max_length=2000)]  # never javascript: in an href
+HttpUrl = Annotated[str, StringConstraints(pattern=r"^https?://", max_length=2000)]
+ShortKey = Annotated[str, StringConstraints(min_length=1, max_length=40)]
+PropValue = Annotated[str, StringConstraints(max_length=200)] | int | float | bool | None
 
 
 # ---- POST /api/check -------------------------------------------------------
@@ -40,7 +44,7 @@ class CheckRequest(BaseModel):
 class Evidence(BaseModel):
     kind: Literal["quote", "lookup"]
     text: str
-    source_url: str | None = None
+    source_url: HttpsUrl | None = None
 
 
 class Signal(BaseModel):
@@ -63,11 +67,11 @@ class Ring(BaseModel):
 
 class NextStep(BaseModel):
     text: str
-    url: str | None = None
+    url: HttpsUrl | None = None
 
 
 class Share(BaseModel):
-    url: str
+    url: HttpUrl
     card_title: str
 
 
@@ -99,7 +103,7 @@ class CheckResponse(CheckView):
 class ReportRequest(BaseModel):
     check_id: CheckId
     anon_id: AnonId
-    consent_store_text: bool
+    consent_store_text: StrictBool  # consent must be an explicit true/false, never "yes" or 1
     note: Annotated[str, StringConstraints(max_length=500)] | None = None
 
 
@@ -124,7 +128,7 @@ class QuizResponse(BaseModel):
 class QuizAnswerRequest(BaseModel):
     quiz_id: QuizId
     anon_id: AnonId
-    answers: Annotated[dict[str, QuizAnswer], Field(max_length=50)]
+    answers: Annotated[dict[ShortKey, QuizAnswer], Field(max_length=50)]
 
 
 class QuizResult(BaseModel):
@@ -148,7 +152,7 @@ class EventRequest(BaseModel):
     event: EventName
     check_id: CheckId | None = None
     ref: AnonId | None = None
-    props: Annotated[dict[str, str | int | float | bool | None], Field(max_length=20)] = Field(default_factory=dict)
+    props: Annotated[dict[ShortKey, PropValue], Field(max_length=20)] = Field(default_factory=dict)
 
 
 class StatsResponse(BaseModel):

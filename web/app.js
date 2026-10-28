@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { apiFetch } from './components/api.js';
 import { CheckForm } from './components/CheckForm.js';
 import { html } from './components/html.js';
-import { defaultLang, strings } from './components/i18n.js';
+import { defaultLang, errorText, strings, uiLang } from './components/i18n.js';
 import { anonId, isReturning, ref, saveLang, track } from './components/session.js';
 import { Verdict } from './components/Verdict.js';
 
@@ -25,7 +25,7 @@ function CheckPage() {
   const t = strings(lang);
 
   useEffect(() => {
-    document.documentElement.lang = lang === 'hinglish' ? 'hi' : lang;
+    document.documentElement.lang = uiLang(lang);
   }, [lang]);
 
   function chooseLang(code) {
@@ -50,7 +50,7 @@ function CheckPage() {
       setState({ status: 'done', result: data, sample });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
-      setState({ status: 'error', error: e.message });
+      setState({ status: 'error', error: e });
     }
   }
 
@@ -64,7 +64,8 @@ function CheckPage() {
             onLang=${chooseLang}
             onSubmit=${submit}
             busy=${state.status === 'loading'}
-            serverError=${state.status === 'error' ? state.error : null}
+            serverError=${state.status === 'error' ? errorText(t, state.error) : null}
+            onEdit=${() => state.status === 'error' && setState({ status: 'idle' })}
             t=${t}
           />`}
     </main>
@@ -80,7 +81,8 @@ function SoonPage() {
 }
 
 function App() {
-  const page = location.pathname === '/' ? html`<${CheckPage} />` : html`<${SoonPage} />`;
+  const home = location.pathname === '/' || location.pathname === '/index.html';
+  const page = home ? html`<${CheckPage} />` : html`<${SoonPage} />`;
   return html`<${Header} />${page}<${Footer} />`;
 }
 

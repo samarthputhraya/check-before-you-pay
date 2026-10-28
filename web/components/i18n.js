@@ -57,6 +57,16 @@ const EN = {
   sample: 'Sample result: the real check is still being built, so this verdict is an example.',
   soon: 'This page is coming soon.',
   back: 'Back to the check',
+  errors: {
+    empty_input: 'Paste a message, or add a screenshot or a voice note.',
+    input_too_large: 'That is too large. Messages can be 5,000 characters and files 5 MB.',
+    unsupported_media: 'That file type is not supported. Use PNG or JPEG screenshots, or OGG, M4A or MP3 voice notes.',
+    rate_limited: 'Too many checks in a short time. Please wait a few minutes and try again.',
+    timeout: 'This is taking too long. Check your connection and try again.',
+    network: 'Could not reach the server. Check your connection and try again.',
+    internal_error: 'Something went wrong on our side. Please try again.',
+    check_unavailable: 'The check is unavailable right now. Please try again in a minute.',
+  },
 };
 
 const HI = {
@@ -104,12 +114,37 @@ const HI = {
   sample: 'नमूना नतीजा: असली जाँच अभी बन रही है, इसलिए यह सिर्फ़ एक उदाहरण है।',
   soon: 'यह पेज जल्द आ रहा है।',
   back: 'जाँच पर वापस जाएँ',
+  errors: {
+    empty_input: 'कोई मैसेज पेस्ट करें, या स्क्रीनशॉट या वॉइस नोट जोड़ें।',
+    input_too_large: 'यह बहुत बड़ा है। मैसेज 5,000 अक्षर और फ़ाइल 5 MB तक हो सकती है।',
+    unsupported_media: 'यह फ़ाइल टाइप नहीं चलता। PNG या JPEG स्क्रीनशॉट, या OGG, M4A या MP3 वॉइस नोट भेजें।',
+    rate_limited: 'थोड़े समय में बहुत ज़्यादा जाँचें हो गईं। कुछ मिनट रुककर फिर कोशिश करें।',
+    timeout: 'इसमें बहुत समय लग रहा है। अपना इंटरनेट देखें और फिर कोशिश करें।',
+    network: 'सर्वर से जुड़ नहीं पाए। अपना इंटरनेट देखें और फिर कोशिश करें।',
+    internal_error: 'हमारी तरफ़ से कुछ गड़बड़ हुई। फिर से कोशिश करें।',
+    check_unavailable: 'अभी जाँच नहीं हो पा रही। एक मिनट बाद फिर कोशिश करें।',
+  },
 };
 
 const TABLES = { en: EN, hi: HI };
 
 export function strings(lang) {
   return TABLES[lang] || EN;
+}
+
+/** The language the labels are actually shown in (for <html lang>, so screen readers pick the right voice). */
+export function uiLang(lang) {
+  return TABLES[lang] ? lang : 'en';
+}
+
+/** BCP 47 tag for content written in `lang` (Hinglish is Hindi in Latin script). */
+export function contentLang(lang) {
+  return lang === 'hinglish' ? 'hi-Latn' : lang;
+}
+
+/** A server or network error in the user's language, falling back to the server's own message. */
+export function errorText(t, err) {
+  return (err && t.errors[err.code]) || (err && err.message) || t.errors.internal_error;
 }
 
 export function defaultLang() {

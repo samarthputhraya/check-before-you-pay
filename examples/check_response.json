@@ -10,7 +10,7 @@
       "id": "S1",
       "label": "UPI आईडी SEBI की @valid आईडी नहीं है",
       "points": 35,
-      "evidence": { "kind": "lookup", "text": "tradepro.vip@ybl is not a SEBI @valid UPI handle", "source_url": "https://www.sebi.gov.in" }
+      "evidence": { "kind": "lookup", "text": "This UPI ID (tr…@ybl) ends in @ybl, not @valid. SEBI-registered brokers collect through @valid handles.", "source_url": "https://www.sebi.gov.in" }
     },
     {
       "id": "S6",

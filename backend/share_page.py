@@ -47,6 +47,7 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
 <meta name="twitter:card" content="summary">
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
+<script type="module" src="/share.js"></script>
 </head>
 <body>
 <main class="page share-page">

@@ -20,7 +20,9 @@ def ping(path: Path) -> bool:
     try:
         con = connect(path)
         try:
-            con.execute("SELECT 1").fetchone()
+            # a write lock, not just a read: a read-only volume must report "down"
+            con.execute("BEGIN IMMEDIATE")
+            con.execute("ROLLBACK")
         finally:
             con.close()
         return True

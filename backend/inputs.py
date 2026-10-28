@@ -63,9 +63,21 @@ def _audio_matches(mime: str, data: bytes) -> bool:
     return data.startswith(b"ID3") or (len(data) > 1 and data[0] == 0xFF and (data[1] & 0xE0) == 0xE0)
 
 
+_ZERO_WIDTH = re.compile("[​‌‍⁠﻿]")  # zero-width characters
+
+
+def _clean_text(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    try:
+        raw.encode("utf-8")
+    except UnicodeEncodeError:  # a lone surrogate can't be hashed or stored
+        raise ApiError(400, "invalid_request", "The message contains characters that aren't valid text.") from None
+    return _ZERO_WIDTH.sub("", raw).strip() or None
+
+
 def validate_check_input(inp: CheckInput) -> ValidInput:
-    text = inp.text.strip() if inp.text else None
-    text = text or None
+    text = _clean_text(inp.text)
     if text is None and not inp.image_b64 and not inp.audio_b64:
         raise ApiError(400, "empty_input", "Send a message, a screenshot or a voice note to check.")
     if text is not None and len(text) > MAX_TEXT_CHARS:

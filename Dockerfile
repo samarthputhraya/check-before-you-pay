@@ -19,8 +19,9 @@ COPY web ./web
 COPY examples ./examples
 COPY seed ./seed
 
-RUN useradd --create-home appuser && mkdir -p /data && chown appuser /data
-USER appuser
+# Runs as root on purpose: Railway mounts the volume at /data owned by root, and a non-root user can't write the
+# SQLite file there (Railway's volume docs). /api/health returns 503 if the database isn't writable.
+RUN mkdir -p /data
 
 EXPOSE 8000
 # --proxy-headers so share links use https behind Railway's proxy.

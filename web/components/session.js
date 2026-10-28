@@ -26,9 +26,15 @@ function randomId() {
 }
 
 const stored = safeGet(KEY);
-export const isReturning = Boolean(stored && ID_RE.test(stored));
-export const anonId = isReturning ? stored : randomId();
-if (!isReturning) safeSet(KEY, anonId);
+const known = Boolean(stored && ID_RE.test(stored));
+export const anonId = known ? stored : randomId();
+if (!known) safeSet(KEY, anonId);
+
+// A return visit is a known visitor on a later calendar day than their last visit (not a reload).
+const today = new Date().toISOString().slice(0, 10);
+const lastDay = safeGet('cbyp_last_day');
+export const isReturning = known && Boolean(lastDay) && lastDay !== today;
+safeSet('cbyp_last_day', today);
 
 const refParam = new URLSearchParams(location.search).get('ref');
 /** The anon_id of whoever shared the link that brought this user here, if any. */

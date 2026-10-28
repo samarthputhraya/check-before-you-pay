@@ -13,8 +13,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
 from backend import db
-from backend.config import MAX_BODY_BYTES, WEB_DIR, get_settings
-from backend.errors import ApiError, error_response, install_error_handlers
+from backend.config import WEB_DIR, get_settings
+from backend.errors import ApiError, install_error_handlers
+from backend.guard import Guard
 from backend.ids import new_id
 from backend.inputs import validate_check_input
 from backend.samples import sample_check, sample_quiz, sample_quiz_answer, sample_stats, sample_view
@@ -25,26 +26,14 @@ from backend.schemas import (
 from backend.share_page import render_share_page
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logging.getLogger("httpx").setLevel(logging.WARNING)  # it logs full outgoing URLs, and webhook URLs carry secrets
 
 app = FastAPI(title="Check Before You Pay", version="0.1.0", docs_url="/api/docs", redoc_url=None,
               openapi_url="/api/openapi.json")
 install_error_handlers(app)
+app.add_middleware(Guard)
 
 SAMPLE_HEADER = {"X-Sample": "true"}  # stub responses; removed as each endpoint becomes real
-
-
-@app.middleware("http")
-async def limits_and_headers(request: Request, call_next):
-    length = request.headers.get("content-length")
-    if length is not None:
-        if not length.isdigit():
-            return error_response(400, "invalid_request", "Content-Length is not valid.")
-        if int(length) > MAX_BODY_BYTES:
-            return error_response(413, "input_too_large", "Files can be at most 5 MB.")
-    response = await call_next(request)
-    response.headers.setdefault("X-Content-Type-Options", "nosniff")
-    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-    return response
 
 
 def base_url(request: Request) -> str:
@@ -53,12 +42,16 @@ def base_url(request: Request) -> str:
 
 # ---- API --------------------------------------------------------------------
 
-@app.get("/api/health", response_model=HealthResponse)
-def health() -> HealthResponse:
+@app.api_route("/api/health", methods=["GET", "HEAD"], response_model=HealthResponse)
+def health(response: Response) -> HealthResponse:
     s = get_settings()
+    db_up = db.ping(s.sqlite_path)
+    # 503 when the database can't be written, so a deploy with a missing or read-only volume fails its healthcheck
+    # instead of going live without storing any usage data. Checks themselves still work while the db is down.
+    if not db_up:
+        response.status_code = 503
     # Skeleton: "up" means a Gemini key is configured. Role B makes this a real model check.
-    return HealthResponse(ok=True, llm="up" if s.gemini_configured else "down",
-                          db="up" if db.ping(s.sqlite_path) else "down")
+    return HealthResponse(ok=db_up, llm="up" if s.gemini_configured else "down", db="up" if db_up else "down")
 
 
 @app.post("/api/check", response_model=CheckResponse)
@@ -126,7 +119,7 @@ def _require_check_id(check_id: str) -> None:
 _ANON_ID = TypeAdapter(AnonId)
 
 
-@app.get("/c/{check_id}", response_class=HTMLResponse, include_in_schema=False)
+@app.api_route("/c/{check_id}", methods=["GET", "HEAD"], response_class=HTMLResponse, include_in_schema=False)
 def share_page(check_id: str, request: Request, ref: str | None = None) -> HTMLResponse:
     _require_check_id(check_id)
     try:

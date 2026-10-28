@@ -35,15 +35,20 @@ function formatSize(bytes) {
   return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function CheckForm({ lang, onLang, onSubmit, busy, serverError, t }) {
+export function CheckForm({ lang, onLang, onSubmit, onEdit, busy, serverError, t }) {
   const [text, setText] = useState('');
   const [attachment, setAttachment] = useState(null);
   const [localError, setLocalError] = useState(null);
   const imageInput = useRef(null);
   const audioInput = useRef(null);
 
-  async function pick(kind, file) {
+  function edited() {
     setLocalError(null);
+    if (onEdit) onEdit();
+  }
+
+  async function pick(kind, file) {
+    edited();
     if (!file) return;
     const mime = mimeOf(file);
     const allowed = kind === 'image' ? IMAGE_MIMES : AUDIO_MIMES;
@@ -119,7 +124,10 @@ export function CheckForm({ lang, onLang, onSubmit, busy, serverError, t }) {
         rows="6"
         placeholder=${t.placeholder}
         value=${text}
-        onInput=${(e) => setText(e.target.value)}
+        onInput=${(e) => {
+          setText(e.target.value);
+          edited();
+        }}
         onPaste=${onPaste}
         disabled=${busy}
         aria-invalid=${over}

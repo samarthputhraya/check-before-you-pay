@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { html } from './html.js';
+import { contentLang } from './i18n.js';
 import { track } from './session.js';
 
 const BAND_ICON = {
@@ -44,7 +45,7 @@ export function Verdict({ result, sample, t, onReset }) {
   const linked = ring.linked_checks + ring.linked_reports > 0;
 
   return html`
-    <section class=${`card verdict band-${result.band}`} aria-labelledby="verdict-headline">
+    <section class=${`card verdict band-${result.band}`} aria-labelledby="verdict-headline" lang=${contentLang(result.lang)}>
       ${sample && html`<p class="sample-note">${t.sample}</p>`}
       <div class="verdict-head">
         <span class="band-pill">${BAND_ICON[result.band]}${t.band[result.band]}</span>

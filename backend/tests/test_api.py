@@ -80,11 +80,18 @@ def test_health_reports_llm_up_with_key(client, monkeypatch):
     assert client.get("/api/health").json()["llm"] == "up"
 
 
-def test_health_reports_db_down_when_path_unusable(client, monkeypatch, tmp_path):
+def test_health_is_503_when_db_unusable(client, monkeypatch, tmp_path):
     blocker = tmp_path / "file"
     blocker.write_text("x")
     monkeypatch.setenv("SQLITE_PATH", str(blocker / "sub" / "app.db"))
-    assert client.get("/api/health").json()["db"] == "down"
+    resp = client.get("/api/health")
+    assert resp.status_code == 503
+    assert resp.json() == {"ok": False, "llm": "down", "db": "down"}
+
+
+@pytest.mark.parametrize("path", ["/api/health", "/c/chk_01JB8Q"])
+def test_head_is_supported(client, path):
+    assert client.head(path).status_code == 200
 
 
 # ---- POST /api/check ----------------------------------------------------------

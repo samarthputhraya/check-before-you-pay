@@ -9,6 +9,8 @@
   - Codes shared by every endpoint:
     - `invalid_request` (400): a missing or malformed field, or a value outside the allowed list.
     - `not_found` (404)
+    - `method_not_allowed` (405)
+    - `input_too_large` (413): the body is over the limit. That's 8 MB for `/api/check` and 64 KB for every other endpoint.
     - `internal_error` (500)
   - Each endpoint below lists its own codes.
 - **Sample responses:** while an endpoint still returns example data, it sets the header `X-Sample: true`. Clients show a "sample result" note when they see it.
@@ -58,7 +60,7 @@
       "id": "S1",
       "label": "…",
       "points": 35,
-      "evidence": { "kind": "lookup", "text": "tradepro.vip@ybl is not a SEBI @valid UPI handle", "source_url": "https://www.sebi.gov.in" }
+      "evidence": { "kind": "lookup", "text": "This UPI ID (tr…@ybl) ends in @ybl, not @valid. SEBI-registered brokers collect through @valid handles.", "source_url": "https://www.sebi.gov.in" }
     },
     {
       "id": "S6",
@@ -99,6 +101,8 @@
 - `entities[].type` is one of `upi`, `phone`, `domain`, `url`, `group_link`, `wallet`, `app`. Only masked values are returned.
 - `ring.via` takes any of `same_upi`, `same_phone`, `same_domain`, `same_group_link`, `same_wallet`, `same_script`.
 - `transcript` is the text we read from a screenshot or voice note; it's `null` for text input.
+- **Masking:** evidence text never contains a raw UPI ID, phone number or wallet address; use the masked form (`tr…@ybl`, `98xxxxxx21`). The public view below runs every text field through `backend/privacy.py` as a second guard.
+- `evidence.source_url` and `next_steps[].url` must start with `https://`.
 - `unchecked` lists the signals that timed out or failed, e.g. `["domain_age", "links"]`. Those signals scored 0.
 
 **Errors**
@@ -200,5 +204,7 @@ The HTML share page. It includes Open Graph tags (an English title and the band)
 ## GET /api/health
 
 `{ "ok": true, "llm": "up", "db": "up" }`
+
+Answers `GET` and `HEAD`. Returns **503** with `"ok": false` when the database can't be written, so a deploy without a working volume fails its healthcheck.
 
 `db` returns `down` when the database can't be reached. Checks still return a verdict while it's down; S4 and S5 score 0, and `"links"` is added to `unchecked`.

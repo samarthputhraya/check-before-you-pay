@@ -1,9 +1,9 @@
 {
-  "score": 8,
-  "total": 10,
+  "score": 2,
+  "total": 2,
   "results": [
     { "id": "q1", "correct": true, "answer": "scam", "why": "(sample) A daily 'guaranteed' profit and a deposit to a personal UPI ID are two classic warning signs." },
     { "id": "q2", "correct": true, "answer": "genuine", "why": "(sample) A SIP reminder that asks for no payment, link or app install." }
   ],
-  "share": { "url": "https://<host>/quiz?ref=u_7f3a9c", "card_title": "I spotted 8/10 scams. Can you?" }
+  "share": { "url": "https://<host>/quiz?ref=u_7f3a9c", "card_title": "I spotted 2/2 scams. Can you?" }
 }

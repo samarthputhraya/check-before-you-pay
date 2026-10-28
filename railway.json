@@ -6,6 +6,8 @@
   },
   "deploy": {
     "numReplicas": 1,
+    "requiredMountPath": "/data",
+    "sleepApplication": false,
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 60,
     "restartPolicyType": "ON_FAILURE",

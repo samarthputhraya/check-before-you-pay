@@ -9,6 +9,7 @@ from functools import lru_cache
 from typing import Any
 
 from backend.config import EXAMPLES_DIR
+from backend.privacy import public_view
 from backend.schemas import (
     CheckResponse, CheckView, QuizAnswerResponse, QuizResponse, Share, StatsResponse,
 )
@@ -34,7 +35,7 @@ def sample_check(*, check_id: str, lang: str, base: str, anon_id: str, latency_m
 def sample_view(*, check_id: str, base: str) -> CheckView:
     data = {k: v for k, v in _example("check_response").items() if k != "transcript"}
     data.update(check_id=check_id, share={**data["share"], "url": share_url(base, check_id, None)})
-    return CheckView.model_validate(data)
+    return public_view(CheckView.model_validate(data))
 
 
 def sample_quiz(lang: str) -> QuizResponse:
