@@ -35,3 +35,27 @@ Status values: `todo`, `building`, `verifying`, `done`, `blocked`.
 A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to B9 in order. If time runs short, B9's runbook and B8 come before B7's polish.
 
 ## Log
+- **01:40:** A1 to A3 done.
+  - 70 tests at first. A verifier agent found 4 serious issues (Railway volume permissions, chunked bodies bypassing the size limit, user text in tracebacks, a raw UPI ID on the public page) and 12 smaller ones.
+  - All fixed, with tests (91 passing). Pushed to `samarthputhraya/check-before-you-pay` (private).
+- **02:00:** B1, B2, B4 and B5 done.
+  - Data and model:
+    - January is loaded into DuckDB. The January CSVs for TigerGraph are exported.
+    - The model is retrained on fully labelled months only. Validation AUC is 0.972, against the bank's 0.866.
+  - Safety:
+    - Graph and tool failures now stop the run instead of falling back silently.
+    - Model failures are marked incomplete and escalated.
+    - Approvals are enforced server-side, with a hash-chained audit log.
+  - 104 tests pass. A verifier agent is reviewing the work.
+- **02:20:** B3, B6 and challenge 1 done.
+  - Four new typology detectors (micro-charge runs, recipient surges, spoofed device fingerprints, escalating ramps). The backtest shows 0 hits on cleared (innocent) cases in July–October.
+  - Model weighting is drift-aware for January.
+  - New checks for hostile text and for claims the record contradicts.
+  - On the mirror the organisers' grader shows 18/18 clean, with 0 hard and 0 policy findings.
+  - The attack suite ran 14 attacks: 0 decisions changed, 14 detected, 0 tip-offs. 120 tests pass.
+- **02:40:** B7 to B9 done.
+  - Containment planner, with a backtest on the bank's 6 rings.
+  - The attestation self-check re-runs every claim's query: 78 of 78 reproduce.
+  - The second verifier found 1 blocker (the API could serve any file, including `.env`) and 10 majors. All fixed, with tests (140 passing).
+  - New docs in the FraudLens repo: `docs/RESILIENCE.md`, `docs/INNOVATION.md`, `docs/MORNING_RUNBOOK.md`.
+- **03:00:** running all 18 cases with Gemini on to check the model-written text.
