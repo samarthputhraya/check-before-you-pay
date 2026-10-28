@@ -78,7 +78,18 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
   - **Drill commands** in the docs could have overwritten official answers.
   - **TigerGraph result size:** the scan was about 10x larger than needed.
   - All 18 decisions are unchanged. **159 tests pass.** Grader 18/18 clean, 77 of 77 re-runnable claims reproduce.
-- **03:40:** a fourth verifier is reviewing these fixes, and a final model-on run is going.
+- **03:40:** a fourth verifier reviewed these fixes. It found no blocker and 3 majors, all now fixed:
+  - **The audit-log rotation I'd just added could hide tampering.** It now verifies the old log first and records the result, and verification keeps failing until someone reviews it. Four attack tests cover this.
+  - **Report narratives still named monitored cards.** They now name only the cards in the report's subject list.
+  - **One evidence sentence was false.** It said a low January score "is not used as evidence of innocence". It's actually weak evidence of innocence.
+  - The text guard was also rewritten to read the words that actually govern a phrase, with every probe from the review now a test.
+- **04:40:** final model-on run of all 18 cases:
+  - **18 of 18 complete, exit 0.** No model text was rejected.
+  - **Grader 18/18 clean.**
+  - Every card named in a report narrative is a report subject.
+  - **Other checks:** 177 tests pass; drills 13/13; attacks: 14 tried, 0 decisions changed.
+  - **The reference run for the morning** is `runs/v10/`, the mirror run without the model.
+- **New for the morning:** `eval/preflight.py --live` checks `.env`, data files, git, TigerGraph and Gemini in one command, without printing any secret. It's step 1 of the runbook.
 
 ## For Samarth in the morning
 
@@ -93,7 +104,7 @@ A1 to A3 by about 03:00, so the team has the skeleton in the morning. Then B1 to
 
 The runbook's step 0 shows the format.
 
-**3. Push FraudLens when you're ready.** The `round2` branch has about 20 local commits that aren't pushed, because the repo is public and the other 5 finalist teams could read the approach. Push at the freeze.
+**3. Push FraudLens when you're ready.** The `round2` branch has about 25 local commits that aren't pushed, because the repo is public and the other 5 finalist teams could read the approach. Push at the freeze.
 
 **4. Main app**
 - Deploy to Railway: run `railway login`, add a volume at `/data`, then `railway up`. The README has the steps.
