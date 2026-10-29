@@ -53,7 +53,9 @@ INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_
                      'insider_tip'}
 PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|recharge|top[\s-]?up|bhej\w*|jama|bharo|daal\s*do|dalo'
                      r'|de\s*do|dena|deni)\b|भेज|भुगतान|जमा|डाल\s*दो|पाठवा|भरा|செலுத்த|அனுப்ப|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ'
-                     r'|জমা|পাঠা|পেমেন্ট', re.I)
+                     r'|জমা|পাঠা|পেমেন্ট'
+                     # "पेमेंट: x@paytm" and "₹20,000 लगाओ" (put money in) ask for money as plainly as "pay".
+                     r'|पेमेंट|பேமெண்ட்|పేమెంట్|ಪೇಮೆಂಟ್|लगा(?:ओ|एं|इए|ना)', re.I)
 _BRAND_AFFIXES = frozenset(('app', 'apps', 'apk', 'trade', 'trading', 'broker', 'stocks',
     'invest', 'investment', 'pay', 'payment', 'login', 'secure', 'support', 'vip', 'pro', 'official', 'download'))
 _LOOKALIKE = str.maketrans({'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','і':'i','у':'y','ѕ':'s','ӏ':'l','ο':'o','ι':'i','0':'o','1':'l'})

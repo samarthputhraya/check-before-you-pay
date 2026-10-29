@@ -65,3 +65,13 @@ def test_overlapping_quotes_are_shown_once():
               Claim(type='urgency_pressure', quote='Join now'), Claim(type='vip_or_institutional_account', quote='30% guaranteed')]
     s6 = next(s for s in evaluate(text, verified_extraction(Extraction(claims=claims), text), {}) if s.id == 'S6')
     assert s6.evidence.text.count('30% guaranteed') == 1
+
+
+@pytest.mark.parametrize('text', [
+    'USDT डबल प्लान 🚀 ₹20,000 लगाओ, 15 दिन में ₹40,000 पक्का। पेमेंट: cryptoking.amit@paytm',
+    'பங்கு சந்தை டிப்ஸ்: 30% லாபம் உறுதி. பேமெண்ட்: ravi.tips@ybl',
+])
+def test_payment_written_as_a_loanword_still_counts(text):
+    # Held-out h_hi_s04 scored only 30: "पेमेंट" and "लगाओ" were not read as asking for money.
+    found = verified_extraction(Extraction(claims=[]), text)
+    assert 'S1' in [s.id for s in evaluate(text, found, {})]

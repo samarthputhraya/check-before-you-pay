@@ -366,3 +366,5 @@ def test_share_page_speaks_the_checks_language(client):
     html = client.get("/c/chk_01JB8Q").text  # the sample check is in Hindi
     assert 'lang="hi"' in html and "ख़तरे के संकेत" in html and "अब क्या करें" in html
     assert '<meta property="og:title" content="Check Before You Pay: High risk">' in html  # preview stays English
+    # The verdict can be heard; the MP3 is made only when someone presses play.
+    assert 'यह नतीजा सुनें' in html and 'preload="none"' in html and 'src="/api/check/chk_01JB8Q/audio"' in html

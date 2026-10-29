@@ -35,10 +35,11 @@ Claim types:
 - vip_or_institutional_account: invite-only VIP/premium tip groups or an "institutional", "HNI" or block-deal account.
 - ipo_allotment: a promised or guaranteed IPO allotment or quota.
 - install_app_or_apk: asks to install an app or APK from a link or outside the official app store.
-- withdrawal_fee: asks for a tax, fee or deposit before profits or money can be withdrawn.
+- withdrawal_fee: asks for a tax, fee or deposit before profits or a balance can be withdrawn from a trading,
+  investment or earning account.
 - insider_tip: a sure-shot tip or insider news ("this share will go up 40% tomorrow", "operator call", "jackpot").
 - task_deposit: earn by doing tasks (likes, reviews, ratings) and pay or deposit to unlock more tasks or earnings.
-- recovery_fee: a promise to recover lost money for a fee.
+- recovery_fee: asks for a fee to recover lost money, or to release a refund, prize, cashback or blocked payment.
 - urgency_pressure: pressure to act now ("only 3 seats", "offer ends tonight"); not an ordinary due date.
 - sebi_registered_claim: says it is SEBI registered or approved.
 - impersonates_brand: claims to be a named bank, broker, exchange or regulator.

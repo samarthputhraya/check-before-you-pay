@@ -32,6 +32,10 @@ PAGE_TEXT = {
     "bn": (("বেশি ঝুঁকি", "সাবধান", "জানা কোনো সংকেত নেই"), "বিপদের সংকেত", "এখন কী করবেন", "নিজেই একটি মেসেজ যাচাই করুন"),
 }
 _BAND_INDEX = {"high_risk": 0, "caution": 1, "no_known_signals": 2}
+# The person a verdict is forwarded to is often a parent who'd rather hear it. Plain <audio> needs no script, and
+# preload="none" means the MP3 is made only when someone presses play.
+LISTEN = {"en": "Listen to this result", "hi": "यह नतीजा सुनें", "mr": "हा निकाल ऐका", "hinglish": "Ye result suno",
+          "ta": "இந்த முடிவைக் கேளுங்கள்", "te": "ఈ ఫలితాన్ని వినండి", "kn": "ಈ ಫಲಿತಾಂಶವನ್ನು ಕೇಳಿ", "bn": "এই ফলাফল শুনুন"}
 
 
 def render_share_page(view: CheckView, page_url: str, ref: str | None = None) -> str:
@@ -87,6 +91,9 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
     </div>
     <h1>{escape(view.headline)}</h1>
     <p class="explanation">{escape(view.explanation)}</p>
+    <p class="listen-label" id="listen-label">{escape(LISTEN.get(view.lang, LISTEN["en"]))}</p>
+    <audio class="listen-audio" controls preload="none" aria-labelledby="listen-label"
+      src="/api/check/{escape(view.check_id)}/audio"></audio>
     {f'<h2>{escape(signals_heading)}</h2><ul class="signals">{signals}</ul>' if view.signals else ''}
     <h2>{escape(steps_heading)}</h2>
     <ul class="steps">{steps}</ul>
