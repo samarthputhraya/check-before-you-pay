@@ -66,6 +66,15 @@
 - **Never fake a payment.** Rishabh owns the page itself.
 - **Done when:** a test-mode checkout completes from start to finish on the live site.
 
+### B7. The real "Spot the scam" quiz backend (by 6 PM; Rishabh's quiz screen is in PR #6)
+- **The problem:** `/api/quiz` and `/api/quiz/answer` still return the 2-item sample. It's the same Hindi messages in every language, and the answers are ignored, so everyone scores 2/2. Your event checks also drop `quiz_done` and `quiz_shared`, because no quiz result is ever stored.
+- **What to build:**
+  - **Content:** 10 messages per language, in `seed/quiz/{en,hi,mr}.json`. Mix about 6 scams and 4 genuine messages, each with its answer and a one-line "why" in that language, and mark each one "(sample)".
+  - **Scoring:** the server scores the answers it receives.
+  - **Results and events:** store a `quiz_results` row, record `quiz_done` on the server, and issue the share proof so `quiz_shared` counts. `share.url` stays `/quiz?ref=<anon_id>`.
+- **Keep:** the API shapes exactly as in `API_CONTRACT.md`.
+- **Done when:** a wrong answer lowers the score, all three languages show their own messages, and `/api/stats` counts quiz shares.
+
 ### B6. Small fixes (any time)
 - **Show plain words for skipped checks.** The verdict lists them by internal name ("claims, domain_age, script_similarity"). Map each name to plain words in `web/components/i18n.js` (EN and HI), then use the map in `Verdict.js`. Agree the copy with Rishabh first.
 - **Write the judges' README backend section,** including a "What's real and what's mocked" table.
