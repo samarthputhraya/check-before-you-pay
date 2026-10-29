@@ -4,6 +4,8 @@ import { html } from './html.js';
 import { defaultLang, LANGS, uiLang } from './i18n.js';
 import { anonId, track } from './session.js';
 
+const QUIZ_LANGS = ['en', 'hi', 'hinglish', 'mr']; // the languages with a quiz set; others start in English
+
 const COPY = {
   en: {
     title: 'Spot the scam', intro: 'Read each message and decide: Scam or Genuine? All messages are examples written by us.', loading: 'Loading quiz…',
@@ -12,6 +14,14 @@ const COPY = {
     score: (score, total) => `You spotted ${score}/${total}.`, sample: 'Sample quiz result', share: 'Share score', youSaid: (answer) => `You said ${answer}`, answer: 'Answer',
     shareText: (score, total) => `I spotted ${score}/${total}. Can you?`, again: 'Play again', back: 'Back to checking',
     error: 'Could not load the quiz. Check your connection and try again.', answerError: 'Could not save your answers. Please try again.', retry: 'Try again', explanation: 'Why',
+  },
+  hinglish: {
+    title: 'Scam pehchano', intro: 'Har message padho aur batao: Scam ya Genuine? Saare messages humne example ke liye likhe hain.', loading: 'Quiz load ho raha hai…',
+    empty: 'Abhi koi quiz message nahi hai.', question: (n, total) => `Message ${n} / ${total}`,
+    scam: 'Scam', genuine: 'Genuine', submit: 'Mera score dekho', scoring: 'Aapke jawab check ho rahe hain…',
+    score: (score, total) => `Aapne ${score}/${total} pehchane.`, sample: 'Sample quiz result', share: 'Score share karo', youSaid: (answer) => `Aapne ${answer} chuna`, answer: 'Sahi jawab',
+    shareText: (score, total) => `Maine ${score}/${total} pehchane. Kya aap pehchan sakte ho?`, again: 'Phir khelo', back: 'Check pe wapas jao',
+    error: 'Quiz load nahi hua. Internet check karo aur phir try karo.', answerError: 'Jawab save nahi hue. Phir try karo.', retry: 'Phir try karo', explanation: 'Kyun',
   },
   hi: {
     title: 'धोखाधड़ी पहचानें', intro: 'हर संदेश पढ़ें और चुनें: धोखाधड़ी या सही? ये सभी संदेश उदाहरण हैं, जो हमने लिखे हैं।', loading: 'क्विज़ लोड हो रही है…',
@@ -67,7 +77,7 @@ async function createQuizCard(score, total, caption) {
 }
 
 export function QuizPage() {
-  const [lang, setLang] = useState(defaultLang);
+  const [lang, setLang] = useState(() => (QUIZ_LANGS.includes(defaultLang()) ? defaultLang() : 'en'));
   const [state, setState] = useState({ status: 'loading' });
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -134,11 +144,11 @@ export function QuizPage() {
   }
 
   const label = (key, ...args) => text(lang, key, ...args);
-  const languageOptions = LANGS.filter(({ code }) => ['en', 'hi', 'mr'].includes(code));
+  const languageOptions = LANGS.filter(({ code }) => QUIZ_LANGS.includes(code));
   const quiz = state.quiz;
 
   return html`<main class="page quiz-page" lang=${uiLang(lang)}>
-    <div class="field-row"><label class="label" for="quiz-language">${lang === 'hi' ? 'भाषा' : lang === 'mr' ? 'भाषा' : 'Language'}</label>
+    <div class="field-row"><label class="label" for="quiz-language">${lang === 'hi' || lang === 'mr' ? 'भाषा' : lang === 'hinglish' ? 'Bhasha' : 'Language'}</label>
       <select id="quiz-language" value=${lang} disabled=${state.status === 'loading' || state.status === 'submitting'} onChange=${(event) => setLang(event.currentTarget.value)}>
         ${languageOptions.map((option) => html`<option value=${option.code}>${option.name}</option>`)}
       </select></div>
