@@ -1,0 +1,1688 @@
+{
+ "n": 156,
+ "n_scam": 78,
+ "n_ordinary": 78,
+ "code_settings": {
+  "S1": 35,
+  "high_risk_at": 60,
+  "caution_at": 30
+ },
+ "scam": {
+  "n": 78,
+  "high_risk": 1,
+  "caution": 39,
+  "no_known_signals": 38,
+  "flagged": 40,
+  "flagged_ci95": [
+   0.404,
+   0.621
+  ],
+  "high_risk_ci95": [
+   0.002,
+   0.069
+  ]
+ },
+ "ordinary": {
+  "n": 78,
+  "high_risk": 0,
+  "caution": 0,
+  "no_known_signals": 78,
+  "flagged": 0,
+  "flagged_ci95": [
+   0.0,
+   0.047
+  ],
+  "high_risk_ci95": [
+   0.0,
+   0.047
+  ]
+ },
+ "scam_by_lang": {
+  "en": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 7,
+   "no_known_signals": 7,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.268,
+    0.732
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "hi": {
+   "n": 14,
+   "high_risk": 1,
+   "caution": 6,
+   "no_known_signals": 7,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.268,
+    0.732
+   ],
+   "high_risk_ci95": [
+    0.013,
+    0.315
+   ]
+  },
+  "hinglish": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 7,
+   "no_known_signals": 7,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.268,
+    0.732
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "mr": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 4,
+   "no_known_signals": 3,
+   "flagged": 4,
+   "flagged_ci95": [
+    0.25,
+    0.842
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "ta": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 2,
+   "no_known_signals": 5,
+   "flagged": 2,
+   "flagged_ci95": [
+    0.082,
+    0.641
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "te": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 4,
+   "no_known_signals": 3,
+   "flagged": 4,
+   "flagged_ci95": [
+    0.25,
+    0.842
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "kn": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 5,
+   "no_known_signals": 2,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.359,
+    0.918
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "bn": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 4,
+   "no_known_signals": 4,
+   "flagged": 4,
+   "flagged_ci95": [
+    0.215,
+    0.785
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  }
+ },
+ "ordinary_by_lang": {
+  "en": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 14,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.215
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "hi": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 14,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.215
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "hinglish": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 14,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.215
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "mr": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "ta": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "te": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "kn": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "bn": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 8,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.324
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  }
+ },
+ "scam_by_category": {
+  "crypto_doubling": {
+   "n": 10,
+   "high_risk": 0,
+   "caution": 5,
+   "no_known_signals": 5,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.237,
+    0.763
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.278
+   ]
+  },
+  "fake_app_lookalike": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 7,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "fake_sebi": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 2,
+   "no_known_signals": 6,
+   "flagged": 2,
+   "flagged_ci95": [
+    0.071,
+    0.591
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  },
+  "forex_binary": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 1,
+   "no_known_signals": 6,
+   "flagged": 1,
+   "flagged_ci95": [
+    0.026,
+    0.513
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "ipo_institutional": {
+   "n": 8,
+   "high_risk": 1,
+   "caution": 6,
+   "no_known_signals": 1,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.529,
+    0.978
+   ],
+   "high_risk_ci95": [
+    0.022,
+    0.471
+   ]
+  },
+  "pump_dump": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 2,
+   "no_known_signals": 6,
+   "flagged": 2,
+   "flagged_ci95": [
+    0.071,
+    0.591
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  },
+  "task_job": {
+   "n": 11,
+   "high_risk": 0,
+   "caution": 3,
+   "no_known_signals": 8,
+   "flagged": 3,
+   "flagged_ci95": [
+    0.097,
+    0.566
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.259
+   ]
+  },
+  "vip_tip_group": {
+   "n": 11,
+   "high_risk": 0,
+   "caution": 7,
+   "no_known_signals": 4,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.354,
+    0.848
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.259
+   ]
+  },
+  "withdrawal_fee": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 6,
+   "no_known_signals": 2,
+   "flagged": 6,
+   "flagged_ci95": [
+    0.409,
+    0.929
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  }
+ },
+ "scam_by_ident": {
+  "fake_valid": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 1,
+   "no_known_signals": 4,
+   "flagged": 1,
+   "flagged_ci95": [
+    0.036,
+    0.624
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "link": {
+   "n": 12,
+   "high_risk": 0,
+   "caution": 5,
+   "no_known_signals": 7,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.193,
+    0.68
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.243
+   ]
+  },
+  "none": {
+   "n": 13,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 13,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.228
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.228
+   ]
+  },
+  "phone": {
+   "n": 11,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 11,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.259
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.259
+   ]
+  },
+  "upi": {
+   "n": 37,
+   "high_risk": 1,
+   "caution": 33,
+   "no_known_signals": 3,
+   "flagged": 34,
+   "flagged_ci95": [
+    0.787,
+    0.972
+   ],
+   "high_risk_ci95": [
+    0.005,
+    0.138
+   ]
+  }
+ },
+ "ordinary_by_category": {
+  "broker_valid_upi": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "chit_fund": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "donation": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "everyday_payment": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "family_transfer": {
+   "n": 8,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 8,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.324
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.324
+   ]
+  },
+  "gold_scheme": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "hospital_fees": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "insurance": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 6,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.39
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  },
+  "investing_chat": {
+   "n": 1,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 1,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.793
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.793
+   ]
+  },
+  "please_share": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 6,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.39
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  },
+  "refund": {
+   "n": 2,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 2,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.658
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.658
+   ]
+  },
+  "rent_brokerage": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 6,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.39
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  },
+  "return_ticket": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "salary": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "school_fees": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "shop_bill": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 6,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.39
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  },
+  "sip_reminder": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  }
+ },
+ "latency_ms": {
+  "p50": 3025,
+  "p95": 9081,
+  "max": 9292,
+  "n": 156
+ },
+ "unchecked_final": {
+  "script_similarity": 6,
+  "domain_age": 15
+ },
+ "unchecked_first_attempt": {
+  "script_similarity": 7,
+  "claims": 1,
+  "links": 1,
+  "domain_age": 15
+ },
+ "rows_with_domains": 17,
+ "retried_rows": 1,
+ "signal_fire_counts": {
+  "S1": {
+   "scam": 32,
+   "ordinary": 0
+  },
+  "S2": {
+   "scam": 7,
+   "ordinary": 0
+  },
+  "S3": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S4": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S5": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S6": {
+   "scam": 62,
+   "ordinary": 0
+  },
+  "S7": {
+   "scam": 0,
+   "ordinary": 0
+  }
+ },
+ "what_if_s1": {
+  "35": {
+   "scam_high_risk": 1,
+   "scam_caution": 39,
+   "scam_missed": 38,
+   "scam_flagged": 40,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 78,
+   "n_ord": 78,
+   "scam_high_risk_ids_gained": [],
+   "ord_high_risk_ids": []
+  },
+  "40": {
+   "scam_high_risk": 4,
+   "scam_caution": 36,
+   "scam_missed": 38,
+   "scam_flagged": 40,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 78,
+   "n_ord": 78,
+   "scam_high_risk_ids_gained": [
+    "en_s06",
+    "hg_s13",
+    "mr_s01"
+   ],
+   "ord_high_risk_ids": []
+  },
+  "45": {
+   "scam_high_risk": 18,
+   "scam_caution": 22,
+   "scam_missed": 38,
+   "scam_flagged": 40,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 78,
+   "n_ord": 78,
+   "scam_high_risk_ids_gained": [
+    "bn_s02",
+    "bn_s05",
+    "en_s01",
+    "en_s06",
+    "en_s13",
+    "hg_s01",
+    "hg_s02",
+    "hg_s06",
+    "hg_s13",
+    "hi_s06",
+    "hi_s13",
+    "kn_s06",
+    "kn_s07",
+    "mr_s01",
+    "mr_s04",
+    "ta_s02",
+    "ta_s07"
+   ],
+   "ord_high_risk_ids": []
+  },
+  "50": {
+   "scam_high_risk": 31,
+   "scam_caution": 9,
+   "scam_missed": 38,
+   "scam_flagged": 40,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 78,
+   "n_ord": 78,
+   "scam_high_risk_ids_gained": [
+    "bn_s01",
+    "bn_s02",
+    "bn_s05",
+    "bn_s07",
+    "en_s01",
+    "en_s02",
+    "en_s04",
+    "en_s06",
+    "en_s13",
+    "hg_s01",
+    "hg_s02",
+    "hg_s04",
+    "hg_s06",
+    "hg_s13",
+    "hi_s01",
+    "hi_s04",
+    "hi_s06",
+    "hi_s12",
+    "hi_s13",
+    "kn_s01",
+    "kn_s02",
+    "kn_s06",
+    "kn_s07",
+    "mr_s01",
+    "mr_s04",
+    "mr_s06",
+    "ta_s02",
+    "ta_s07",
+    "te_s01",
+    "te_s03"
+   ],
+   "ord_high_risk_ids": []
+  }
+ },
+ "missed_scams": [
+  {
+   "id": "bn_s04",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "bn_s08",
+   "score": 0,
+   "signals": [],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "en_s05",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "en_s09",
+   "score": 0,
+   "signals": [],
+   "category": "forex_binary",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "trading",
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hg_s05",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hg_s08",
+   "score": 0,
+   "signals": [],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [
+    "script_similarity"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "upper circuit",
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hg_s11",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "upi",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "taskhub.pay@okicici"
+    ],
+    "non_valid_upi": [
+     "taskhub.pay@okicici"
+    ],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hg_s12",
+   "score": 0,
+   "signals": [],
+   "category": "crypto_doubling",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "crypto",
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hg_s14",
+   "score": 0,
+   "signals": [],
+   "category": "fake_sebi",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hi_s08",
+   "score": 0,
+   "signals": [],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "mr_s03",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "mr_s05",
+   "score": 0,
+   "signals": [],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "ta_s04",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "upi",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "taskwork.tn@ibl"
+    ],
+    "non_valid_upi": [
+     "taskwork.tn@ibl"
+    ],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "ta_s05",
+   "score": 0,
+   "signals": [],
+   "category": "forex_binary",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "forex",
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "te_s04",
+   "score": 0,
+   "signals": [],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "te_s05",
+   "score": 0,
+   "signals": [],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "en_s08",
+   "score": 5,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 5,
+     "kind": "quote",
+     "evidence": "URGENT BUY ALERT"
+    }
+   ],
+   "category": "pump_dump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "upper circuit",
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hi_s05",
+   "score": 5,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 5,
+     "kind": "quote",
+     "evidence": "सीटें सीमित हैं।"
+    }
+   ],
+   "category": "task_job",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "bn_s03",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "মাত্র 15 দিনে টাকা ডাবল!"
+    }
+   ],
+   "category": "crypto_doubling",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "usdt",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "en_s12",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "Invest ₹5,000 get ₹10,000 in 48 hours"
+    }
+   ],
+   "category": "crypto_doubling",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "invest",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "en_s14",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "Your capital is 100% safe."
+    }
+   ],
+   "category": "forex_binary",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "forex",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hg_s09",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "Forex me daily $300 kamao"
+    }
+   ],
+   "category": "forex_binary",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "forex",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hg_s10",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "Guaranteed 25% monthly returns."
+    }
+   ],
+   "category": "vip_tip_group",
+   "ident": "fake_valid",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "alphacalls.brk@valid"
+    ],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hi_s09",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "फॉरेक्स ट्रेडिंग से रोज़ $200 कमाएँ!"
+    }
+   ],
+   "category": "forex_binary",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "ट्रेडिंग",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hi_s11",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "यह सुविधा सिर्फ़ हमारे संस्थागत क्लाइंट्स के लिए है।"
+    }
+   ],
+   "category": "ipo_institutional",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "निवेश",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "hi_s14",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "स्कोर ठीक करने के लिए ₹25,000 का 'सुरक्षा जमा' करें, इसके बाद पूरा पैसा निकाला जा सकेगा।"
+    }
+   ],
+   "category": "withdrawal_fee",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "kn_s04",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "ಹಣ ಹಿಂಪಡೆಯಲು ಮೊದಲು 10% ತೆರಿಗೆ ₹15,000 ಕಟ್ಟಬೇಕು"
+    }
+   ],
+   "category": "withdrawal_fee",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "kn_s05",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "30 ದಿನದಲ್ಲಿ ಹಣ ಡಬಲ್!"
+    }
+   ],
+   "category": "crypto_doubling",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "ಹೂಡಿಕೆ",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "ta_s01",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "நீங்கள் எங்கள் VIP பங்குச் சந்தை டிப்ஸ் குழுவில் சேர்க்கப்பட்டுள்ளீர்கள்."
+    }
+   ],
+   "category": "vip_tip_group",
+   "ident": "upi",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "chennaitrades.vip@ybl"
+    ],
+    "non_valid_upi": [
+     "chennaitrades.vip@ybl"
+    ],
+    "investment_regex": "பங்குச் சந்தை",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "ta_s03",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "USDT முதலீட்டில் 15 நாளில் பணம் இரட்டிப்பு!"
+    }
+   ],
+   "category": "crypto_doubling",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "usdt",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "te_s07",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "బైనరీ ఆప్షన్స్లో 1 నిమిషంలో 85% లాభం!"
+    }
+   ],
+   "category": "forex_binary",
+   "ident": "phone",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "85% లాభం",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "bn_s06",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "আমরা SEBI রেজিস্টার্ড অ্যাডভাইজার। | মাসে 20% লাভ গ্যারান্টি।"
+    }
+   ],
+   "category": "fake_sebi",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "en_s07",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "We are a SEBI registered research analyst firm | Capital protection guaranteed, no loss policy."
+    }
+   ],
+   "category": "fake_sebi",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "en_s10",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "SEBI-approved collection only | 30% monthly returns guaranteed for elite members."
+    }
+   ],
+   "category": "vip_tip_group",
+   "ident": "fake_valid",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "elitewealth.brk@validyesbank"
+    ],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hi_s07",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "हम SEBI रजिस्टर्ड एडवाइज़र हैं। | हमारे प्रीमियम प्लान से हर महीने 25% पक्का मुनाफ़ा।"
+    }
+   ],
+   "category": "fake_sebi",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "mr_s07",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "आम्ही SEBI नोंदणीकृत सल्लागार आहोत. | रोज 3 खात्रीशीर कॉल्स, नुकसान झालं तर पैसे परत."
+    }
+   ],
+   "category": "fake_sebi",
+   "ident": "fake_valid",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "shubhlabh.brk@validicici"
+    ],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "ta_s06",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "நாங்கள் SEBI பதிவு பெற்ற ஆலோசகர்கள். | மாதம் 20% லாபம் உத்தரவாதம்."
+    }
+   ],
+   "category": "fake_sebi",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  },
+  {
+   "id": "hi_s10",
+   "score": 25,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 25,
+     "kind": "quote",
+     "evidence": "VIP ग्रुप मेंबर्स ध्यान दें | SEBI के नए नियम के अनुसार | हर महीने 20% पक्का रिटर्न"
+    }
+   ],
+   "category": "vip_tip_group",
+   "ident": "fake_valid",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [
+     "angelvip.brk@validaxis"
+    ],
+    "non_valid_upi": [],
+    "investment_regex": "sebi",
+    "investment_claim": true,
+    "payment_verb": true
+   }
+  }
+ ],
+ "flagged_ordinary": [],
+ "meta": {
+  "measured_at": "2026-10-29T11:57:14.405603+00:00",
+  "models": {
+   "extract": "gemini-flash-lite-latest",
+   "explain": "gemini-flash-lite-latest",
+   "embed": "gemini-embedding-2",
+   "tts": "gemini-3.8-flash-tts"
+  },
+  "model_calls_total": 472,
+  "model_errors": {
+   "embed:timeout": 7,
+   "generate:timeout": 10
+  },
+  "concurrency": 3
+ }
+}
