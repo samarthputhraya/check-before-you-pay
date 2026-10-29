@@ -1,0 +1,25 @@
+# Render Blueprint: one Docker web service with a persistent disk for the SQLite file.
+# Railway closed sign-ups on 29 Oct, so this is the live host. A disk needs a paid instance (free ones have none).
+services:
+  - type: web
+    name: check-before-you-pay
+    runtime: docker
+    plan: 0.5c-512mb
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    branch: main
+    autoDeployTrigger: commit
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: IDENTIFIER_SALT
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true

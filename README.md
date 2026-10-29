@@ -33,14 +33,15 @@ Run the tests with `pytest`.
 | `examples/` | One example JSON per endpoint. Tests check each one against the models |
 | `seed/` | Demo data, loaded with one command (role B) |
 
-## Deploy on Railway
+## Deploy on Render
 
-1. Install the CLI (`npm i -g @railway/cli`), then run `railway login` and `railway init` in this folder.
-2. Add a **volume** to the service, mounted at `/data`. The SQLite file lives there (`SQLITE_PATH=/data/app.db`, already set in the Dockerfile), so usage data survives restarts.
-3. Set the variables from `.env.example` in the Railway dashboard. Set `PUBLIC_BASE_URL` to the public URL so share links point at it.
-4. Run `railway up`. Railway builds the `Dockerfile` and checks `/api/health` (see `railway.json`).
+Railway closed new sign-ups on 29 Oct, so the live site runs on Render from [`render.yaml`](render.yaml).
 
-Keep exactly one instance: SQLite on a volume can't be shared between replicas.
+1. In Render, choose **New**, then **Blueprint**, and pick this repo. The Blueprint creates one Docker web service in Singapore, with a 1 GB disk at `/data`. The SQLite file lives there (`SQLITE_PATH=/data/app.db`, already set in the Dockerfile), so usage data survives restarts and deploys.
+2. Render asks for `GEMINI_API_KEY` and `PUBLIC_BASE_URL`. It generates `IDENTIFIER_SALT` and `ADMIN_TOKEN` itself.
+3. Each push to `main` redeploys. A deploy goes live only after `/api/health` returns 200.
+
+The disk needs a paid instance (about $7 a month plus $0.25 per GB). Keep exactly one instance: SQLite on a disk can't be shared between replicas. `railway.json` still works for anyone with an existing Railway account.
 
 ## Rules
 
