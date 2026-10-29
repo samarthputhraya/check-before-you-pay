@@ -33,6 +33,10 @@ async def bounded(task: Awaitable[T], seconds: float) -> T | None:
         return None
 
 
+# Plain names for the shared identifiers behind S4, in its English evidence (which the explanation model also reads).
+VIA_NAMES = {'same_upi': 'UPI ID', 'same_phone': 'phone number', 'same_domain': 'website', 'same_group_link': 'group link',
+             'same_wallet': 'wallet address'}
+
 async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResponse:
     started = time.perf_counter()
     created = time.time()
@@ -128,11 +132,13 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     if 'links' not in unchecked:
         kinds = [v for v in ring.via if v != 'same_script']
         if kinds:
+            n = ring.linked_checks
             signals.append(signal('S4', min(weights.S4_CAP, len(kinds) * weights.S4_PER_TYPE),
-                'Linked to earlier high-risk checks', f'{ring.linked_checks} earlier high-risk checks or reported checks; links: {", ".join(kinds)}'))
+                'Linked to earlier high-risk checks', f'{n} earlier high-risk check{"" if n == 1 else "s"} on this site used '
+                f'the same {", ".join(VIA_NAMES[k] for k in kinds)}'))
         if script_count:
-            signals.append(signal('S5', weights.S5, 'Matching message script',
-                                   f'{script_count} earlier high-risk or reported checks match this script'))
+            signals.append(signal('S5', weights.S5, 'Matching message script', f'{script_count} earlier high-risk '
+                                  f'check{" on this site matches" if script_count == 1 else "s on this site match"} this wording'))
     signals.sort(key=lambda s: s.id)
     total, band = score(signals)
     unchecked = sorted(set(unchecked))
@@ -141,7 +147,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     generated = await bounded(llm.explain(signals, band, body.lang, unchecked),
                               min(8, deadline - time.perf_counter() - 0.25))
     if (generated and not re.search(r'\b(?:safe|genuine|scammer)\b|\b100\s*%', generated.explanation, re.I)
-            and language.explanation_ok(generated.explanation, body.lang, band)):
+            and language.explanation_ok(generated.explanation, body.lang, band, ring.linked_reports)):
         explanation = mask_text(generated.explanation)
         # Lookup translations may change words, never source facts, numbers or quote evidence.
         if [s.id for s in generated.signals] == [s.id for s in signals]:

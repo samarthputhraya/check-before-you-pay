@@ -37,6 +37,16 @@ def test_explanation_guard(text, lang, band, ok):
     assert language.explanation_ok(text, lang, band) is ok
 
 
+@pytest.mark.parametrize(('text', 'lang'), [
+    ('यह पेमेंट हैंडल सही नहीं है और पुरानी शिकायतों से जुड़ा है।', 'hi'),  # seen live
+    ('Yeh pehle bhi report ho chuka hai aur 30% profit ka daawa karta hai.', 'hinglish'),
+    ('இது 4 முந்தைய புகார்களுடன் தொடர்புடையது.', 'ta'),
+])
+def test_earlier_checks_are_not_called_complaints(text, lang):
+    assert language.explanation_ok(text, lang, 'high_risk') is False
+    assert language.explanation_ok(text, lang, 'high_risk', reports=2) is True  # people did report it
+
+
 def signal(id, text, kind='lookup'):
     return Signal(id=id, points=10, label='x', evidence=Evidence(kind=kind, text=text, source_url=None))
 

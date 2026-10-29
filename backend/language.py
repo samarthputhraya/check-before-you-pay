@@ -87,7 +87,13 @@ _SAFE = re.compile(r'\b(?:safe|genuine)\b|सुरक्षित|பாது�
 _LATIN_TOKENS = re.compile(r'\S*[.@…/]\S*|\b[A-Z]{2,}\b')
 
 
-def explanation_ok(text: str, lang: Lang, band: Band) -> bool:
+# S4 and S5 count earlier high-risk checks on this site. Unless people actually pressed "report", calling them complaints
+# or reports is a made-up fact (live, 30 Oct: "पुरानी शिकायतों से जुड़ा है", "linked to old complaints").
+_COMPLAINT = re.compile(r'complain|\breport|शिकायत|तक्रार|रिपोर्ट|புகார்|ఫిర్యాదు|రిపోర్ట్|ದೂರು|ರಿಪೋರ್ಟ್|অভিযোগ|রিপোর্ট'
+                        r'|shikayat', re.I)
+
+
+def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0) -> bool:
     own = _SCRIPTS.get(lang)
     native = 0
     for ch in text:
@@ -100,6 +106,8 @@ def explanation_ok(text: str, lang: Lang, band: Band) -> bool:
     # Hinglish option, not Hindi, and the speech for it sounds wrong. Most letters must be in the language's script.
     latin = sum(ch.isascii() and ch.isalpha() for ch in _LATIN_TOKENS.sub(' ', text))
     if own and native <= latin:
+        return False
+    if not reports and _COMPLAINT.search(text):
         return False
     return not (band == 'no_known_signals' and _SAFE.search(text))
 
