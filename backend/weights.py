@@ -1,7 +1,7 @@
 """Brief section 6. Changes require team agreement and updated tests.
 
 v2, 29 Oct (measured in docs/EVAL.md): S1 35 -> 50, five scam-only claims 10 -> 30, S6 cap 30 -> 40.
-- A personal UPI ID for an investment, plus any claim, is now high risk; S1 alone stays at caution.
+- A personal UPI ID for an investment, plus a 10- or 30-point claim, is high risk; S1 alone stays at caution.
 - Each of the five claims below is a sign of fraud on its own (SEBI: nobody can guarantee returns), so one verified
   quote reaches caution. Claims alone are capped at 40, so a high-risk verdict always needs a checked fact too:
   the UPI handle, a look-alike or new domain, or a link to earlier reports.

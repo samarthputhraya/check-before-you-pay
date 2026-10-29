@@ -64,13 +64,17 @@ _SPOKEN_DOT = re.compile(r'\s*(?:\.|\bdot\b|डॉट)\s*', re.I)
 
 # SEBI's handles are @valid plus the bank's name (@validhdfc, @validicici). Scammers imitate the word itself, so
 # a bare "@valid", or "valid" plus a generic word ("@validupi", "@valid-upi" read as "@valid"), is not one.
-_NOT_A_BANK = frozenset(('', 'upi', 'pay', 'payment', 'payments', 'sebi', 'broker', 'trade', 'trading', 'india',
-                         'in', 'official', 'secure', 'invest', 'money', 'bank', 'id', 'verified'))
+# Banks that issue @valid handles to SEBI-registered intermediaries (circular of 11 June 2025, section 2.1, and the
+# NPCI list). A bank we've missed shows S1 with "verify on SEBI Check", never a false "it's fine".
+_VALID_BANKS = frozenset(('hdfc', 'icici', 'sbi', 'axis', 'kotak', 'yes', 'yesbank', 'idfc', 'idfcfirst', 'indus',
+                          'indusind', 'bob', 'pnb', 'canara', 'union', 'ubi', 'boi', 'idbi', 'federal', 'rbl', 'au',
+                          'aubank', 'hsbc', 'sc', 'scb', 'citi', 'dbs', 'kvb', 'tmb', 'csb', 'dcb', 'iob', 'indian',
+                          'bandhan', 'equitas', 'ujjivan', 'jkb', 'sib', 'karnataka', 'cub', 'uco', 'centralbank'))
 
 
 def sebi_valid_handle(upi_id: str) -> bool:
     handle = upi_id.rsplit('@', 1)[-1].lower()
-    return handle.startswith('valid') and handle[5:].isalpha() and handle[5:] not in _NOT_A_BANK
+    return handle.startswith('valid') and handle[5:] in _VALID_BANKS
 
 
 def written_ids(transcript: str) -> str:

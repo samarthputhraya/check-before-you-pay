@@ -41,7 +41,7 @@ The score is a fixed formula over facts we check. The same message always gets t
 
 ## How well it works (measured, not claimed)
 On **128 held-out messages** in 8 languages, written blind by someone who never saw the code, with the real Gemini key:
-- **Scams flagged:** 60 of 64 (94%, 95% CI 85–98%), and 22 of those were rated high risk.
+- **Scams flagged:** 60 of 64 (94%, 95% CI 85–98%), and 18 of those were rated high risk.
 - **Ordinary payments flagged:** 0 of 64 (95% CI 0–6%). Most of these are hard cases: 33 ask for money to a personal UPI ID (bills, rent, school fees, chit funds, family) and 4 are real brokers' `@valid` requests.
 - **Scams with no UPI ID:** it still flags them. 10 of 10 phone-only scams and 11 of 14 with no identifier at all were flagged.
 - **Speed:** a check takes 3.3 s at p50 and 4.9 s at p95. The 12 test voice notes we checked on the live site, in Hindi and English, all came back in under 6 s.

@@ -1,7 +1,7 @@
 {
   "check_id": "chk_01JB8Q",
   "band": "high_risk",
-  "score": 80,
+  "score": 100,
   "lang": "hi",
   "headline": "पैसे न भेजें: इसमें धोखाधड़ी के कई संकेत हैं",
   "explanation": "(नमूना / sample) यह मैसेज 300% गारंटीड रिटर्न का वादा करता है और एक ऐसी UPI आईडी पर पैसे माँगता है जो SEBI की @valid आईडी नहीं है। यही UPI आईडी पहले की 3 रिपोर्टों में आ चुकी है।",
@@ -9,13 +9,13 @@
     {
       "id": "S1",
       "label": "UPI आईडी SEBI की @valid आईडी नहीं है",
-      "points": 35,
+      "points": 50,
       "evidence": { "kind": "lookup", "text": "This UPI ID (tr…@ybl) ends in @ybl, not @valid. SEBI-registered brokers collect through @valid handles.", "source_url": "https://www.sebi.gov.in" }
     },
     {
       "id": "S6",
       "label": "गारंटीड रिटर्न और 'इंस्टिट्यूशनल अकाउंट' का वादा",
-      "points": 20,
+      "points": 40,
       "evidence": { "kind": "quote", "text": "300% guaranteed", "source_url": null }
     },
     {
@@ -23,16 +23,10 @@
       "label": "पहले की रिपोर्टों से जुड़ा",
       "points": 10,
       "evidence": { "kind": "lookup", "text": "Same UPI ID as 3 earlier reports", "source_url": null }
-    },
-    {
-      "id": "S5",
-      "label": "जाना-पहचाना स्कैम मैसेज",
-      "points": 15,
-      "evidence": { "kind": "lookup", "text": "Matches a script seen in 6 earlier checks", "source_url": null }
     }
   ],
   "entities": [ { "type": "upi", "masked": "tr…@ybl" } ],
-  "ring": { "linked_checks": 6, "linked_reports": 3, "via": ["same_upi", "same_script"] },
+  "ring": { "linked_checks": 6, "linked_reports": 3, "via": ["same_upi"] },
   "next_steps": [
     { "text": "पैसे न भेजें", "url": null },
     { "text": "SEBI Check पर ब्रोकर की जाँच करें", "url": "https://www.sebi.gov.in" },

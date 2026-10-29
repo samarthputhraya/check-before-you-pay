@@ -50,7 +50,7 @@ INVESTMENT = re.compile(
     r'|বিনিয়োগ|(?:শেয়ার|স্টক)\s*(?:বাজার|মার্কেট)|ট্রেডিং(?!\s*কোম্পানি)', re.I)
 # A verified quote for one of these claims puts the payment request in an investment context on its own.
 INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment', 'withdrawal_fee',
-                     'insider_tip', 'task_deposit', 'recovery_fee'}
+                     'insider_tip'}
 PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|recharge|top[\s-]?up|bhej\w*|jama|bharo|daal\s*do|dalo'
                      r'|de\s*do|dena|deni)\b|भेज|भुगतान|जमा|डाल\s*दो|पाठवा|भरा|செலுத்த|அனுப்ப|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ'
                      r'|জমা|পাঠা|পেমেন্ট', re.I)
@@ -134,7 +134,7 @@ def evaluate(text: str, extracted: Extraction, domain_ages: dict[str, tuple[int,
         context = context.replace(upi, ' ')
     investment = INVESTMENT.search(context) or any(
         c.type in INVESTMENT_CLAIMS and normalize(c.quote) in clean for c in extracted.claims)
-    if invalid and investment and PAYMENT.search(clean):
+    if invalid and investment and PAYMENT.search(context):
         result.append(signal('S1', weights.S1, 'Investment payment handle',
                              f"{', '.join(invalid)} does not use a SEBI @valid handle (registered brokers use @valid plus their bank's name, "
                              "like @validhdfc). Verify the payment destination on SEBI Check.", SEBI_SOURCE))

@@ -7,7 +7,7 @@ After the first eval (below), we changed the scoring (scoring v2). Then we measu
 | | Scoring before (the build live until 29 Oct night) | Scoring v2 |
 |---|---|---|
 | Scam messages flagged (caution or high risk) | 25 / 64 = 39% (95% CI 28–51%) | **60 / 64 = 94% (95% CI 85–98%)** |
-| Scam messages at high risk | 3 / 64 | **22 / 64** |
+| Scam messages at high risk | 3 / 64 | **18 / 64** |
 | Ordinary payments flagged | 0 / 64 | **0 / 64 (95% CI 0–6%)** |
 | Scams with a personal UPI ID | 20 / 23 | 23 / 23 |
 | Scams with only a link | 5 / 13 | 12 / 13 |
@@ -20,7 +20,9 @@ After the first eval (below), we changed the scoring (scoring v2). Then we measu
 - **The ordinary messages are mostly hard cases:**
   - 33 ask for payment to a personal UPI ID: shop bills, rent, school fees, chit funds, gold schemes and family requests;
   - 4 are real brokers asking for funds to a genuine `@validhdfc` or `@validicici` handle.
-- **The 4 v2 still misses** are invite-only VIP group pitches with no money request yet, scoring 5–15. That's an honest limit: the check flags a request to pay, and a first message that only invites you in gives it little to go on.
+- **After the final code review** two rules tightened: pay-to-unlock tasks and recovery fees no longer count as *investment* for S1 (they're scams, but SEBI's @valid rule is about securities), and the payment word is looked for outside the UPI ID. Re-scoring the same model outputs offline (no new model calls) keeps 60 / 64 flagged and 0 / 64 ordinary; high risk goes from 22 to 18, the four task and recovery scams now read caution. The table shows the final numbers.
+
+**The 4 v2 still misses** are invite-only VIP group pitches with no money request yet, scoring 5–15. That's an honest limit: the check flags a request to pay, and a first message that only invites you in gives it little to go on.
 
 **What changed in v2** (each change was measured on the first set, and the first set is never quoted as the result):
 - **New claim types:** sure-shot insider tips, pay-to-unlock tasks and recovery fees.

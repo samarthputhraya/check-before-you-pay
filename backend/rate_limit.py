@@ -28,6 +28,14 @@ def client_ip(request: Request) -> str:
     Uvicorn proxy rewriting is disabled. Local/direct requests always use the
     socket peer; arbitrary X-Forwarded-For values are never used.
     """
+    peer = request.client.host if request.client else 'unknown'
+    if os.getenv('TRUST_PROXY') == 'caddy' and _private(peer):
+        forwarded = [part.strip() for part in request.headers.get('x-forwarded-for', '').split(',') if part.strip()]
+        if forwarded:
+            try:
+                return str(ipaddress.ip_address(forwarded[-1]))
+            except ValueError:
+                pass
     if os.getenv('TRUST_RAILWAY_EDGE') == 'true' and os.getenv('RAILWAY_ENVIRONMENT_ID'):
         values = request.headers.getlist('x-real-ip')
         if len(values) == 1:
@@ -35,7 +43,14 @@ def client_ip(request: Request) -> str:
                 return str(ipaddress.ip_address(values[0]))
             except ValueError:
                 pass
-    return request.client.host if request.client else 'unknown'
+    return peer
+
+
+def _private(ip: str) -> bool:
+    try:
+        return ipaddress.ip_address(ip).is_private
+    except ValueError:
+        return False
 
 
 def _ip_key(ip: str) -> str:

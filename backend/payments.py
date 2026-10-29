@@ -61,7 +61,7 @@ class Dodo:
 
     def configured(self, plan: str) -> bool:
         # Without the webhook secret no payment could ever be confirmed, so none is taken.
-        return bool(self.api_key and self.webhook_secret and self.products.get(plan))
+        return bool(self.api_key and signing_key(self.webhook_secret) and self.products.get(plan))
 
 
 def config() -> Dodo:
@@ -260,8 +260,11 @@ def apply_event(path: Path, cfg: Dodo, webhook_id: str, event: object) -> tuple[
     valid_id = isinstance(order_id, str) and _ORDER_ID.fullmatch(order_id)
     reason = _mismatch(cfg, db.get_order(path, order_id) if valid_id else None, meta, data) if status else 'ignored'
     ref = next((v for v in (data.get('subscription_id'), data.get('payment_id')) if isinstance(v, str) and v), None)
-    outcome = db.apply_dodo_event(path, webhook_id, kind, None if reason else order_id, None if reason else status, ref)
-    return kind, reason if reason and outcome != 'duplicate' else outcome
+    if status and reason:
+        # Not recorded: if our config was wrong (a product ID typo), Dodo's resend can still apply once it's fixed.
+        return kind, reason
+    outcome = db.apply_dodo_event(path, webhook_id, kind, order_id if status else None, status, ref)
+    return kind, outcome
 
 
 def _mismatch(cfg: Dodo, order: dict | None, meta: dict, data: dict) -> str | None:

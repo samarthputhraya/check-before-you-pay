@@ -161,15 +161,14 @@ _stats_cache: tuple[float, str, StatsResponse] | None = None
 
 @app.get("/api/stats", response_model=StatsResponse)
 def stats(response: Response) -> StatsResponse:
-    # Every open /stats page polls this. Once the full count is slow (about 20,000 checks), serve it up to 15 s old;
-    # while it's quick, every call stays exact.
+    # Every open /stats page polls this. Past 5,000 checks the full count gets slow, so serve it up to 15 s old;
+    # below that every call stays exact.
     global _stats_cache
     path = str(get_settings().sqlite_path)
     if _stats_cache and _stats_cache[1] == path and time.monotonic() - _stats_cache[0] < 15:
         return _stats_cache[2]
-    started = time.monotonic()
     result = db.stats(get_settings().sqlite_path, payments.config().mode)
-    _stats_cache = (time.monotonic(), path, result) if time.monotonic() - started > 0.25 else None
+    _stats_cache = (time.monotonic(), path, result) if result.checks >= 5000 else None
     return result
 
 
