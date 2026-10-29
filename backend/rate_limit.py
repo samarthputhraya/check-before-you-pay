@@ -19,15 +19,6 @@ _recent: dict[str, deque[float]] = {}
 _emergency_salt = secrets.token_bytes(32)
 
 
-def client_ip(request) -> str:
-    """The proxy appends the address it saw, so the rightmost X-Forwarded-For entry is the one a client can't write.
-    (uvicorn's --forwarded-allow-ips='*' reports the leftmost, which the client controls.)"""
-    forwarded = [part.strip() for part in request.headers.get('x-forwarded-for', '').split(',') if part.strip()]
-    if forwarded:
-        return forwarded[-1]
-    return request.client.host if request.client else 'unknown'
-
-
 def enforce(anon_id: str, ip: str) -> None:
     salt = os.getenv('IDENTIFIER_SALT', '').encode() or _emergency_salt
     key = hmac.new(salt, ip.encode(), hashlib.sha256).hexdigest()

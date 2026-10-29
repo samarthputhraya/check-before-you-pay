@@ -136,7 +136,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     localized = language.localize(signals, body.lang)
     generated = await bounded(llm.explain(signals, band, body.lang, unchecked),
                               min(1.5, deadline - time.perf_counter() - 0.25))
-    if generated and not re.search(r'\b(safe|genuine|100%|scammer)\b', generated.explanation, re.I):
+    explained = bool(generated and not re.search(r'\b(safe|genuine|100%|scammer)\b', generated.explanation, re.I))
+    if explained:
         explanation = mask_text(generated.explanation)
         # Lookup translations may change words, never source facts, numbers or quote evidence.
         if [s.id for s in generated.signals] == [s.id for s in signals]:
@@ -145,7 +146,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
                 if original.evidence.kind == 'lookup' and all(f in translated.evidence for f in facts):
                     localized[i] = original.model_copy(update={'label':mask_text(translated.label),
                         'evidence':original.evidence.model_copy(update={'text':mask_text(translated.evidence)})})
-    # Otherwise the fixed, localized fallback text stands. It is not a signal, so it never goes in `unchecked`.
+    # Otherwise the fixed, localized fallback text stands. It is not a signal, so it never goes in `unchecked`,
+    # but it isn't cached either: the next identical check should get the model's explanation once it recovers.
     result = CheckResponse(check_id=check_id, band=band, score=total, lang=body.lang,
         headline=headline, explanation=explanation, signals=localized, entities=display_entities(extracted),
         ring=ring, next_steps=steps, share=Share(url=share_url, card_title=headline), transcript=transcript,
@@ -154,7 +156,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     result = CheckResponse(**public_view(result).model_dump())
     try:
         await asyncio.to_thread(db.save_check, path, result, records, embedding or None, script_id,
-                                key, body.anon_id, inp.input_type, created, body.ref)
+                                key, body.anon_id, inp.input_type, created, body.ref, cacheable=explained)
     except DB_ERRORS:
         result.unchecked = sorted(set(result.unchecked + ['links']))
         result.signals = [s for s in result.signals if s.id not in ('S4','S5')]

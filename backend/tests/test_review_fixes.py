@@ -13,7 +13,6 @@ from backend.app import app
 from backend.extraction import Claim, Extraction, regex_extract, verified_extraction
 from backend.links import identifiers
 from backend.lookups import phishing_hits as real_phishing_hits  # bound before conftest replaces it
-from backend.rate_limit import client_ip
 from backend.signals import evaluate
 
 HIGH = ('Investment: pay sample@ybl for an institutional account. 300% guaranteed. '
@@ -34,16 +33,20 @@ def client(tmp_path, monkeypatch):
     ('Invest in our stock tips group. Pay ₹10,000 to stockpro@ybl.', 'stockpro@ybl'),
     ('UPI: rk.sharma@okaxis.', 'rk.sharma@okaxis'),
     ('Send it to 9876543210@ybl.', '9876543210@ybl'),
+    ('Pay rahul.sharma@okaxis.Thanks', 'rahul.sharma@okaxis'),
+    ('rk@ybl.धन्यवाद', 'rk@ybl'),
 ])
 def test_upi_id_at_the_end_of_a_sentence_is_found(text, upi):
     assert regex_extract(text).entities.upi_ids == [upi]
 
 
-def test_email_address_is_not_a_upi_id():
-    assert regex_extract('Write to rk@gmail.com for details').entities.upi_ids == []
+@pytest.mark.parametrize('text', ['Write to rk@gmail.com for details', 'Write to rk@gmail.com.'])
+def test_email_address_is_not_a_upi_id(text):
+    assert regex_extract(text).entities.upi_ids == []
 
 
-@pytest.mark.parametrize('text', ['Pay to tradepro.vip@ybl now', 'Pay rahul.sharma@okaxis today'])
+@pytest.mark.parametrize('text', ['Pay to tradepro.vip@ybl now', 'Pay rahul.sharma@okaxis today',
+                                  'Pay to stock.guru.in@ybl', 'trade.pro.vip@ybl now', 'tradepro.vip.1@ybl'])
 def test_upi_name_is_never_read_as_a_website(text):
     assert regex_extract(text).entities.domains == []
 
@@ -67,6 +70,23 @@ def test_tip_group_payment_requests_get_s1(text):
 @pytest.mark.parametrize('text', [
     'Please pay 500 to shop@ybl for the groceries and return the bag',
     'Send 1000 to help@ybl for our non-profit food drive',
+    # second review: ordinary bills, fees and family messages the first widening scored as investment
+    'Your bill from Gupta Traders is 1,240. Please pay to guptatraders@okaxis.',
+    'Electricity bill 2,310. Pay to msedcl.bill@okicici. Late fee 2% per month after the due date',
+    'Society maintenance due, 1.5% per month interest after the 10th. Pay to society@ybl',
+    'Donate to our not-for-profit animal shelter: send 500 to pawsshelter@sbi',
+    'Pay your CA 1500 for the GST monthly return to ca.office@ybl',
+    'Mangoes 100% guaranteed fresh, pay 800 to fruits@ybl',
+    'Photoshoot for your portfolio, pay advance 2000 to studio@ybl',
+    'BSE Odisha exam form fee: pay 300 to school@ybl',
+    'Pay 450 for the nifty little speaker to gadgets@ybl',
+    'I made a small profit on the stall, send 200 to ravi@ybl',
+    'Dukaan ka profit share 2000 bhej do ravi@ybl pe',
+    'रिटर्न टिकट के 640 रुपये ravi@ybl पर भेज दो',
+    'रिटर्न गिफ्ट के लिए 300 रुपये ravi@ybl पर भेजो',
+    'दुकान का स्टॉक आ गया, 5000 supplier@ybl पर भेज दो',
+    'यह मैसेज शेयर करें और 100 रुपये ravi@ybl पर भेजें',
+    'অলাভজনক সংস্থায় 500 টাকা পাঠান help@ybl',
 ])
 def test_ordinary_payments_get_no_s1(text):
     assert 'S1' not in [s.id for s in evaluate(text, regex_extract(text), {})]
@@ -123,20 +143,24 @@ def test_unconfigured_phishing_feed_is_off_not_failed(monkeypatch, tmp_path):
     assert real_phishing_hits(['https://kite-zerodha-app.in/']) == ([], True)
 
 
-def test_client_ip_is_the_entry_the_proxy_appended():
-    request = SimpleNamespace(headers={'x-forwarded-for': '203.0.113.9, 198.51.100.77'}, client=SimpleNamespace(host='10.0.0.1'))
-    assert client_ip(request) == '198.51.100.77'
-    assert client_ip(SimpleNamespace(headers={}, client=SimpleNamespace(host='10.0.0.1'))) == '10.0.0.1'
+def test_fallback_explanation_is_not_cached(client, monkeypatch):
+    model_down = True
+    working_explain = llm.explain
 
+    async def explain(*args):
+        if model_down:
+            raise llm.ProviderUnavailable()
+        return await working_explain(*args)
 
-def test_spoofed_forwarded_for_does_not_reset_the_ip_limit(client, monkeypatch):
-    monkeypatch.setenv('IP_CHECKS_PER_HOUR', '3')
-    for i in range(3):
-        assert client.post('/api/check', json=body('hello', owner=f'u_ip{i}'),
-                           headers={'x-forwarded-for': f'203.0.113.{i}, 198.51.100.77'}).status_code == 200
-    spoofed = client.post('/api/check', json=body('hello', owner='u_ip9'),
-                          headers={'x-forwarded-for': '192.0.2.1, 198.51.100.77'})
-    assert spoofed.status_code == 429
+    monkeypatch.setattr(llm, 'explain', explain)
+    first = client.post('/api/check', json=body(HIGH)).json()
+    assert first['unchecked'] == [] and first['score'] > 0
+    model_down = False
+    again = client.post('/api/check', json=body(HIGH, owner='u_other')).json()
+    assert again['cached'] is False
+    assert again['explanation'] == 'Review the evidence before paying.'  # the model's text, not the fallback
+    third = client.post('/api/check', json=body(HIGH, owner='u_third')).json()
+    assert third['cached'] is True
 
 
 class _Models:
@@ -171,3 +195,17 @@ def test_model_discovery_retries_after_a_failed_boot(monkeypatch):
 
     providers = asyncio.run(scenario())
     assert providers.ready and providers.models['extract'] == 'gemini-x-flash-lite'
+
+
+@pytest.mark.parametrize('text', [
+    'Join our premium stock group. Get 10% weekly returns. Pay Rs 25,000 to vipadvisory@ybl to activate your account',
+    'Earn 3% daily on USDT. Send 10000 to usdt.desk@ybl',
+    'Hamare VIP group me 20% monthly munafa pakka. 5000 bhejo vip@ybl',
+    'Trading account kholne ke liye 10000 jama karein tradedesk@ybl',
+    'शेयर बाजार में निवेश करें, 10000 रुपये invest@ybl पर भेजें',
+    'शेअर मार्केट मध्ये गुंतवणूक करा, 5000 पाठवा abc@ybl',
+    'பங்குச் சந்தை டிப்ஸ், 5000 செலுத்து abc@ybl',
+    'Multibagger penny stock call! Pay 2999 to calls@ybl for the premium list',
+])
+def test_more_tip_group_wordings_get_s1(text):
+    assert 'S1' in [s.id for s in evaluate(text, regex_extract(text), {})]

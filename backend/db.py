@@ -154,7 +154,7 @@ def link_context(path: Path, identifiers: list[Identifier], embedding: Embedding
 
 def save_check(path: Path, result: CheckResponse, identifiers: list[Identifier], embedding: Embedding | None,
                script_id: str | None, key: str, anon_id: str, input_type: str, created: float,
-               ref: str | None = None, sample: bool = False) -> None:
+               ref: str | None = None, sample: bool = False, cacheable: bool = True) -> None:
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
         if embedding:
@@ -183,7 +183,7 @@ def save_check(path: Path, result: CheckResponse, identifiers: list[Identifier],
                 JOIN check_entities ce ON ce.check_id=k.check_id WHERE k.input_hash=? AND k.lang=?''',
                         (result.check_id, key, result.lang))
         # Hits do not refresh TTL. Partial failures must not become a 24-hour answer.
-        if not result.cached and not result.unchecked and not sample:
+        if cacheable and not result.cached and not result.unchecked and not sample:
             con.execute('INSERT OR REPLACE INTO cache VALUES (?,?,?,?)', (key, result.lang, result.check_id, created))
         if not sample:
             _event(con, EventRequest(anon_id=anon_id, event='check_done', check_id=result.check_id, ref=ref,

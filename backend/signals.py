@@ -14,16 +14,25 @@ from backend.schemas import Band, Evidence, Signal
 
 SEBI_SOURCE = 'https://www.sebi.gov.in/legal/circulars/jun-2025/adoption-of-standardised-validated-and-exclusive-upi-ids-for-payment-collection-by-sebi-registered-intermediaries-from-investors_94535.html'
 # Tip-group wording as sent: crypto, forex, F&O and "5% daily profit" pitches, in English, Hinglish and Indian scripts.
+# Words that also fit shop bills, fees or "share this" (traders, profit, return, portfolio, शेयर करें) only count
+# inside an investment phrase, because S1 alone is 35 points.
+_GAIN = r'(?:returns?|profits?|munafa|income)'
 INVESTMENT = re.compile(
-    r'\b(invest\w*|trad(?:e|ers?|ing)|stock\w*|broker\w*|mutual\s+fund|ipo|institutional|nivesh|share\s*market'
-    r'|crypto\w*|bitcoin|btc|usdt|forex|nifty|banknifty|sensex|intraday|demat|f&o|options?\s+(?:tips|trading|calls)'
-    r'|(?:vip|premium|market)\s+(?:tips|calls|signals?)|(?<!non-)(?<!non )profits?|munaf\w*|portfolio|dividends?|equity|commodity|mcx'
-    r'|nse|bse|sebi|fund\s+manager|double\s+(?:your\s+)?money|paisa\s+double'
-    r'|(?:guaranteed|assured|fixed|daily|weekly|monthly|high|double)\s+(?:returns?|income)'
-    r'|\d+\s*%\s*(?:returns?|daily|weekly|monthly|per\s+(?:day|week|month)|guaranteed))\b'
-    r'|निवेश|इन्वेस्ट|शेयर|ट्रेड|स्टॉक|मुनाफ|नफ़?ा|प्रॉफिट|रिटर्न|क्रिप्टो|म्यूचुअल|आईपीओ|निफ्टी|डीमैट'
-    r'|गुंतवणूक|शेअर|முதலீ|பங்கு|லாபம்|டிரேடிங்|పెట్టుబడి|షేర్|లాభం|ట్రేడింగ్|ಹೂಡಿಕೆ|ಷೇರು|ಲಾಭ|ಟ್ರೇಡಿಂಗ್'
-    r'|বিনিয়োগ|শেয়ার|মুনাফা|লাভ|ট্রেডিং', re.I)
+    r'\b(invest\w*|nivesh|trading|traders?\s+(?:group|club|community)|broker\w*|mutual\s+funds?|ipo|institutional'
+    r'|share\s*market|stocks?\s+(?:market|tips?|calls?|trading|picks?|advice|recommendations?)|stock\s*exchange'
+    r'|(?:buy|sell)\s+(?:this\s+|these\s+)?stocks?|penny\s+stocks?|multibagger'
+    r'|crypto\w*|bitcoin|btc|usdt|forex|bank\s*nifty|nifty\s*(?:50|bank|options?|calls?|tips|futures?|trading)|sensex'
+    r'|intraday|demat|f&o|futures?\s+(?:and|&)\s+options|options?\s+(?:tips|trading|calls)'
+    r'|(?:vip|premium|market|trading)\s+(?:tips|calls|signals?)|dividends?|equity\s+(?:shares?|funds?|market|trading)'
+    r'|commodity\s+(?:tips|trading|calls)|mcx|sebi|fund\s+manager|double\s+(?:your\s+)?money|paisa\s+double'
+    r'|(?:guaranteed|assured|fixed|pakka)\s+' + _GAIN + r'|(?:high|double)\s+(?:returns?|profits?)'
+    r'|(?:daily|weekly|monthly)\s+profits?|profits?\s+(?:daily|guaranteed|assured|every\s+(?:day|week|month))'
+    r'|\d+(?:\.\d+)?\s*%\s*(?:(?:daily|weekly|monthly)\s+)?(?:returns?|profits?|munafa))\b'
+    r'|निवेश|इन्वेस्ट|शेयर\s*(?:मार्केट|बाज)|ट्रेडिंग|स्टॉक\s*(?:मार्केट|टिप)|क्रिप्टो|म्यूचुअल\s*फंड|आईपीओ|निफ्टी|डीमैट|सेबी'
+    r'|(?:गारंटी\S*|पक्का|फिक्स्ड|निश्चित)\s*(?:रिटर्न|मुनाफ|प्रॉफिट)|(?:रिटर्न|मुनाफ\S*|प्रॉफिट)\s*(?:की\s*)?गारंटी'
+    r'|\d+(?:\.\d+)?\s*%\s*(?:का\s*)?(?:रिटर्न|मुनाफ|प्रॉफिट|नफ|லாபம்|లాభం|ಲಾಭ|লাভ|মুনাফা)'
+    r'|गुंतवणूक|शेअर\s*(?:मार्केट|बाजार)|முதலீ|பங்கு(?:ச்)?\s*சந்தை|டிரேடிங்|పెట్టుబడి|షేర్\s*మార్కెట్'
+    r'|స్టాక్\s*మార్కెట్|ట్రేడింగ్|ಹೂಡಿಕೆ|ಷೇರು|ಟ್ರೇಡಿಂಗ್|বিনিয়োগ|শেয়ার\s*(?:বাজার|মার্কেট)|ট্রেডিং', re.I)
 # A verified quote for one of these claims puts the payment request in an investment context on its own.
 INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment', 'withdrawal_fee'}
 PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|bhej\w*|jama|bharo)\b|भेज|भुगतान|जमा|पाठवा|भरा|செலுத்த|அனுப்பு|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ|জমা|পাঠান|পেমেন্ট', re.I)
