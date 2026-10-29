@@ -6,6 +6,13 @@ import { FONT_STACK, wrapToWidth } from './shareCard.js';
 import { anonId, track } from './session.js';
 
 const QUIZ_LANGS = ['en', 'hi', 'hinglish', 'mr']; // the languages with a quiz set; others start in English
+// The footer links here in all 8 languages, so a Tamil, Telugu, Kannada or Bengali reader is told why it's in English.
+const NOT_YET = {
+  ta: 'இந்த வினாடி வினா இப்போது ஆங்கிலம், இந்தி, ஹிங்லிஷ், மராத்தியில் மட்டும் உள்ளது.',
+  te: 'ఈ క్విజ్ ప్రస్తుతం ఇంగ్లీష్, హిందీ, హింగ్లీష్, మరాఠీలో మాత్రమే ఉంది.',
+  kn: 'ಈ ಕ್ವಿಜ್ ಸದ್ಯ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಹಿಂಗ್ಲಿಷ್ ಮತ್ತು ಮರಾಠಿಯಲ್ಲಿ ಮಾತ್ರ ಇದೆ.',
+  bn: 'এই কুইজ এখন শুধু ইংরেজি, হিন্দি, হিংলিশ আর মারাঠিতে আছে।',
+};
 
 const COPY = {
   en: {
@@ -155,6 +162,7 @@ export function QuizPage() {
       <select id="quiz-language" value=${lang} disabled=${state.status === 'loading' || state.status === 'submitting'} onChange=${(event) => setLang(event.currentTarget.value)}>
         ${languageOptions.map((option) => html`<option value=${option.code}>${option.name}</option>`)}
       </select></div>
+    ${NOT_YET[defaultLang()] && html`<p class="note" lang=${defaultLang()}>${NOT_YET[defaultLang()]}</p>`}
     <h1>${label('title')}</h1><p class="muted">${label('intro')}</p>
     ${state.status === 'loading' || state.status === 'submitting'
       ? html`<div class="card empty" role="status"><span class="spinner" aria-hidden="true"></span><p>${state.status === 'submitting' ? label('scoring') : label('loading')}</p></div>`
