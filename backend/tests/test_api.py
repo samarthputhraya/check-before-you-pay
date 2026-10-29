@@ -263,8 +263,12 @@ def test_share_page_drops_invalid_ref(client, bad_ref):
     assert "<script>x" not in resp.text
 
 
-def test_share_page_bad_id(client):
-    assert_error(client.get("/c/not-a-check"), 404, "not_found")
+@pytest.mark.parametrize("path", ["/c/not-a-check", "/c/chk_doesnotexist"])
+def test_share_page_missing_check_is_a_friendly_page(client, path):
+    # People open these links from WhatsApp, so a missing check is a page with a way forward, not a JSON error.
+    resp = client.get(path)
+    assert resp.status_code == 404 and resp.headers["content-type"].startswith("text/html")
+    assert 'href="/"' in resp.text and "noindex" in resp.text
 
 
 # ---- report, quiz, events, stats ---------------------------------------------
@@ -347,3 +351,11 @@ def test_security_headers(client):
     resp = client.get("/api/health")
     assert resp.headers["X-Content-Type-Options"] == "nosniff"
     assert resp.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
+
+
+def test_security_headers_on_pages_and_api(client):
+    for path in ("/", "/api/health"):
+        headers = client.get(path).headers
+        assert "frame-ancestors 'none'" in headers["content-security-policy"]
+        assert "script-src 'self' 'sha256-" in headers["content-security-policy"]  # the import map's hash was found
+        assert headers["x-frame-options"] == "DENY"

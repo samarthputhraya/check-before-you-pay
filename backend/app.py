@@ -29,7 +29,7 @@ from backend.schemas import (
     HealthResponse, Lang, OrderId, OrderResponse, PlansResponse, QuizAnswerRequest, QuizAnswerResponse, QuizResponse,
     ReportRequest, ReportResponse, Share, StatsResponse,
 )
-from backend.share_page import render_share_page
+from backend.share_page import render_not_found, render_share_page
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logging.getLogger("httpx").setLevel(logging.WARNING)  # it logs full outgoing URLs, and webhook URLs carry secrets
@@ -239,14 +239,17 @@ _ANON_ID = TypeAdapter(AnonId)
 
 @app.api_route("/c/{check_id}", methods=["GET", "HEAD"], response_class=HTMLResponse, include_in_schema=False)
 def share_page(check_id: str, request: Request, ref: str | None = None) -> HTMLResponse:
-    _require_check_id(check_id)
+    try:
+        _CHECK_ID.validate_python(check_id)
+    except ValidationError:
+        return HTMLResponse(render_not_found(), status_code=404)
     try:
         ref = _ANON_ID.validate_python(ref) if ref else None
     except ValidationError:
         ref = None  # a mangled ref must not break the page; we just don't credit anyone
     view = db.get_check(get_settings().sqlite_path, check_id)
     if view is None:
-        raise ApiError(404, 'not_found', 'No check with that ID.')
+        return HTMLResponse(render_not_found(), status_code=404)
     view = public_view(view)
     page_url = f"{base_url(request)}/c/{check_id}"
     return HTMLResponse(render_share_page(view, page_url, ref))

@@ -74,3 +74,30 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
 </main>
 </body>
 </html>"""
+
+
+def render_not_found() -> str:
+    """A shared link that no longer resolves (mistyped, or from a reset test database) still lands a person somewhere
+    useful instead of on a JSON error."""
+    return """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check Before You Pay</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/styles.css">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<main class="page share-page">
+  <p class="eyebrow">Check Before You Pay</p>
+  <section class="card empty">
+    <h1>We couldn't find this check</h1>
+    <p class="muted">The link may be mistyped. You can check the message yourself in a few seconds.</p>
+    <p class="muted" lang="hi">यह जाँच नहीं मिली। आप ख़ुद कुछ सेकंड में मैसेज जाँच सकते हैं।</p>
+    <a class="button primary" href="/">Check a message</a>
+  </section>
+</main>
+</body>
+</html>"""

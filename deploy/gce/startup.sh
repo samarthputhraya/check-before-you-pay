@@ -19,6 +19,7 @@ mkdir -p /opt/cbyp/data
 cat > /opt/cbyp/Caddyfile <<EOF
 $HOST {
 	encode gzip
+	header Strict-Transport-Security "max-age=31536000"
 	reverse_proxy app:8000
 }
 EOF
