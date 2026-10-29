@@ -2,6 +2,31 @@
 
 ## The numbers to quote: a held-out set nobody tuned on
 
+**Latest run, on the code deployed 30 Oct (fresh model calls, `eval/heldout_v4.json`):**
+
+| | 30 Oct, deployed code |
+|---|---|
+| Scam messages flagged (caution or high risk) | **61 / 64 = 95% (95% CI 87–98%)** |
+| Scam messages at high risk | **22 / 64** |
+| Ordinary payments flagged | **0 / 64 (95% CI 0–6%)** |
+| Scams with a personal UPI ID / only a link / only a phone / no identifier / a fake `@valid` | 22/23, 12/13, 10/10, 13/14, 4/4 |
+| Check time, p50 / p95 (text, laptop, 3 at a time) | 2.8 s / 4.3 s |
+
+- **What changed since the table below:**
+  - The claim prompt now tells a fee to *withdraw profits from a trading account* apart from a fee to *release a refund or prize*. A refund scam was sometimes called an "investment payment handle".
+  - "पेमेंट" and "लगाओ" now count as asking for money. Held-out `h_hi_s04` ("₹20,000 लगाओ … पेमेंट: …@paytm") had scored only 30.
+  - The task and recovery rules from the final code review (below) are in this run.
+- **Run-to-run variation:**
+  - The model's reading of a message varies a little between runs, even at temperature 0.
+  - The run just before this one (prompt change only, `heldout_v3.json`) flagged 62 / 64, with 0 / 64 ordinary.
+  - Between consecutive runs, 91% of scams got the same band. Ordinary messages got the same band in 100%.
+  - So quote "about 95%", not a single exact figure.
+- **The 3 misses this run:**
+  - two invite-only VIP group pitches with no money request yet (scoring 15);
+  - one Marathi task scam where the model returned no claims at all. It scored 85 in the previous run.
+
+**The run before, the v2 scoring (29 Oct):**
+
 After the first eval (below), we changed the scoring (scoring v2). Then we measured on a **second set of 128 messages**, written by someone who never saw the code or the first set. It was committed before any run (`eval/heldout.jsonl`, commit 7e97847). Both versions ran on it with the real Gemini key, and each message was scored as if seen for the first time.
 
 | | Scoring before (the build live until 29 Oct night) | Scoring v2 |
@@ -35,9 +60,9 @@ After the first eval (below), we changed the scoring (scoring v2). Then we measu
   - The claims cap goes from 30 to 40, so claims alone can only reach caution. A high-risk verdict always needs a checked fact as well.
 
 **Three lines for the pitch:**
-- "On 128 messages we'd never tuned on, in eight languages, it flagged 60 of 64 scams and none of 64 ordinary payments."
-- "It flags a scam even with no UPI ID in it: 10 of 10 phone-only scams, 11 of 14 with no identifier at all."
-- "Before this week's changes it caught 39%; now it catches 94%, with zero false alarms on bills, rent and family transfers."
+- "On 128 messages we'd never tuned on, in eight languages, it flagged 61 of 64 scams and none of 64 ordinary payments."
+- "It flags a scam even with no UPI ID in it: 10 of 10 phone-only scams, 13 of 14 with no identifier at all."
+- "Before this week's changes it caught 39%; now it catches about 95%, with zero false alarms on bills, rent and family transfers."
 
 **Caveats:**
 - We wrote both sets ourselves, though blind, and the held-out author never saw the code.

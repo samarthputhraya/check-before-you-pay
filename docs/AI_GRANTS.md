@@ -28,7 +28,7 @@
 > - look-alike broker domains and domain age;
 > - links to earlier reports.
 >
-> The model only reads screenshots and voice notes and explains the result, so it can't talk a scam into a pass. On 128 held-out messages in 8 languages it flags 60 of 64 scams and none of 64 ordinary payments.
+> The model only reads screenshots and voice notes and explains the result, so it can't talk a scam into a pass. On 128 held-out messages in 8 languages it flags 61 of 64 scams and none of 64 ordinary payments.
 >
 > We launch on Friday 30 Oct with creators from House of NGMI. Credits keep it free for families while we find out who pays.
 >

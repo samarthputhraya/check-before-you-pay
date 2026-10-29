@@ -58,6 +58,7 @@ def test_audio_masked_and_persistently_cached(saved, monkeypatch, lang):
     spoken = tts.call_args.args[0]
     assert view.headline in spoken and 'पहले जाँचें' in spoken
     assert 'sample@ybl' not in spoken and 'not spoken' not in spoken
+    assert '…' not in spoken and audio.SPOKEN_UPI[lang] in spoken  # the masked ID is named, not spelled out
     with db.session(path) as con:
         assert con.execute('SELECT COUNT(*) FROM verdict_audio').fetchone()[0] == 1
 

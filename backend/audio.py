@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import io
+import re
 import wave
 from contextlib import suppress
 
@@ -11,6 +12,11 @@ from backend import db, llm
 from backend.config import get_settings
 from backend.errors import ApiError
 from backend.privacy import public_view
+
+# A masked UPI ID read aloud is noise ("T A dot Y B L"); the speech says what it is instead.
+_MASKED_UPI = re.compile(r'[\w.-]*…@[\w.-]+')
+SPOKEN_UPI = {'en': 'this UPI ID', 'hi': 'यह UPI आईडी', 'mr': 'हा UPI आयडी', 'hinglish': 'ye UPI ID',
+              'ta': 'இந்த UPI ஐடி', 'te': 'ఈ UPI ఐడీ', 'kn': 'ಈ UPI ಐಡಿ', 'bn': 'এই UPI আইডি'}
 
 # One deployment worker. Fixed stripes bound memory and serialize duplicate requests.
 _locks = [asyncio.Lock() for _ in range(32)]
@@ -68,6 +74,7 @@ async def for_check(check_id: str) -> bytes:
                 raise ApiError(404, 'not_found', 'No check with that ID.')
             view = public_view(view)
             text = '\n'.join([view.headline, view.explanation] + [s.text for s in view.next_steps[:1]])
+            text = _MASKED_UPI.sub(SPOKEN_UPI.get(view.lang, SPOKEN_UPI['en']), text)
             if len(text) > 2000:
                 raise ValueError('speech too long')
             digest = hashlib.sha256((view.lang + '\n' + text).encode()).hexdigest()
