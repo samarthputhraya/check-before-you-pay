@@ -51,7 +51,7 @@ export function Verdict({ result, sample, t, onReset }) {
         <span class="band-pill">${BAND_ICON[result.band]}${t.band[result.band]}</span>
         <span class="score" aria-label=${`Risk score ${result.score} out of 100`}>${result.score}<small>/100</small></span>
       </div>
-      <h2 id="verdict-headline" tabindex="-1" ref=${heading}>${result.headline}</h2>
+      <h1 id="verdict-headline" tabindex="-1" ref=${heading}>${result.headline}</h1>
       ${result.band === 'no_known_signals' && html`<p class="muted">${t.noProof}</p>`}
       <p class="explanation">${result.explanation}</p>
 
