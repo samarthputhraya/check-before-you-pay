@@ -53,9 +53,9 @@ async def encode_mp3(data: bytes) -> bytes:
         '-f', 'mp3', 'pipe:1', stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
     try:
-        # On the e2-micro a warm encode takes 0.2-1.2 s, but the first after ffmpeg's libraries leave the page cache took
-        # 5.2 s; a 2 s limit made every Listen on the live site fail.
-        async with asyncio.timeout(5):
+        # On the e2-micro a warm encode takes 0.2-1.9 s, but one after ffmpeg's libraries left the page cache took 5.2 s;
+        # a 2 s limit made every Listen on the live site fail.
+        async with asyncio.timeout(8):
             result, _ = await proc.communicate(data)
     finally:
         if proc.returncode is None:
@@ -67,9 +67,19 @@ async def encode_mp3(data: bytes) -> bytes:
     return result
 
 
+async def keep_warm(every: float = 600) -> None:
+    """Keep ffmpeg's libraries in the 1 GB VM's page cache, so a Listen tap doesn't pay for a cold start."""
+    while True:
+        with suppress(Exception):  # no ffmpeg (a dev laptop) just means nothing to warm
+            proc = await asyncio.create_subprocess_exec('ffmpeg', '-hide_banner', '-version',
+                stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+            await asyncio.wait_for(proc.wait(), 30)
+        await asyncio.sleep(every)
+
+
 async def for_check(check_id: str) -> bytes:
     try:
-        async with asyncio.timeout(14):
+        async with asyncio.timeout(20):
             path = get_settings().sqlite_path
             view = await asyncio.to_thread(db.get_check, path, check_id)
             if view is None:

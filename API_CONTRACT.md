@@ -142,7 +142,7 @@ in the stored check's language. Successful audio is cached per check in SQLite
 and has `Cache-Control: public, max-age=86400`. Unknown or malformed IDs return
 `not_found` (404); provider, conversion, cache or timeout failures return
 `audio_unavailable` (503) in the standard JSON error envelope. Generation has an
-8-second provider timeout and a 14-second overall budget. No request body or
+8-second provider timeout and a 20-second overall budget. No request body or
 credentials are required. Added with Round 2 Role B endpoint authorization.
 
 ---

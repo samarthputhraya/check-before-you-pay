@@ -50,11 +50,15 @@ async def lifespan(app: FastAPI):
     await llm.providers.initialize()
     webhook_worker = asyncio.create_task(webhooks.worker())
     model_worker = asyncio.create_task(llm.providers.refresh_loop())
+    ffmpeg_warmer = asyncio.create_task(audio.keep_warm())
     try:
         yield
     finally:
         webhook_worker.cancel()
         model_worker.cancel()
+        ffmpeg_warmer.cancel()
+        with suppress(asyncio.CancelledError):
+            await ffmpeg_warmer
         with suppress(asyncio.CancelledError):
             await webhook_worker
         with suppress(asyncio.CancelledError):
