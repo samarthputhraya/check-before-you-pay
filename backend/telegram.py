@@ -209,9 +209,24 @@ async def check_input(message: Message) -> CheckInput:
     raise ApiError(415, 'unsupported_media', 'Send a message, PNG/JPEG screenshot or voice note.')
 
 
+# The same band names the web app shows (web/components/i18n.js), so a chat reply never shows "high_risk".
+BAND_LABELS = {
+    'en': ('High risk', 'Caution', 'No known scam signals'),
+    'hi': ('ज़्यादा ख़तरा', 'सावधान', 'कोई जाना-पहचाना संकेत नहीं'),
+    'hinglish': ('Zyada khatra', 'Saavdhaan', 'Koi jaana-pehchaana signal nahi'),
+    'mr': ('जास्त धोका', 'सावधान', 'ओळखीचे संकेत नाहीत'),
+    'ta': ('அதிக ஆபத்து', 'கவனம்', 'தெரிந்த அறிகுறிகள் இல்லை'),
+    'te': ('ఎక్కువ ప్రమాదం', 'జాగ్రత్త', 'తెలిసిన సంకేతాలు లేవు'),
+    'kn': ('ಹೆಚ್ಚು ಅಪಾಯ', 'ಎಚ್ಚರಿಕೆ', 'ತಿಳಿದ ಸೂಚನೆಗಳಿಲ್ಲ'),
+    'bn': ('বেশি ঝুঁকি', 'সাবধান', 'জানা কোনো সংকেত নেই'),
+}
+_BAND_INDEX = {'high_risk': 0, 'caution': 1, 'no_known_signals': 2}
+
+
 def verdict_text(result: CheckResponse) -> str:
     view = public_view(result)
-    lines = [view.headline[:240], f'{view.band} · {view.score}/100']
+    band = BAND_LABELS.get(view.lang, BAND_LABELS['en'])[_BAND_INDEX[view.band]]
+    lines = [view.headline[:240], f'{band} · {view.score}/100']
     for item in sorted(view.signals, key=lambda s: (-s.points, s.id))[:3]:
         lines += ['', f'{item.label[:100]} (+{item.points})', item.evidence.text[:450]]
         if item.evidence.source_url:

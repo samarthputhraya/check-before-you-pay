@@ -65,7 +65,7 @@ def test_text_reuses_pipeline_masks_evidence_and_keeps_referral(client):
     assert c.post('/api/telegram/webhook', json=update(text=text), headers=HEADERS).status_code == 200
     assert len(replies) == 1 and replies[0]['chat_id'] == 123
     body = replies[0]['text']
-    assert 'high_risk' in body and '/100' in body
+    assert 'High risk' in body and 'high_risk' not in body and '/100' in body
     assert 'sample@ybl' not in body
     assert '?ref=' + telegram.anon_id(123) in body
     assert 'parse_mode' not in replies[0]
@@ -82,7 +82,7 @@ def test_photo_uses_existing_media_validation(client):
     c, replies, path = client
     response = c.post('/api/telegram/webhook', headers=HEADERS,
         json=update(photo=[{'file_id': 'photo', 'width': 20, 'height': 20, 'file_size': 700}]))
-    assert response.status_code == 200 and 'high_risk' in replies[0]['text']
+    assert response.status_code == 200 and '/100' in replies[0]['text'] and 'high_risk' not in replies[0]['text']
     with db.session(path) as con:
         assert con.execute('SELECT input_type FROM checks').fetchone()[0] == 'image'
 
