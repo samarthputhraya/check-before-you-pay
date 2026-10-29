@@ -65,7 +65,7 @@ def test_text_reuses_pipeline_masks_evidence_and_keeps_referral(client):
     assert c.post('/api/telegram/webhook', json=update(text=text), headers=HEADERS).status_code == 200
     assert len(replies) == 1 and replies[0]['chat_id'] == 123
     body = replies[0]['text']
-    assert 'High risk' in body and 'high_risk' not in body and '/100' in body
+    assert telegram.BAND_LABELS['hi'][0] in body and 'high_risk' not in body and '/100' in body  # sender's language is hi
     assert 'sample@ybl' not in body
     assert '?ref=' + telegram.anon_id(123) in body
     assert 'parse_mode' not in replies[0]
