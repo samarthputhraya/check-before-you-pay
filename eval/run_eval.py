@@ -70,6 +70,22 @@ def load_key(env_file: Path) -> None:
 MESSAGES = HERE / 'messages.jsonl'
 
 
+def ident_of(text: str, label: str) -> str:
+    """For sets written without an `ident` field (the held-out set): what identifier the message carries."""
+    import re
+    handles = re.findall(r'[\w.-]+@([A-Za-z][\w.-]*)', text)
+    if handles:
+        if any(h.lower().startswith('valid') for h in handles):
+            return 'fake_valid' if label == 'scam' else 'valid_upi'
+        return 'upi'
+    if re.search(r'https?://|\bt\.me/|\b[\w-]+\.(?:com|in|pro|net|org|io|app|xyz|co|vip|me|live|online|club|site)\b',
+                 text, re.I):
+        return 'link'
+    if re.search(r'(?<![\w@])(?:\+91[\s-]?)?[6-9][0-9X]{9}(?![\w@])|(?<![\w@])[6-9][0-9X]{4}[\s-][0-9X]{5}(?![\w@])', text):
+        return 'phone'
+    return 'none'
+
+
 def load_messages(limit: int | None, only: set[str] | None) -> list[dict]:
     rows = [json.loads(line) for line in MESSAGES.read_text(encoding='utf-8').splitlines() if line.strip()]
     if only:
@@ -248,7 +264,8 @@ async def run_live(messages: list[dict], concurrency: int, max_attempts: int) ->
                     break
                 await asyncio.sleep(5 * attempt)
             done += 1
-            row = {k: msg[k] for k in ('id', 'label', 'lang', 'category', 'ident', 'source', 'text')}
+            row = {k: msg[k] for k in ('id', 'label', 'lang', 'category', 'source', 'text')}
+            row['ident'] = msg.get('ident') or ident_of(msg['text'], msg['label'])
             row.update(out)
             row['attempts'] = len(attempts)
             row['first_attempt_unchecked'] = first_unchecked
