@@ -78,7 +78,7 @@ export function Verdict({ result, sample, t, onReset }) {
         ` ${t.through} ${ring.via.map((v) => t.via[v] || v).join(', ')}`}
       </p>`}
 
-      ${result.unchecked.length > 0 && html`<p class="muted small">${t.unchecked(result.unchecked.join(', '))}</p>`}
+      ${result.unchecked.length > 0 && html`<p class="muted small">${t.unchecked(result.unchecked.map((c) => t.checks[c] || c).join(', '))}</p>`}
 
       ${result.transcript &&
       html`<details class="transcript"><summary>${t.transcript}</summary><p>${result.transcript}</p></details>`}
