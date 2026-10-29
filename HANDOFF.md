@@ -69,11 +69,11 @@
 - **Ops:** hourly backups keep only the newest 6 copies once the disk passes 80%. Today the disk is at 25% of 30 GB.
 
 ## Numbers (re-measured tonight on the deployed code, fresh model calls)
-- **Held-out set (128 messages, 8 languages):**
-  - 61/64 scams flagged (95%, CI 87–98%), 22 of them at high risk;
+- **Held-out set (128 messages, 8 languages), latest run (`eval/heldout_v5.json`):**
+  - 61/64 scams flagged (95%, CI 87–98%), 21 of them at high risk;
   - 0/64 ordinary messages flagged;
-  - check time p50 2.8 s, p95 4.3 s.
-- **The run before this one:** 62/64. Between runs, 91% of scams keep the same band.
+  - check time p50 2.3 s, p95 2.8 s.
+- **Three runs on tonight's code:** 62, 61 and 61 of 64. Between runs, 91–92% of scams keep the same band.
 - README, docs/EVAL.md, docs/pitch.md and docs/AI_GRANTS.md now quote 61/64 instead of the old 60/64.
 - **Changes after the eval run:**
   - **Wording:** S4 now reads "linked to earlier high-risk checks", and S4/S5 evidence is in plain words.

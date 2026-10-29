@@ -41,10 +41,10 @@ The score is a fixed formula over facts we check. The same message always gets t
 
 ## How well it works (measured, not claimed)
 On **128 held-out messages** in 8 languages, written blind by someone who never saw the code, with the real Gemini key:
-- **Scams flagged:** 61 of 64 (95%, 95% CI 87–98%), and 22 of those were rated high risk. This is the latest run, on the code deployed 30 Oct. The run before it flagged 62. The model's reading varies a little from run to run.
+- **Scams flagged:** 61 of 64 (95%, 95% CI 87–98%), and 21 of those were rated high risk. This is the latest run, on the code deployed 30 Oct. Three runs on that code flagged 62, 61 and 61; the model's reading varies a little from run to run.
 - **Ordinary payments flagged:** 0 of 64 (95% CI 0–6%). Most of these are hard cases: 33 ask for money to a personal UPI ID (bills, rent, school fees, chit funds, family) and 4 are real brokers' `@valid` requests.
 - **Scams with no UPI ID:** it still flags them. 10 of 10 phone-only scams and 13 of 14 with no identifier at all were flagged.
-- **Speed:** a check takes 2.8 s at p50 and 4.3 s at p95. The 12 test voice notes we checked on the live site, in Hindi and English, all came back in under 6 s.
+- **Speed:** a check takes 2.3 s at p50 and 2.8 s at p95. The 12 test voice notes we checked on the live site, in Hindi and English, all came back in under 6 s.
 
 The method, the data, the confidence intervals and the misses are in [docs/EVAL.md](docs/EVAL.md); rerun it with `python eval/run_eval.py --messages eval/heldout.jsonl`. Live usage is on [/stats](https://34-45-129-243.sslip.io/stats). Sample checks are excluded from it.
 

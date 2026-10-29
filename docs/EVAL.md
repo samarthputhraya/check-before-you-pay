@@ -2,28 +2,27 @@
 
 ## The numbers to quote: a held-out set nobody tuned on
 
-**Latest run, on the code deployed 30 Oct (fresh model calls, `eval/heldout_v4.json`):**
+**Latest run, on the code deployed 30 Oct (fresh model calls, `eval/heldout_v5.json`):**
 
 | | 30 Oct, deployed code |
 |---|---|
 | Scam messages flagged (caution or high risk) | **61 / 64 = 95% (95% CI 87–98%)** |
-| Scam messages at high risk | **22 / 64** |
+| Scam messages at high risk | **21 / 64** |
 | Ordinary payments flagged | **0 / 64 (95% CI 0–6%)** |
-| Scams with a personal UPI ID / only a link / only a phone / no identifier / a fake `@valid` | 22/23, 12/13, 10/10, 13/14, 4/4 |
-| Check time, p50 / p95 (text, laptop, 3 at a time) | 2.8 s / 4.3 s |
+| Scams with a personal UPI ID / only a link / only a phone / no identifier / a fake `@valid` | 23/23, 11/13, 10/10, 13/14, 4/4 |
+| Check time, p50 / p95 (text, laptop, 3 at a time) | 2.3 s / 2.8 s |
 
 - **What changed since the table below:**
   - The claim prompt now tells a fee to *withdraw profits from a trading account* apart from a fee to *release a refund or prize*. A refund scam was sometimes called an "investment payment handle".
   - "पेमेंट" and "लगाओ" now count as asking for money. Held-out `h_hi_s04` ("₹20,000 लगाओ … पेमेंट: …@paytm") had scored only 30.
+  - "fee" and "charges" (and फ़ीस, शुल्क) count too. Re-scoring the saved outputs offline, this changes S1 on one held-out message only: a Kannada scam that gains it. No ordinary message gains it.
   - The task and recovery rules from the final code review (below) are in this run.
 - **Run-to-run variation:**
   - The model's reading of a message varies a little between runs, even at temperature 0.
-  - The run just before this one (prompt change only, `heldout_v3.json`) flagged 62 / 64, with 0 / 64 ordinary.
+  - Three fresh runs on tonight's code flagged 62, 61 and 61 of 64 (`heldout_v3`, `v4`, `v5`). All three flagged 0 / 64 ordinary.
   - Between consecutive runs, 91% of scams got the same band. Ordinary messages got the same band in 100%.
   - So quote "about 95%", not a single exact figure.
-- **The 3 misses this run:**
-  - two invite-only VIP group pitches with no money request yet (scoring 15);
-  - one Marathi task scam where the model returned no claims at all. It scored 85 in the previous run.
+- **The 3 misses this run** are all invite-only VIP group pitches with no money request yet, scoring 15.
 
 **The run before, the v2 scoring (29 Oct):**
 

@@ -101,7 +101,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | Scams flagged, 128 held-out messages in 8 languages | 61 of 64 (95%) | docs/EVAL.md |
 | Ordinary payments flagged (bills, rent, family, real brokers) | 0 of 64 | docs/EVAL.md |
 | Before this week's scoring changes | 25 of 64 (39%) | same set, same day |
-| Time per check | 2.8 s typical, 4.3 s slowest 1 in 20 | same run |
+| Time per check | 2.3 s typical, 2.8 s slowest 1 in 20 | same run |
 
 ## Delivery notes
 
