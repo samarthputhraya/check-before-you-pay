@@ -82,7 +82,7 @@ Live validation: the same made-up investment message scored 55 across all eight
 languages in 2.39-2.76 seconds. Seven had complete model explanations; Kannada
 used the localized fallback. Screenshot OCR returned a complete verdict in 4.30
 seconds, OGG voice in 7.83 seconds, and a text cache hit in 40 ms. These are local
-smoke measurements, not deployment latency or usage metrics. All 144 offline
+smoke measurements, not deployment latency or usage metrics. All 153 offline
 tests pass. See [the role B handoff](docs/BACKEND_HANDOFF.md) for file ownership,
 team setup and the remaining external steps. Phone/Railway validation, consented
 real seed collection and the external viaSocket workflow remain outstanding.

@@ -22,7 +22,7 @@ changes have been merged into this branch.
 | Stats and backup | Stored checks/reports/events, users, languages, share rate, referral factor, p50/p95, sample exclusions, token-protected SQLite online backup |
 | Privacy and outages | No provider keys in browser; no unconsented raw text on disk; owner-bound volatile consent buffer; masked public pages; partial verdicts for failed checks |
 
-`python -m pytest` runs 144 offline tests. Tests stub the provider boundary and
+`python -m pytest` runs 153 offline tests. Tests stub the provider boundary and
 never send real webhooks. `python -m ruff check backend seed --select F` checks
 unused names and imports. The test suite includes the fixed-score determinism
 and prompt-injection cases required by the brief.
@@ -89,3 +89,14 @@ Reports without a webhook URL are saved with delivery status `skipped`, logged
 as `viasocket not configured`, and never replayed when a URL is added later.
 Report text is available for consent only for 15 minutes in memory; restarting
 the process clears that buffer. The public verdict never includes a transcript.
+
+## Final recovery audit
+
+- Cache digests preserve case-sensitive URL paths, invite tokens and non-EVM
+  wallet addresses while retaining normalized prose, UPI and EVM address reuse.
+  Raw identifiers remain inside the digest calculation and are not persisted.
+- A temporary report-write failure no longer consumes the owner's consent
+  buffer; a successful retry can still store the text they agreed to report.
+- K-factor uses first-touch referral attribution. A returning user's later share
+  click cannot count as a newly acquired user.
+- The full 153-test suite passes, including regression coverage for these cases.

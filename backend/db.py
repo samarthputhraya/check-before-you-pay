@@ -262,7 +262,12 @@ def stats(path: Path) -> StatsResponse:
         reports = con.execute('SELECT COUNT(*) FROM reports r JOIN checks c ON c.id=r.check_id WHERE c.is_sample=0').fetchone()[0]
         shared = con.execute("SELECT COUNT(DISTINCT e.check_id) FROM events e JOIN checks c ON c.id=e.check_id WHERE e.event='share_clicked' AND c.is_sample=0").fetchone()[0]
         sharers = {r[0] for r in con.execute("SELECT DISTINCT anon_id FROM events WHERE event IN ('share_clicked','quiz_shared')")}
-        referred = {r[0] for r in con.execute("SELECT DISTINCT anon_id,ref FROM events WHERE event='ref_visit' AND ref IS NOT NULL AND ref!=anon_id") if r[1] in sharers}
+        # Credit the source that first brought a user. A returning user clicking
+        # another share is not a newly acquired user, and can't inflate k-factor.
+        first_touches = con.execute('''SELECT anon_id,ref FROM (
+            SELECT anon_id,ref,ROW_NUMBER() OVER (PARTITION BY anon_id ORDER BY created_at,rowid) AS position
+            FROM events) WHERE position=1''')
+        referred = {r[0] for r in first_touches if r[1] in sharers and r[0] != r[1]}
     return StatsResponse(users=len(users), checks=len(checks), reports=reports, languages=languages,
                          rings=len(top_rings(path, None)), share_rate=shared / len(checks) if checks else 0,
                          k_factor=len(referred) / len(sharers) if sharers else 0,
