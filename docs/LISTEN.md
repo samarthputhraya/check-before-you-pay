@@ -18,7 +18,7 @@ SQLite stores the successful MP3 per check and content digest, on the existing
 persistent volume. A fixed set of locks prevents duplicate synthesis in the
 documented single-worker deployment. Provider failures are not cached and can
 be retried. Multiple workers would need a distributed generation lease.
-Provider timeout: 8 seconds; complete request budget: 12 seconds including queue
+Provider timeout: 8 seconds; MP3 encoding: 5 seconds; complete request budget: 14 seconds including queue
 wait. Failed conversion or storage returns the same plain 503, without logging
 provider details. Audio adds at most about 480 KB per generated check; monitor
 the persistent volume as usage grows.

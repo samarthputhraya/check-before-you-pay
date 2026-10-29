@@ -49,11 +49,13 @@ async def encode_mp3(data: bytes) -> bytes:
             raise ValueError('speech must be shorter than a minute')
     proc = await asyncio.create_subprocess_exec(
         'ffmpeg', '-hide_banner', '-loglevel', 'error', '-f', 'wav', '-i', 'pipe:0',
-        '-vn', '-ac', '1', '-ar', '24000', '-c:a', 'libmp3lame', '-b:a', '64k',
+        '-vn', '-ac', '1', '-ar', '24000', '-c:a', 'libmp3lame', '-b:a', '64k', '-compression_level', '9',
         '-f', 'mp3', 'pipe:1', stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
     try:
-        async with asyncio.timeout(2):
+        # On the e2-micro a warm encode takes 0.2-1.2 s, but the first after ffmpeg's libraries leave the page cache took
+        # 5.2 s; a 2 s limit made every Listen on the live site fail.
+        async with asyncio.timeout(5):
             result, _ = await proc.communicate(data)
     finally:
         if proc.returncode is None:
@@ -67,7 +69,7 @@ async def encode_mp3(data: bytes) -> bytes:
 
 async def for_check(check_id: str) -> bytes:
     try:
-        async with asyncio.timeout(12):
+        async with asyncio.timeout(14):
             path = get_settings().sqlite_path
             view = await asyncio.to_thread(db.get_check, path, check_id)
             if view is None:
