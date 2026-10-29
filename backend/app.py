@@ -16,17 +16,16 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db, events as event_proof, llm, pipeline, rate_limit, webhooks
+from backend import db, events as event_proof, llm, pipeline, quiz as quizzes, rate_limit, webhooks
 from backend.cache import consent_buffer
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
 from backend.guard import Guard
 from backend.inputs import validate_check_input
 from backend.privacy import public_view
-from backend.samples import sample_quiz, sample_quiz_answer
 from backend.schemas import (
     AnonId, CheckId, CheckRequest, CheckResponse, CheckView, EventRequest, HealthResponse, Lang,
-    QuizAnswerRequest, QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, StatsResponse,
+    QuizAnswerRequest, QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, Share, StatsResponse,
 )
 from backend.share_page import render_share_page
 
@@ -40,6 +39,10 @@ async def lifespan(app: FastAPI):
         await asyncio.to_thread(db.prepare_cache, get_settings().sqlite_path)
     except (sqlite3.Error, OSError):
         pass  # Health reports the outage; checks retain their regex/zero-link fallback.
+    try:
+        quizzes.bank()  # read and validate the quiz files once, before the first player
+    except (OSError, ValueError) as exc:  # our own seed content, so the message is fine to log
+        logging.getLogger('cbyp').error('quiz content failed to load: %s', exc)  # checks still run
     await llm.providers.initialize()
     webhook_worker = asyncio.create_task(webhooks.worker())
     model_worker = asyncio.create_task(llm.providers.refresh_loop())
@@ -59,8 +62,6 @@ app = FastAPI(title="Check Before You Pay", version="0.2.0", docs_url="/api/docs
               openapi_url="/api/openapi.json")
 install_error_handlers(app)
 app.add_middleware(Guard)
-
-SAMPLE_HEADER = {"X-Sample": "true"}  # stub responses; removed as each endpoint becomes real
 
 
 def base_url(request: Request) -> str:
@@ -119,15 +120,28 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
 
 
 @app.get("/api/quiz", response_model=QuizResponse)
-def quiz(response: Response, lang: Lang = Query("en")) -> QuizResponse:
-    response.headers.update(SAMPLE_HEADER)
-    return sample_quiz(lang)
+def quiz(lang: Lang = Query("en")) -> QuizResponse:
+    return quizzes.public(quizzes.for_lang(lang))
 
 
 @app.post("/api/quiz/answer", response_model=QuizAnswerResponse)
 def quiz_answer(body: QuizAnswerRequest, request: Request, response: Response) -> QuizAnswerResponse:
-    response.headers.update(SAMPLE_HEADER)
-    return sample_quiz_answer(base=base_url(request), anon_id=body.anon_id)
+    quiz_set = quizzes.by_id(body.quiz_id)
+    if quiz_set is None:
+        raise ApiError(400, 'invalid_request', 'quiz_id: no quiz with that ID.')
+    rate_limit.enforce_quiz(body.anon_id, rate_limit.client_ip(request))
+    score, results = quizzes.score(quiz_set, body.answers)
+    try:
+        db.save_quiz_result(get_settings().sqlite_path, body.anon_id, quiz_set.quiz_id, quiz_set.lang, score)
+    except (sqlite3.Error, OSError):
+        # The player still gets their score. Without the row, a later quiz_shared simply isn't counted.
+        logging.getLogger('cbyp').warning('quiz result not stored')
+    base = base_url(request)
+    response.headers['Cache-Control'] = 'no-store'
+    event_proof.issue(response, body.anon_id, secure=base.startswith('https://'))  # lets quiz_shared count
+    return QuizAnswerResponse(score=score, total=len(results), results=results,
+                              share=Share(url=f'{base}/quiz?ref={body.anon_id}',
+                                          card_title=quiz_set.title(score, len(results))))
 
 
 @app.post("/api/events", status_code=204)

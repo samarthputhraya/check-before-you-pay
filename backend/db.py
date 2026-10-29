@@ -227,6 +227,17 @@ def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: 
         return report_id, True
 
 
+def save_quiz_result(path: Path, anon_id: str, quiz_id: str, lang: str, score: int) -> str:
+    """One row per finished quiz plus the authoritative quiz_done; a later quiz_shared counts only after this."""
+    now = time.time()
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        result_id = new_id('qzr')
+        con.execute('INSERT INTO quiz_results VALUES (?,?,?,?,?)', (result_id, anon_id, quiz_id, score, now))
+        _event(con, EventRequest(anon_id=anon_id, event='quiz_done', props={'score': score, 'lang': lang}), now)
+        return result_id
+
+
 def _event(con: sqlite3.Connection, body: EventRequest, now: float) -> None:
     props = {k: v for k, v in body.props.items() if k in ('latency_ms', 'band', 'lang', 'input_type', 'score')}
     con.execute('INSERT INTO events VALUES (?,?,?,?,?,?,?)',
@@ -304,11 +315,13 @@ def stats(path: Path) -> StatsResponse:
             SELECT anon_id,ref,ROW_NUMBER() OVER (PARTITION BY anon_id ORDER BY created_at,rowid) AS position
             FROM events) WHERE position=1''')
         referred = {r[0] for r in first_touches if r[1] in sharers and r[0] != r[1]}
+        quiz_plays = con.execute('SELECT COUNT(*) FROM quiz_results').fetchone()[0]
     return StatsResponse(users=len(users), checks=len(checks), reports=reports, languages=languages,
                          rings=len(top_rings(path, None)), share_rate=shared / len(checks) if checks else 0,
                          k_factor=len(referred) / len(sharers) if sharers else 0,
                          p50_ms=int(np.percentile(latencies, 50)) if latencies else 0,
                          p95_ms=int(np.percentile(latencies, 95)) if latencies else 0,
+                         quiz_plays=quiz_plays,
                          updated_at=datetime.now(timezone.utc).isoformat())
 
 

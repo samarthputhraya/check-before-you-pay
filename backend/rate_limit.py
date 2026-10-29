@@ -53,7 +53,15 @@ def enforce_events(anon_id: str, ip: str) -> None:
     _enforce_buckets([('events:user:' + anon_id, 300), ('events:ip:' + _ip_key(ip), 10000)])
 
 
-def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
+def enforce_quiz(anon_id: str, ip: str) -> None:
+    # Each answer writes a quiz_results row, which unlocks quiz_shared; cap it so plays can't be farmed.
+    _enforce_buckets([('quiz:user:' + anon_id, 30),
+                      ('quiz:ip:' + _ip_key(ip), int(os.getenv('IP_QUIZ_PER_HOUR', '3000')))],
+                     'Too many quiz answers. Please try again in an hour.')
+
+
+def _enforce_buckets(buckets: list[tuple[str, int]],
+                     message: str = 'Too many checks. Please try again in an hour.') -> None:
     try:
         allowed = db.allow_request(get_settings().sqlite_path, buckets)
     except (sqlite3.Error, OSError):
@@ -70,4 +78,4 @@ def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
                 for bucket, _ in buckets:
                     _recent.setdefault(bucket, deque()).append(now)
     if not allowed:
-        raise ApiError(429, 'rate_limited', 'Too many checks. Please try again in an hour.')
+        raise ApiError(429, 'rate_limited', message)

@@ -165,6 +165,7 @@ class StatsResponse(BaseModel):
     k_factor: float
     p50_ms: int
     p95_ms: int
+    quiz_plays: int  # quiz_results rows: finished quizzes, not unique players
     updated_at: str
 
 
