@@ -92,7 +92,9 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     ages, age_failed = ages_result
     if age_failed:
         unchecked.append('domain_age')
-    hits, feed_failed = await asyncio.to_thread(lookups.phishing_hits, extracted.entities.urls)
+    feed_result = await bounded(asyncio.to_thread(lookups.phishing_hits, extracted.entities.urls),
+                                min(0.3, deadline - time.perf_counter() - 0.8))
+    hits, feed_failed = feed_result if feed_result is not None else ([], True)
     if feed_failed:
         unchecked.append('phishing_feed')
     base_signals = evaluate(clean, extracted, ages, hits)
@@ -106,7 +108,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         records = identifiers(extracted)
         if 'links' not in unchecked:
             context = await bounded(asyncio.to_thread(db.link_context, path, records,
-                                                     embedding or None, created), 2)
+                                                     embedding or None, created),
+                                    min(2, deadline - time.perf_counter() - 0.8))
             if context is None:
                 unchecked.append('links')
             else:

@@ -8,10 +8,11 @@ import re
 
 from backend.schemas import CheckView
 
-_UPI = re.compile(r"\b([A-Za-z0-9][A-Za-z0-9._-]{1,})@([A-Za-z][A-Za-z0-9]{1,30})\b")
+_UPI = re.compile(r"(?<![\w@])([\w\u0080-\uffff][\w.\-\u0080-\uffff]{1,})@([A-Za-z][A-Za-z0-9]{1,30})\b")
 _PHONE = re.compile(r"(?<!\w)(?:\+?91[\s-]?)?([6-9](?:[\s-]?\d){9})(?!\w)")
 _WALLET = re.compile(r"\b(0x[0-9a-fA-F]{40}|T[1-9A-HJ-NP-Za-km-z]{33}|(?:bc1|[13])[0-9A-HJ-NP-Za-z]{25,62})\b")
 _LINK = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
+_BARE_LINK = re.compile(r'(?<![\w@/])((?:[\w-]+\.)+[a-zA-Z]{2,63})/[^\s<>"\[\]{}]*', re.I)
 
 
 def mask_upi(upi: str) -> str:
@@ -35,6 +36,7 @@ def mask_text(text: str) -> str:
         except ValueError:
             return '[link]'
     text = _LINK.sub(masked_link, text)
+    text = _BARE_LINK.sub(lambda m: m.group(1) + '/…', text)
     text = _WALLET.sub(lambda m: f"{m.group(1)[:4]}…{m.group(1)[-4:]}", text)
     text = _UPI.sub(lambda m: mask_upi(m.group(0)), text)
     return _PHONE.sub(lambda m: mask_phone(m.group(1)), text)

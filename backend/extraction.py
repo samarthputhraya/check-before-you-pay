@@ -36,12 +36,13 @@ class Extraction(BaseModel):
 
 
 ZERO_WIDTH = re.compile('[\u200b\u200c\u200d\u2060\ufeff]')
-UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\w.@])')
+UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\w@]|\.[\w])')
 PHONE = re.compile(r'(?<!\w)(?:\+?91[\s-]?)?([6-9](?:[\s-]?\d){9})(?!\w)')
 WALLET = re.compile(r'\b(?:0x[0-9a-fA-F]{40}|T[1-9A-HJ-NP-Za-km-z]{33}|bc1[ac-hj-np-z02-9]{25,62}|[13][1-9A-HJ-NP-Za-km-z]{25,34})\b')
 URL = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
 BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?:/[^\s<>"\[\]{}]*)?')
 SEBI = re.compile(r'\bIN[A-Z]{1,3}\d{8,12}\b', re.I)
+GROUP_HOSTS = frozenset(('t.me', 'telegram.me', 'chat.whatsapp.com'))
 # Bundled PSL only: no network or disk writes on a request.
 PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
 _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instructions?[^\n.!?]*(?:[.!?]|$)', re.I)
@@ -78,16 +79,21 @@ def registered_domain(host: str) -> str:
 def regex_extract(text: str) -> Extraction:
     text = source_text(text)
     urls = set()
-    for match in list(URL.finditer(text)) + list(BARE_DOMAIN.finditer(text)):
+    upis = list(UPI.finditer(text))
+    explicit_urls = list(URL.finditer(text))
+    occupied = [m.span() for m in upis + explicit_urls]
+    bare_urls = [m for m in BARE_DOMAIN.finditer(text)
+                 if not any(m.start() < end and m.end() > start for start, end in occupied)]
+    for match in explicit_urls + bare_urls:
         candidate = match.group().rstrip('.,;:!?)')
         url = canonical_url(candidate)
         if url:
             urls.add(url)
-    groups = [u for u in urls if urlsplit(u).hostname in ('t.me', 'telegram.me', 'chat.whatsapp.com')]
+    groups = [u for u in urls if urlsplit(u).hostname in GROUP_HOSTS and urlsplit(u).path != '/']
     wallets = sorted(set(WALLET.findall(text)))
     without_wallets = WALLET.sub('', text)
     return Extraction(entities=ExtractedEntities(
-        upi_ids=sorted({normalize(v) for v in UPI.findall(text)}),
+        upi_ids=sorted({normalize(m.group(1)) for m in upis}),
         phones=sorted({re.sub(r'\D', '', v) for v in PHONE.findall(without_wallets)}),
         urls=sorted(urls), domains=sorted({urlsplit(u).hostname for u in urls}),
         wallet_addresses=wallets, group_links=sorted(groups),

@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 import numpy as np
 
-from backend.extraction import Extraction
+from backend.extraction import Extraction, GROUP_HOSTS
 from backend.privacy import mask_phone, mask_upi
 from backend.schemas import Entity
 
@@ -41,6 +41,8 @@ def identifiers(extraction: Extraction) -> list[Identifier]:
     for kind, values in [('upi', e.upi_ids), ('phone', e.phones), ('domain', e.domains),
                          ('group_link', e.group_links), ('wallet', e.wallet_addresses), ('app', e.app_names)]:
         for value in sorted(set(values)):
+            if kind == 'domain' and value in GROUP_HOSTS:
+                continue  # A shared hosting service does not connect two different invite links.
             meta = {}
             if kind == 'upi':
                 value = value.lower()
