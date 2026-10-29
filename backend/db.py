@@ -210,21 +210,23 @@ def entity_history(path: Path, entity_id: str) -> list[dict]:
 
 
 def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: str | None,
-               webhook_enabled: bool = True) -> tuple[str, bool]:
+               webhook_enabled: bool = True) -> tuple[str, bool, bool]:
+    """Returns (report_id, created, text_saved); a repeat report answers with what the first one stored."""
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
         if not con.execute('SELECT 1 FROM checks WHERE id=?', (check_id,)).fetchone():
             raise KeyError(check_id)
-        existing = con.execute('SELECT id FROM reports WHERE check_id=? AND anon_id=?', (check_id, anon_id)).fetchone()
+        existing = con.execute('SELECT id, text_if_consented IS NOT NULL FROM reports WHERE check_id=? AND anon_id=?',
+                               (check_id, anon_id)).fetchone()
         if existing:
-            return existing[0], False
+            return existing[0], False, bool(existing[1])
         report_id = new_id('rep')
         con.execute('''INSERT INTO reports(id,check_id,created_at,text_if_consented,anon_id,note,webhook_status)
                        VALUES (?,?,?,?,?,?,?)''',
                     (report_id, check_id, time.time(), text, anon_id, note, 'pending' if webhook_enabled else 'skipped'))
         con.execute('DELETE FROM cache')  # New reports change the available evidence.
         _event(con, EventRequest(anon_id=anon_id, event='report', check_id=check_id), time.time())
-        return report_id, True
+        return report_id, True, text is not None
 
 
 def save_quiz_result(path: Path, anon_id: str, quiz_id: str, lang: str, score: int) -> str:

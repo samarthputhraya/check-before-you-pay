@@ -9,6 +9,7 @@ import asyncio
 import os
 import secrets
 import sqlite3
+import time
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
@@ -105,7 +106,7 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
     text = consent_buffer.peek(body.check_id, body.anon_id, body.consent_store_text)
     configured = bool(os.getenv('VIASOCKET_REPORT_WEBHOOK_URL', '').strip())
     try:
-        report_id, created = db.add_report(get_settings().sqlite_path, body.check_id, body.anon_id, text,
+        report_id, created, text_saved = db.add_report(get_settings().sqlite_path, body.check_id, body.anon_id, text,
                                      body.note if body.consent_store_text else None, webhook_enabled=configured)
     except KeyError:
         raise ApiError(404, 'not_found', 'No check with that ID.') from None
@@ -116,7 +117,7 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
         background_tasks.add_task(webhooks.deliver_pending)
     elif created:
         logging.getLogger('cbyp').info('viasocket not configured')
-    return ReportResponse(report_id=report_id, ok=True)
+    return ReportResponse(report_id=report_id, ok=True, text_saved=text_saved)
 
 
 @app.get("/api/quiz", response_model=QuizResponse)
@@ -153,9 +154,21 @@ def events(body: EventRequest, request: Request) -> Response:
     return Response(status_code=204)
 
 
+_stats_cache: tuple[float, str, StatsResponse] | None = None
+
+
 @app.get("/api/stats", response_model=StatsResponse)
 def stats(response: Response) -> StatsResponse:
-    return db.stats(get_settings().sqlite_path)
+    # Every open /stats page polls this. Once the full count is slow (about 20,000 checks), serve it up to 15 s old;
+    # while it's quick, every call stays exact.
+    global _stats_cache
+    path = str(get_settings().sqlite_path)
+    if _stats_cache and _stats_cache[1] == path and time.monotonic() - _stats_cache[0] < 15:
+        return _stats_cache[2]
+    started = time.monotonic()
+    result = db.stats(get_settings().sqlite_path)
+    _stats_cache = (time.monotonic(), path, result) if time.monotonic() - started > 0.25 else None
+    return result
 
 
 @app.get('/api/admin/export', include_in_schema=False)

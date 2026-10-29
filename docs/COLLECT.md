@@ -6,7 +6,7 @@
 1. They open **https://34-45-129-243.sslip.io** on their phone.
 2. They paste a scam message they've actually received (or forward a screenshot), and tap **Check before you pay**.
 3. On the verdict, they tap **Report this as a scam** and tick **Also save the message text**. Ticking the box is their consent. Without it we store only the masked verdict, never the text.
-4. They must tap Report within 15 minutes of the check: after that the server has already forgotten the text, so only the masked verdict is reported.
+4. They must tap Report within 15 minutes of the check, and not across a deploy or restart: the server keeps the text only in memory, so after that only the masked verdict is reported. The page says so when it happens. For a screenshot or voice note that was already checked by someone else, only the verdict is saved too.
 5. That's it. Every report links its UPI ID, number or website to future checks, so the ring links get real data at the same time.
 
 Say this when you ask (it's the consent wording, so keep it):

@@ -109,6 +109,7 @@ class ReportRequest(BaseModel):
 
 class ReportResponse(BaseModel):
     report_id: str
+    text_saved: bool = False  # consent alone isn't enough: the server forgets unsent text after 15 minutes
     ok: bool
 
 
