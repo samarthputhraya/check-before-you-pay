@@ -96,3 +96,10 @@
 - The model's reading of a message varies a little between runs, even at temperature 0. Same message, different run: the band can move between caution and high risk.
 - The quiz exists in 4 languages (en, hi, hinglish, mr). The footer's quiz link in ta/te/kn/bn opens it in English.
 - An invite-only VIP group pitch that hasn't asked for money yet scores 15. That's an honest limit, documented in EVAL.md.
+
+## For Risheeth (from a code review of PR #11, not fixed tonight; Telegram isn't live yet)
+- **Shared rate limit:** Telegram checks use the literal IP `telegram`, so every bot user shares one 3000/hour bucket.
+- **Commands use up quota:** `/start`, `/help` and `/lang` count against the 30-checks-an-hour limit.
+- **Media timeout:** one 2 s limit covers both `getFile` and the download of up to 5 MB, so larger screenshots and voice notes will time out.
+- **Signal ID reuse:** the "website not registered" evidence reuses the id `S3` with 0 points, so a check can carry two S3 entries.
+- **Duplicated labels:** the band labels exist three times (`telegram.BAND_LABELS`, `share_page.PAGE_TEXT`, web `i18n.js`). Share one table.
