@@ -6,6 +6,7 @@ import { html } from './components/html.js';
 import { defaultLang, errorText, strings, uiLang } from './components/i18n.js';
 import { anonId, isReturning, ref, saveLang, track } from './components/session.js';
 import { Verdict } from './components/Verdict.js';
+import { QuizPage } from './components/Quiz.js';
 
 function Header() {
   return html`<header class="site-header">
@@ -23,6 +24,7 @@ function CheckPage() {
   const [lang, setLang] = useState(defaultLang());
   const [state, setState] = useState({ status: 'idle' });
   const t = strings(lang);
+  const quizLink = ({ en: 'Try the Spot the scam quiz', hi: 'धोखाधड़ी पहचानने की क्विज़ खेलें', mr: 'फसवणूक ओळखण्याची क्विझ खेळा' })[lang] || 'Try the Spot the scam quiz';
 
   useEffect(() => {
     document.documentElement.lang = uiLang(lang);
@@ -57,6 +59,7 @@ function CheckPage() {
   return html`
     <main class="page">
       <p class="tagline">${t.tagline}</p>
+      <p class="quiz-prompt"><a href="/quiz">${quizLink}</a></p>
       ${state.status === 'done'
         ? html`<${Verdict} result=${state.result} sample=${state.sample} t=${t} onReset=${() => setState({ status: 'idle' })} />`
         : html`<${CheckForm}
@@ -82,7 +85,8 @@ function SoonPage() {
 
 function App() {
   const home = location.pathname === '/' || location.pathname === '/index.html';
-  const page = home ? html`<${CheckPage} />` : html`<${SoonPage} />`;
+  const quiz = location.pathname === '/quiz';
+  const page = home ? html`<${CheckPage} />` : quiz ? html`<${QuizPage} />` : html`<${SoonPage} />`;
   return html`<${Header} />${page}<${Footer} />`;
 }
 
