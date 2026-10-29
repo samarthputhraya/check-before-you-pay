@@ -25,17 +25,38 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | 2:00-2:30 | *(B)* | **How:** write after the check works. The likely line: "The risk score is a fixed formula over facts we check, like whether the UPI ID is a SEBI @valid handle and whether the link copies a real broker. The AI only reads the message and explains the result, so the same message always gets the same score." |
 | 2:30-3:00 | Samarth | **Close:** "Families pay ₹49 a month to cover everyone's phones. Brokers and banks can call the same check before a payment leaves. Next we take it into the WhatsApp groups where these scams start. Sunita's son forwards her the next VIP group message, and this time she sees the red flags before she pays." Use real usage numbers here once we have them: users, checks, shares. |
 
-## 3. Demo path (write once built)
+## 3. Demo path (live, on a phone, about 70 seconds)
 
-Use only flows that work on the live URL, on a phone. Planned flow: Sunita's "VIP Stock Tips" message (sample) → verdict in Hindi in under 5 seconds → evidence → share card to WhatsApp.
+**Before going on stage:**
+- Open https://34-45-129-243.sslip.io on the demo phone. Set the language to **हिन्दी**.
+- Copy both messages below into the phone's notes app.
+- Keep WhatsApp logged in.
+- Have the backup video open in another tab.
 
-The rules for writing it:
-- exact taps;
-- the data used, labelled "(sample)";
-- what to say at each step;
-- the moment to switch to the recorded video.
+**Message 1, Sunita's** (sample; every ID is made up):
+
+> (नमूना) 🔥 VIP Stock Tips ग्रुप 🔥 हर महीने 30% पक्का मुनाफ़ा। इंस्टीट्यूशनल अकाउंट खोलने के लिए आज ही ₹50,000 tradepro.desk@ybl पर भेजें और ऐप यहाँ से डाउनलोड करें: kite-zerodha-pro.in. सिर्फ़ 3 सीटें बची हैं!
+
+**Message 2, a different group** (sample): a new message, but the same UPI ID:
+
+> (sample) Bank Nifty jackpot call kal 40% upar jayega. Premium group join karne ke liye ₹4,999 tradepro.desk@ybl pe bhejo.
+
+| Step | Tap | Say |
+|---|---|---|
+| 1 | Paste message 1, tap **पैसे भेजने से पहले जाँचें** | "This is the message Sunita got. She reads Hindi, so we check in Hindi." |
+| 2 | The verdict appears (High risk) | "Under five seconds. Point at the evidence: this UPI ID isn't a SEBI @valid handle, the app link copies Zerodha, and here is the exact line where they promise 30% a month. The AI didn't decide this score. Fixed checks did, and every point has its proof." |
+| 3 | Tap **परिवार को भेजें** | "One tap sends this card to the family group on WhatsApp. That's how the warning travels as fast as the scam." |
+| 4 | Tap **दूसरा मैसेज जाँचें**, paste message 2, check | "A different message, from a different group, the next day." |
+| 5 | Point at "Linked to 1 earlier check through the same UPI ID" | "Scammers change messages every day. They can't hide that the money goes to the same place. Every check makes the next one smarter." |
+| 6 | Open `/stats` | "And this is live: real people, real checks, in these languages, since Friday." |
+
+**What the judge should notice:** the language, the speed, the evidence quotes, and the ring link in step 5.
 
 **Fallback line:** "The venue Wi-Fi is fighting us, so here's the same check recorded this morning." Then play the video from the same step.
+
+**Before the demo:**
+- Run message 1 once in the morning, so step 5 has a link to show.
+- Never run message 2 first.
 
 ## 4. Hard questions (2-sentence answers)
 
