@@ -31,7 +31,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 - Open https://34-45-129-243.sslip.io on the demo phone. Set the language to **हिन्दी**.
 - Copy both messages below into the phone's notes app.
 - Keep WhatsApp logged in.
-- Have the backup video open in another tab.
+- Have the backup video open in another tab: [`docs/demo.mp4`](demo.mp4) (88 s, narrated, the same two messages; re-record with `tools/demo_video.py` after the stats reset).
 
 **Message 1, Sunita's** (sample; every ID is made up):
 
