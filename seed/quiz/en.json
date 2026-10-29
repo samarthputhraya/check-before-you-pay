@@ -16,7 +16,7 @@
       "id": "q2",
       "text": "Dear Investor, your Institutional Trading Account has been approved ✅\nMinimum activation deposit: ₹50,000.\nKindly pay to our desk UPI ID alphadesk.7731@ybl and share the payment screenshot with your relationship manager on WhatsApp.\n- Institutional Desk",
       "answer": "scam",
-      "why": "SEBI-registered brokers collect money only through verified UPI IDs ending in @valid (such as @validhdfc), never a personal ID like …@ybl. An 'institutional account' offered to an ordinary investor on WhatsApp is a common hook.",
+      "why": "When a SEBI-registered broker takes money by UPI, the ID uses an @valid handle (such as @validhdfc), never a personal one like …@ybl. An 'institutional account' offered to an ordinary investor on WhatsApp is a common hook.",
       "pattern": "institutional_account",
       "difficulty": "medium"
     },
@@ -40,7 +40,7 @@
       "id": "q5",
       "text": "Dear Client, to add funds to your trading account, pay by UPI only to kaveristock.brk@validhdfc (Kaveri Stock Broking Ltd, SEBI Reg. No. INZ000990017). Please verify this UPI ID on SEBI Check before paying. Do not pay to any other UPI ID sent to you on WhatsApp.",
       "answer": "genuine",
-      "why": "This looks like a genuine broker request: the UPI ID ends in @valid, it gives a SEBI registration number, and it asks you to verify first. Still check the UPI ID on SEBI Check, and add funds from inside your broker's official app when you can.",
+      "why": "This looks like a genuine broker request: the UPI ID uses a SEBI @valid handle (@validhdfc), it gives a SEBI registration number, and it asks you to verify first. Still check the UPI ID on SEBI Check, and add funds from inside your broker's official app when you can.",
       "pattern": "valid_upi_collect",
       "difficulty": "hard"
     },

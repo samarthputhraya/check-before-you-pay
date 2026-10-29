@@ -40,7 +40,7 @@
       "id": "q5",
       "text": "Kaveri Stock Broking: Trading account me funds add karne ke liye sirf is UPI ID pe pay karein: kaveristock.brk@validhdfc (SEBI Reg. No. INZ000990017). Pay karne se pehle ye UPI ID 'SEBI Check' pe verify kar lein. WhatsApp pe aayi kisi aur UPI ID pe paise na bhejein.",
       "answer": "genuine",
-      "why": "Ye asli broker ki request lagti hai: UPI ID @valid pe khatam hoti hai, SEBI registration number diya hai, aur pehle verify karne ko kaha hai. Phir bhi pay karne se pehle SEBI Check pe UPI ID match karo, aur ho sake toh funds broker ke official app se hi add karo.",
+      "why": "Ye asli broker ki request lagti hai: UPI ID me SEBI wala @valid handle (@validhdfc) hai, SEBI registration number diya hai, aur pehle verify karne ko kaha hai. Phir bhi pay karne se pehle SEBI Check pe UPI ID match karo, aur ho sake toh funds broker ke official app se hi add karo.",
       "pattern": "valid_upi_collect",
       "difficulty": "hard"
     },
