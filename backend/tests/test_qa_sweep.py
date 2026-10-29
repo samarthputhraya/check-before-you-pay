@@ -32,6 +32,13 @@ def test_emoji_between_words_do_not_hide_a_claim():
     ('tr…@ybl SEBI का @valid हैंडल नहीं है, और kite-zerodha-pro.in असली Zerodha नहीं है।', 'hi', 'high_risk', True),
     ('tr…@ybl என்பது SEBI-யின் @valid UPI முகவரி அல்ல.', 'ta', 'high_risk', True),
     ('This UPI ID is not a SEBI @valid handle.', 'mr', 'high_risk', False),
+    # Bengali ends sentences with the danda, which Unicode files under Devanagari.
+    ('এই সাইটে পেমেন্টের নাম সঠিক নয় এবং নিশ্চিত ৩০ শতাংশ লাভের কথা বলা হয়েছে।', 'bn', 'high_risk', True),
+    # A made-up ID in Telugu letters (seen live) is not the masked ID from the evidence.
+    ('ఈ సైట్లో ట్రే3@వైబిఎల్ లాంటి తప్పుడు పేమెంట్ ఐడీ ఉంది.', 'te', 'high_risk', False),
+    ('tr…@ybl SEBI का @valid हैंडल नहीं है।', 'hi', 'high_risk', True),
+    ('The payment ID tr…@ybl is not a SEBI @validhdfc-style handle.', 'en', 'high_risk', True),
+    ('tr…@ybl-க்கு ₹499 அனுப்பச் சொல்கிறது, இது SEBI-யின் @valid முகவரி அல்ல.', 'ta', 'high_risk', True),  # case ending
 ])
 def test_explanation_guard(text, lang, band, ok):
     assert language.explanation_ok(text, lang, band) is ok

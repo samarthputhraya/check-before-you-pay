@@ -93,11 +93,24 @@ _COMPLAINT = re.compile(r'complain|\breport|शिकायत|तक्रा�
                         r'|shikayat', re.I)
 
 
+# The danda (।, ॥) sits in the Devanagari block but ends sentences in Bengali too: punctuation, not a script mix.
+# Without this, every Bengali explanation fell back to the fixed text.
+_DANDA = (0x0964, 0x0965)
+# An ID in the explanation must be a masked one copied as is (tr…@ybl) or the SEBI @valid rule; the model once wrote
+# "ట్రే3@వైబిఎల్", a made-up ID in Telugu letters.
+_ID_OK = re.compile(r'(?:[\w.-]*…@[a-z0-9]+|@valid[\w-]*)(?:-?[ऀ-෿]+)?', re.I)  # case endings: …@ybl-க்கு
+
+
 def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0) -> bool:
     own = _SCRIPTS.get(lang)
     native = 0
+    for token in re.findall(r'\S*@\S*', text):
+        if not _ID_OK.fullmatch(token.strip('.,;:!?()"\'।॥')):
+            return False
     for ch in text:
         code = ord(ch)
+        if code in _DANDA:
+            continue
         if _INDIC[0] <= code <= _INDIC[1]:
             if not (own and own[0] <= code <= own[1]):
                 return False
