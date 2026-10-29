@@ -11,7 +11,7 @@ python -m venv .venv
 .venv/Scripts/activate          # Windows; use source .venv/bin/activate elsewhere
 pip install -r requirements.txt
 cp .env.example .env            # fill in the keys you have; the skeleton runs with none
-uvicorn backend.app:app --reload
+uvicorn backend.app:app --reload --no-proxy-headers
 ```
 
 Open http://localhost:8000. The API docs are at http://localhost:8000/api/docs.
@@ -48,3 +48,46 @@ The live site is **https://34-45-129-243.sslip.io**. It runs on one Google Cloud
 ## Rules
 
 Read [`AGENTS.md`](AGENTS.md) first. Secrets go only in `.env`, which is gitignored. Never change a shape in `API_CONTRACT.md` without role A.
+
+## Backend status (role B, 29 October)
+
+The check, public verdict, reports, events and stats now use the real backend.
+The quiz still returns labelled sample responses. API shapes are unchanged.
+
+- Gemini extracts source-verified claims and explains fixed scores; it never
+  chooses points. Model names are discovered from the configured key. Run
+  `python -m backend.model_inventory` to inspect available names. Optional OpenAI
+  fallback models must be explicitly configured and accessible to that key.
+- Deterministic S1–S7 checks, domain lookalikes, RDAP age lookups, hashed entity
+  links, model-specific script embeddings, cache and persistent rate limits run
+  behind `/api/check`. Failed checks score zero and appear in `unchecked`.
+- PNG/JPEG and OGG/M4A/MP3 are validated before processing. Text extraction falls
+  back to regex when the provider fails. Unreadable media returns a plain error.
+- SQLite stores masked verdicts and HMAC identifiers. Source text stays in a
+  bounded 15-minute memory buffer and is persisted only with Report consent from
+  the submitting anonymous ID. A restart clears that buffer.
+- Set a random `IDENTIFIER_SALT` of at least 32 characters before testing links.
+  Without it, checks still return verdicts with links marked unchecked.
+- Configure `VIASOCKET_REPORT_WEBHOOK_URL` for the durable report delivery worker.
+  It sends masked metadata, retries up to three times, and never sends source text.
+  Empty URLs skip delivery and log `viasocket not configured`. Delivery starts
+  after the report response. See [the exact payload and setup](docs/VIASOCKET.md).
+  The family-alert and sheet workflow must still be configured in viaSocket.
+- `GET /api/admin/export` downloads an online SQLite backup when supplied
+  `Authorization: Bearer <ADMIN_TOKEN>`. Keep the token in `.env`.
+
+Run `python -m seed.load` for explicitly labelled synthetic ring examples;
+see [seed setup](seed/README.md) for optional phishing-feed configuration.
+Run `python -m pytest` for offline contract, privacy, scoring and outage tests.
+Tests replace provider calls and never spend credits or send webhooks.
+
+Latest real-key benchmark: text p50/p95 2.56/3.43 seconds (20/20 complete);
+screenshots 4.16/4.76 seconds (10/10 complete). Voice returned 9/10 responses,
+with 8/10 completing every risk check, and still needs reliability and phone
+acceptance work. These are local measurements, not deployment latency or usage
+metrics. All 306 offline tests pass. See the
+[review resolutions and benchmark](docs/REVIEW_FIXES.md) for every review finding,
+retry/health behavior, event validation and Railway IP settings.
+See [the role B handoff](docs/BACKEND_HANDOFF.md) for file ownership,
+team setup and the remaining external steps. Phone/Railway validation, consented
+real seed collection and the external viaSocket workflow remain outstanding.

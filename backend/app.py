@@ -5,20 +5,25 @@ Run locally:  uvicorn backend.app:app --reload
 from __future__ import annotations
 
 import logging
-import time
+import asyncio
+import os
+import secrets
+import sqlite3
+from contextlib import asynccontextmanager, suppress
 
-from fastapi import FastAPI, Query, Request, Response
+from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db
+from backend import db, events as event_proof, llm, pipeline, rate_limit, webhooks
+from backend.cache import consent_buffer
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
 from backend.guard import Guard
-from backend.ids import new_id
 from backend.inputs import validate_check_input
-from backend.samples import sample_check, sample_quiz, sample_quiz_answer, sample_stats, sample_view
+from backend.privacy import public_view
+from backend.samples import sample_quiz, sample_quiz_answer
 from backend.schemas import (
     AnonId, CheckId, CheckRequest, CheckResponse, CheckView, EventRequest, HealthResponse, Lang,
     QuizAnswerRequest, QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, StatsResponse,
@@ -27,8 +32,30 @@ from backend.share_page import render_share_page
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logging.getLogger("httpx").setLevel(logging.WARNING)  # it logs full outgoing URLs, and webhook URLs carry secrets
+logging.getLogger("httpx2").setLevel(logging.WARNING)
 
-app = FastAPI(title="Check Before You Pay", version="0.1.0", docs_url="/api/docs", redoc_url=None,
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        await asyncio.to_thread(db.prepare_cache, get_settings().sqlite_path)
+    except (sqlite3.Error, OSError):
+        pass  # Health reports the outage; checks retain their regex/zero-link fallback.
+    await llm.providers.initialize()
+    webhook_worker = asyncio.create_task(webhooks.worker())
+    model_worker = asyncio.create_task(llm.providers.refresh_loop())
+    try:
+        yield
+    finally:
+        webhook_worker.cancel()
+        model_worker.cancel()
+        with suppress(asyncio.CancelledError):
+            await webhook_worker
+        with suppress(asyncio.CancelledError):
+            await model_worker
+        await llm.providers.close()
+
+
+app = FastAPI(title="Check Before You Pay", version="0.2.0", docs_url="/api/docs", redoc_url=None, lifespan=lifespan,
               openapi_url="/api/openapi.json")
 install_error_handlers(app)
 app.add_middleware(Guard)
@@ -48,32 +75,47 @@ def health(response: Response) -> HealthResponse:
     db_up = db.ping(s.sqlite_path)
     # 503 when the database can't be written, so a deploy with a missing or read-only volume fails its healthcheck
     # instead of going live without storing any usage data. Checks themselves still work while the db is down.
-    if not db_up:
+    if not db_up or not llm.providers.ready:
         response.status_code = 503
-    # Skeleton: "up" means a Gemini key is configured. Role B makes this a real model check.
-    return HealthResponse(ok=db_up, llm="up" if s.gemini_configured else "down", db="up" if db_up else "down")
+    return HealthResponse(ok=db_up and llm.providers.ready, llm="up" if llm.providers.ready else "down", db="up" if db_up else "down")
 
 
 @app.post("/api/check", response_model=CheckResponse)
-def check(body: CheckRequest, request: Request, response: Response) -> CheckResponse:
-    t0 = time.perf_counter()
-    validate_check_input(body.input)
-    response.headers.update(SAMPLE_HEADER)
-    return sample_check(check_id=new_id("chk"), lang=body.lang, base=base_url(request),
-                        anon_id=body.anon_id, latency_ms=int((time.perf_counter() - t0) * 1000))
+async def check(body: CheckRequest, request: Request, response: Response) -> CheckResponse:
+    inp = await asyncio.to_thread(validate_check_input, body.input)
+    await asyncio.to_thread(rate_limit.enforce, body.anon_id, rate_limit.client_ip(request))
+    response.headers['Cache-Control'] = 'no-store'
+    result = await pipeline.run_check(body, inp, base_url(request))
+    event_proof.issue(response, body.anon_id, secure=base_url(request).startswith('https://'))
+    return result
 
 
 @app.get("/api/check/{check_id}", response_model=CheckView)
 def check_view(check_id: str, request: Request, response: Response) -> CheckView:
     _require_check_id(check_id)
-    response.headers.update(SAMPLE_HEADER)
-    return sample_view(check_id=check_id, base=base_url(request))
+    view = db.get_check(get_settings().sqlite_path, check_id)
+    if view is None:
+        raise ApiError(404, 'not_found', 'No check with that ID.')
+    return public_view(view)
 
 
 @app.post("/api/report", response_model=ReportResponse)
-def report(body: ReportRequest, response: Response) -> ReportResponse:
-    response.headers.update(SAMPLE_HEADER)
-    return ReportResponse(report_id=new_id("rep"), ok=True)
+def report(body: ReportRequest, response: Response, background_tasks: BackgroundTasks) -> ReportResponse:
+    text = consent_buffer.peek(body.check_id, body.anon_id, body.consent_store_text)
+    configured = bool(os.getenv('VIASOCKET_REPORT_WEBHOOK_URL', '').strip())
+    try:
+        report_id, created = db.add_report(get_settings().sqlite_path, body.check_id, body.anon_id, text,
+                                     body.note if body.consent_store_text else None, webhook_enabled=configured)
+    except KeyError:
+        raise ApiError(404, 'not_found', 'No check with that ID.') from None
+    except (sqlite3.Error, OSError):
+        raise ApiError(500, 'internal_error', 'We could not save your report. Please try again.') from None
+    consent_buffer.take(body.check_id, body.anon_id, False)
+    if created and configured:
+        background_tasks.add_task(webhooks.deliver_pending)
+    elif created:
+        logging.getLogger('cbyp').info('viasocket not configured')
+    return ReportResponse(report_id=report_id, ok=True)
 
 
 @app.get("/api/quiz", response_model=QuizResponse)
@@ -89,14 +131,27 @@ def quiz_answer(body: QuizAnswerRequest, request: Request, response: Response) -
 
 
 @app.post("/api/events", status_code=204)
-def events(body: EventRequest) -> Response:
-    return Response(status_code=204, headers=SAMPLE_HEADER)
+def events(body: EventRequest, request: Request) -> Response:
+    rate_limit.enforce_events(body.anon_id, rate_limit.client_ip(request))
+    if body.event in ('share_clicked', 'quiz_shared') and not event_proof.verified(request, body.anon_id):
+        return Response(status_code=204)
+    db.record_event(get_settings().sqlite_path, body)
+    return Response(status_code=204)
 
 
 @app.get("/api/stats", response_model=StatsResponse)
 def stats(response: Response) -> StatsResponse:
-    response.headers.update(SAMPLE_HEADER)
-    return sample_stats()
+    return db.stats(get_settings().sqlite_path)
+
+
+@app.get('/api/admin/export', include_in_schema=False)
+def export_database(request: Request) -> Response:
+    token = os.getenv('ADMIN_TOKEN', '')
+    provided = request.headers.get('authorization', '').removeprefix('Bearer ')
+    if not token or not secrets.compare_digest(token, provided):
+        raise ApiError(404, 'not_found', 'Not found.')
+    return Response(db.export_database(get_settings().sqlite_path), media_type='application/vnd.sqlite3',
+                    headers={'Content-Disposition':'attachment; filename="check-before-you-pay.db"', 'Cache-Control':'no-store'})
 
 
 @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], include_in_schema=False)
@@ -126,9 +181,12 @@ def share_page(check_id: str, request: Request, ref: str | None = None) -> HTMLR
         ref = _ANON_ID.validate_python(ref) if ref else None
     except ValidationError:
         ref = None  # a mangled ref must not break the page; we just don't credit anyone
-    view = sample_view(check_id=check_id, base=base_url(request))
+    view = db.get_check(get_settings().sqlite_path, check_id)
+    if view is None:
+        raise ApiError(404, 'not_found', 'No check with that ID.')
+    view = public_view(view)
     page_url = f"{base_url(request)}/c/{check_id}"
-    return HTMLResponse(render_share_page(view, page_url, ref), headers=SAMPLE_HEADER)
+    return HTMLResponse(render_share_page(view, page_url, ref))
 
 
 @app.get("/quiz", include_in_schema=False)

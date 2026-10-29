@@ -19,6 +19,11 @@ from backend.schemas import Evidence, NextStep, ReportRequest
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "test.db"))
     monkeypatch.delenv("PUBLIC_BASE_URL", raising=False)
+    from backend import db
+    from backend.schemas import CheckResponse
+    sample = CheckResponse.model_validate(samples._example('check_response'))
+    db.save_check(tmp_path / 'test.db', sample, [], None, None, 'fixture',
+                  'u_7f3a9c', 'text', 1.0, sample=True)
     return TestClient(app_module.app, raise_server_exceptions=False)
 
 
@@ -57,9 +62,9 @@ def test_event_prop_values_are_capped(client):
 def test_unhandled_error_returns_envelope_without_logging_content(client, monkeypatch, caplog):
     secret_text = "PRIVATE-MESSAGE-9876543210"
 
-    def boom(**_):
+    async def boom(*args, **kwargs):
         raise RuntimeError(f"failed while handling {secret_text}")
-    monkeypatch.setattr(app_module, "sample_check", boom)
+    monkeypatch.setattr(app_module.pipeline, "run_check", boom)
     with caplog.at_level(logging.DEBUG):
         resp = client.post("/api/check", json={"lang": "en", "anon_id": "u_1", "input": {"text": secret_text}})
     assert resp.status_code == 500
@@ -86,7 +91,8 @@ def test_public_view_masks_identifiers_in_every_text_field(client, monkeypatch):
     hostile = {**real, "explanation": "Pay tradepro.vip@ybl or call 9876543210",
                "signals": [{**real["signals"][0], "evidence": {"kind": "quote", "text": "send to abc.xyz@paytm",
                                                                 "source_url": None}}]}
-    monkeypatch.setattr(samples, "_example", lambda name: hostile if name == "check_response" else real)
+    from backend.schemas import CheckView
+    monkeypatch.setattr(app_module.db, 'get_check', lambda *args: CheckView.model_validate(hostile))
     for path in ("/api/check/chk_A1", "/c/chk_A1"):
         body = client.get(path).text
         for raw in ("tradepro.vip@ybl", "9876543210", "abc.xyz@paytm"):

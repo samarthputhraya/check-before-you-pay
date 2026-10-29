@@ -1,0 +1,77 @@
+[
+  {
+    "id": "chk_sample01",
+    "label": "Made-up investment request (sample) (test, made up)",
+    "text": "(test, made up) (sample) Investment: 300% guaranteed. Pay sample@ybl for an institutional account. Install our APK to trade.",
+    "claims": [
+      {
+        "type": "guaranteed_returns",
+        "quote": "300% guaranteed"
+      },
+      {
+        "type": "vip_or_institutional_account",
+        "quote": "institutional account"
+      },
+      {
+        "type": "install_app_or_apk",
+        "quote": "Install our APK"
+      }
+    ],
+    "source": "made_up",
+    "consent_to_use": false
+  },
+  {
+    "id": "chk_sample02",
+    "label": "Made-up linked investment request (sample) (test, made up)",
+    "text": "(test, made up) (sample) Stock investment: 300% guaranteed. Pay sample@ybl for an institutional account. Install our APK today.",
+    "claims": [
+      {
+        "type": "guaranteed_returns",
+        "quote": "300% guaranteed"
+      },
+      {
+        "type": "vip_or_institutional_account",
+        "quote": "institutional account"
+      },
+      {
+        "type": "install_app_or_apk",
+        "quote": "Install our APK"
+      }
+    ],
+    "source": "made_up",
+    "consent_to_use": false
+  },
+  {
+    "id": "chk_sample03",
+    "label": "Ordinary reminder (test, made up) (sample)",
+    "source": "made_up",
+    "consent_to_use": false,
+    "text": "(test, made up) (sample) Please bring lunch to our meeting tomorrow.",
+    "claims": []
+  },
+  {
+    "id": "chk_sample04",
+    "label": "Made-up wallet request (test, made up) (sample)",
+    "source": "made_up",
+    "consent_to_use": false,
+    "text": "(test, made up) (sample) Guaranteed returns from our institutional account. Install our APK. Pay a withdrawal fee to 0x0000000000000000000000000000000000000000 to release funds.",
+    "claims": [
+      {
+        "type": "guaranteed_returns",
+        "quote": "Guaranteed returns"
+      },
+      {
+        "type": "vip_or_institutional_account",
+        "quote": "institutional account"
+      },
+      {
+        "type": "install_app_or_apk",
+        "quote": "Install our APK"
+      },
+      {
+        "type": "withdrawal_fee",
+        "quote": "Pay a withdrawal fee"
+      }
+    ]
+  }
+]

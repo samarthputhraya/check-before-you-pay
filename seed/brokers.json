@@ -1,0 +1,327 @@
+[
+  {
+    "name": "Zerodha",
+    "domains": [
+      "zerodha.com"
+    ],
+    "aliases": [
+      "zerodha"
+    ],
+    "source_url": "https://zerodha.com"
+  },
+  {
+    "name": "Groww",
+    "domains": [
+      "groww.in"
+    ],
+    "aliases": [
+      "groww"
+    ],
+    "source_url": "https://groww.in"
+  },
+  {
+    "name": "Upstox",
+    "domains": [
+      "upstox.com"
+    ],
+    "aliases": [
+      "upstox"
+    ],
+    "source_url": "https://upstox.com"
+  },
+  {
+    "name": "Angel One",
+    "domains": [
+      "angelone.in"
+    ],
+    "aliases": [
+      "angelone",
+      "angelbroking"
+    ],
+    "source_url": "https://angelone.in"
+  },
+  {
+    "name": "ICICI Direct",
+    "domains": [
+      "icicidirect.com"
+    ],
+    "aliases": [
+      "icicidirect"
+    ],
+    "source_url": "https://icicidirect.com"
+  },
+  {
+    "name": "HDFC Securities",
+    "domains": [
+      "hdfcsec.com",
+      "hdfcsky.com"
+    ],
+    "aliases": [
+      "hdfcsec",
+      "hdfcsky"
+    ],
+    "source_url": "https://hdfcsec.com"
+  },
+  {
+    "name": "Kotak Securities",
+    "domains": [
+      "kotaksecurities.com"
+    ],
+    "aliases": [
+      "kotaksecurities"
+    ],
+    "source_url": "https://kotaksecurities.com"
+  },
+  {
+    "name": "Motilal Oswal",
+    "domains": [
+      "motilaloswal.com"
+    ],
+    "aliases": [
+      "motilaloswal"
+    ],
+    "source_url": "https://motilaloswal.com"
+  },
+  {
+    "name": "Sharekhan",
+    "domains": [
+      "sharekhan.com"
+    ],
+    "aliases": [
+      "sharekhan"
+    ],
+    "source_url": "https://sharekhan.com"
+  },
+  {
+    "name": "5paisa",
+    "domains": [
+      "5paisa.com"
+    ],
+    "aliases": [
+      "5paisa"
+    ],
+    "source_url": "https://5paisa.com"
+  },
+  {
+    "name": "Dhan",
+    "domains": [
+      "dhan.co"
+    ],
+    "aliases": [
+      "dhan"
+    ],
+    "source_url": "https://dhan.co"
+  },
+  {
+    "name": "FYERS",
+    "domains": [
+      "fyers.in"
+    ],
+    "aliases": [
+      "fyers"
+    ],
+    "source_url": "https://fyers.in"
+  },
+  {
+    "name": "Alice Blue",
+    "domains": [
+      "aliceblueonline.com"
+    ],
+    "aliases": [
+      "aliceblue"
+    ],
+    "source_url": "https://aliceblueonline.com"
+  },
+  {
+    "name": "Shoonya",
+    "domains": [
+      "shoonya.com"
+    ],
+    "aliases": [
+      "shoonya"
+    ],
+    "source_url": "https://shoonya.com"
+  },
+  {
+    "name": "NSE",
+    "domains": [
+      "nseindia.com"
+    ],
+    "aliases": [
+      "nseindia"
+    ],
+    "source_url": "https://nseindia.com"
+  },
+  {
+    "name": "BSE",
+    "domains": [
+      "bseindia.com",
+      "bseindia.in"
+    ],
+    "aliases": [
+      "bseindia"
+    ],
+    "source_url": "https://bseindia.com"
+  },
+  {
+    "name": "MCX",
+    "domains": [
+      "mcxindia.com"
+    ],
+    "aliases": [
+      "mcxindia"
+    ],
+    "source_url": "https://mcxindia.com"
+  },
+  {
+    "name": "CDSL",
+    "domains": [
+      "cdslindia.com"
+    ],
+    "aliases": [
+      "cdslindia"
+    ],
+    "source_url": "https://cdslindia.com"
+  },
+  {
+    "name": "NSDL",
+    "domains": [
+      "nsdl.co.in",
+      "nsdl.com"
+    ],
+    "aliases": [
+      "nsdl"
+    ],
+    "source_url": "https://nsdl.co.in"
+  },
+  {
+    "name": "AMFI",
+    "domains": [
+      "amfiindia.com"
+    ],
+    "aliases": [
+      "amfiindia"
+    ],
+    "source_url": "https://amfiindia.com"
+  },
+  {
+    "name": "SBI Mutual Fund",
+    "domains": [
+      "sbimf.com"
+    ],
+    "aliases": [
+      "sbimf"
+    ],
+    "source_url": "https://sbimf.com"
+  },
+  {
+    "name": "HDFC Mutual Fund",
+    "domains": [
+      "hdfcfund.com"
+    ],
+    "aliases": [
+      "hdfcfund"
+    ],
+    "source_url": "https://hdfcfund.com"
+  },
+  {
+    "name": "ICICI Prudential Mutual Fund",
+    "domains": [
+      "icicipruamc.com"
+    ],
+    "aliases": [
+      "icicipruamc"
+    ],
+    "source_url": "https://icicipruamc.com"
+  },
+  {
+    "name": "Nippon India Mutual Fund",
+    "domains": [
+      "mf.nipponindiaim.com"
+    ],
+    "aliases": [
+      "nipponindiaim"
+    ],
+    "source_url": "https://mf.nipponindiaim.com"
+  },
+  {
+    "name": "Axis Mutual Fund",
+    "domains": [
+      "axismf.com"
+    ],
+    "aliases": [
+      "axismf"
+    ],
+    "source_url": "https://axismf.com"
+  },
+  {
+    "name": "UTI Mutual Fund",
+    "domains": [
+      "utimf.com"
+    ],
+    "aliases": [
+      "utimf"
+    ],
+    "source_url": "https://utimf.com"
+  },
+  {
+    "name": "DSP Mutual Fund",
+    "domains": [
+      "dspim.com"
+    ],
+    "aliases": [
+      "dspim"
+    ],
+    "source_url": "https://dspim.com"
+  },
+  {
+    "name": "Mirae Asset Mutual Fund",
+    "domains": [
+      "miraeassetmf.co.in"
+    ],
+    "aliases": [
+      "miraeassetmf"
+    ],
+    "source_url": "https://miraeassetmf.co.in"
+  },
+  {
+    "name": "CoinDCX",
+    "domains": [
+      "coindcx.com"
+    ],
+    "aliases": [
+      "coindcx"
+    ],
+    "source_url": "https://coindcx.com"
+  },
+  {
+    "name": "CoinSwitch",
+    "domains": [
+      "coinswitch.co"
+    ],
+    "aliases": [
+      "coinswitch"
+    ],
+    "source_url": "https://coinswitch.co"
+  },
+  {
+    "name": "WazirX",
+    "domains": [
+      "wazirx.com"
+    ],
+    "aliases": [
+      "wazirx"
+    ],
+    "source_url": "https://wazirx.com"
+  },
+  {
+    "name": "ZebPay",
+    "domains": [
+      "zebpay.com"
+    ],
+    "aliases": [
+      "zebpay"
+    ],
+    "source_url": "https://zebpay.com"
+  }
+]
