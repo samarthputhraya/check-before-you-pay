@@ -209,3 +209,56 @@ def test_model_discovery_retries_after_a_failed_boot(monkeypatch):
 ])
 def test_more_tip_group_wordings_get_s1(text):
     assert 'S1' in [s.id for s in evaluate(text, regex_extract(text), {})]
+
+
+@pytest.mark.parametrize('text', [
+    # third review: shop names, property brokers, hospital tests, first names and UPI names are not investing
+    'Your bill from Shree Ganesh Trading Co. is Rs 4,500. Please pay to ganeshtrading@okaxis',
+    'Mahalaxmi Trading Company: invoice 2231, amount 12,400. Kindly pay to mahalaxmi.trading@okicici',
+    'Gupta Trading Co ka bill 3200 hai, guptatrading@ybl pe bhej dena',
+    'शर्मा ट्रेडिंग कंपनी का बिल 4500 रुपये, sharmatrading@ybl पर भेज दें',
+    'সাহা ট্রেডিং কোম্পানির বিল 3000 টাকা saha@ybl তে পাঠান',
+    'Flat on rent 25k, brokerage one month. Pay token 5000 to rajesh.k@ybl to block the flat',
+    'Hi, I am the property broker. Send the commission 15000 to sunil@okhdfcbank today',
+    'City Hospital: investigation charges Rs 2,400 (CBC, LFT, X-ray). Please pay to cityhospital@okicici',
+    'Send 2000 to Nivesh for the Goa trip, his UPI is nivesh.sharma@okaxis',
+    'Load your forex card for the US trip: transfer 50000 to globetravels@okicici',
+    '100% return policy within 7 days. Pay 1,200 for the kurta to fashionhub@ybl',
+    'Shriram chit: this month dividend is 450, so pay 4550 to srirama.chits@ybl',
+    'Surat stock lot sarees, buy stock at 40% off. Pay 5000 advance to suratsarees@ybl',
+])
+def test_third_review_ordinary_payments_get_no_s1(text):
+    assert 'S1' not in [s.id for s in evaluate(text, regex_extract(text), {})]
+
+
+@pytest.mark.parametrize('text', [
+    'Tomorrow this stock will hit upper circuit. Pay 2999 for membership to calls@ybl',
+    'Earn 3% daily. Send 10000 to desk.official@ybl to start',
+    'Returns guaranteed. Pay 10000 to growthplan@ybl',
+    'Munafa pakka hai bhai, 5000 bhejo vip@ybl',
+    'यह शेयर कल 40% ऊपर जाएगा, 5000 रुपये भेजें abc@ybl',
+    'ட்ரேடிங் குழுவில் சேர 5000 abc@ybl க்கு செலுத்து',
+    "Yesterday's call gave 18% in TATA MOTORS. Join premium membership, pay 4999 to equitycalls@ybl",
+    'Deposit 20,000 in the app wallet to buy the allotted shares, pay to app.wallet@ybl',
+])
+def test_third_review_scam_wordings_get_s1(text):
+    assert 'S1' in [s.id for s in evaluate(text, regex_extract(text), {})]
+
+
+@pytest.mark.parametrize('text', ['Mail RK@GMAIL.COM today', 'Support@Zerodha.Com', 'HTTPS://USER@EXAMPLE.COM'])
+def test_uppercase_email_is_not_a_upi_id(text):
+    assert regex_extract(text).entities.upi_ids == []
+
+
+def test_valid_handle_next_to_an_uppercase_email_gets_no_s1():
+    text = 'Investment queries: SUPPORT@ZERODHA.COM. Pay only via zerodha.broker@validhdfc'
+    assert 'S1' not in [s.id for s in evaluate(text, regex_extract(text), {})]
+
+
+def test_explanation_claiming_certainty_falls_back(client, monkeypatch):
+    async def explain(*args):
+        return llm.Explanation(explanation='This is 100% a scam.', signals=[])
+
+    monkeypatch.setattr(llm, 'explain', explain)
+    verdict = client.post('/api/check', json=body(HIGH)).json()
+    assert '100%' not in verdict['explanation']

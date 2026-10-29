@@ -17,22 +17,37 @@ SEBI_SOURCE = 'https://www.sebi.gov.in/legal/circulars/jun-2025/adoption-of-stan
 # Words that also fit shop bills, fees or "share this" (traders, profit, return, portfolio, शेयर करें) only count
 # inside an investment phrase, because S1 alone is 35 points.
 _GAIN = r'(?:returns?|profits?|munafa|income)'
+_FIRM = r'(?!\s+(?:co\b|company|corp\w*|enterprises?|agency|firm|stores?|house|traders?))'  # "Ganesh Trading Co."
 INVESTMENT = re.compile(
-    r'\b(invest\w*|nivesh|trading|traders?\s+(?:group|club|community)|broker\w*|mutual\s+funds?|ipo|institutional'
-    r'|share\s*market|stocks?\s+(?:market|tips?|calls?|trading|picks?|advice|recommendations?)|stock\s*exchange'
-    r'|(?:buy|sell)\s+(?:this\s+|these\s+)?stocks?|penny\s+stocks?|multibagger'
-    r'|crypto\w*|bitcoin|btc|usdt|forex|bank\s*nifty|nifty\s*(?:50|bank|options?|calls?|tips|futures?|trading)|sensex'
-    r'|intraday|demat|f&o|futures?\s+(?:and|&)\s+options|options?\s+(?:tips|trading|calls)'
-    r'|(?:vip|premium|market|trading)\s+(?:tips|calls|signals?)|dividends?|equity\s+(?:shares?|funds?|market|trading)'
-    r'|commodity\s+(?:tips|trading|calls)|mcx|sebi|fund\s+manager|double\s+(?:your\s+)?money|paisa\s+double'
-    r'|(?:guaranteed|assured|fixed|pakka)\s+' + _GAIN + r'|(?:high|double)\s+(?:returns?|profits?)'
-    r'|(?:daily|weekly|monthly)\s+profits?|profits?\s+(?:daily|guaranteed|assured|every\s+(?:day|week|month))'
-    r'|\d+(?:\.\d+)?\s*%\s*(?:(?:daily|weekly|monthly)\s+)?(?:returns?|profits?|munafa))\b'
-    r'|निवेश|इन्वेस्ट|शेयर\s*(?:मार्केट|बाज)|ट्रेडिंग|स्टॉक\s*(?:मार्केट|टिप)|क्रिप्टो|म्यूचुअल\s*फंड|आईपीओ|निफ्टी|डीमैट|सेबी'
-    r'|(?:गारंटी\S*|पक्का|फिक्स्ड|निश्चित)\s*(?:रिटर्न|मुनाफ|प्रॉफिट)|(?:रिटर्न|मुनाफ\S*|प्रॉफिट)\s*(?:की\s*)?गारंटी'
+    r'\b(invest(?!igat|itur)\w*|nivesh\s+(?:kar\w*|plan|scheme)|trading' + _FIRM
+    + r'|traders?\s+(?:group|club|community)|expert\s+traders?|trade\s+kar\w*'
+    r'|(?:stock|share|sebi[\s-]*registered)[\s-]*broker\w*|broker(?:age)?\s+(?:account|app|platform)|mutual\s+funds?|ipo'
+    r'|institutional\s+(?:accounts?|investors?|trading|desk|quota|club|group)|share\s*market'
+    r'|stocks?\s+(?:market|tips?|calls?|trading|picks?|advice|recommendations?)|stock\s*exchange'
+    r'|(?:buy|sell)\s+(?:this|these)\s+stocks?|(?:buy|sell)\s+stocks?\s+(?:now|today|tomorrow)|penny\s+stocks?|multibagger|upper\s+circuit|stop\s*loss|\d+\s+shares'
+    r'|(?:share|ipo)s?\s+allotment|allotment\s+of\s+\d+\s+shares?|allotted\s+shares?|jackpot\s+(?:calls?|tips?)'
+    r'|crypto\w*|bitcoin|usdt|binance|forex(?!\s+card)|bank\s*nifty|nifty\s*(?:50|bank|options?|calls?|tips|futures?|trading)'
+    r'|sensex|intraday|demat|f&o|futures?\s+(?:and|&)\s+options|options?\s+(?:tips|trading|calls)'
+    r'|(?:vip|premium|market|trading)\s+(?:tips|calls|signals?)|(?:guaranteed|assured|monthly)\s+dividends?|dividend\s+(?:stocks?|shares?|yield)|equity\s+(?:shares?|funds?|market|trading)'
+    r'|commodity\s+(?:tips|trading|calls)|mcx|sebi|fund\s+manager|double\s+(?:your\s+)?money|pais[ae]\s+(?:double|dabal)'
+    r'|(?:guaranteed|assured|fixed|pakka)\s+' + _GAIN + r'|' + _GAIN + r'\s+(?:guaranteed|assured|pakka)'
+    + r'|(?:high|double)\s+(?:returns?|profits?)|(?:daily|weekly)\s+profits?'
+    r'|profits?\s+(?:daily|guaranteed|assured|every\s+(?:day|week|month))|munafa\s+pakka|roz(?:ana)?\s+(?:ka\s+)?munafa'
+    r'|(?:release|withdraw)\w*\s+(?:your\s+)?(?:profits?|returns?|earnings)'
+    r'|\d+(?:\.\d+)?\s*%\s*(?:(?:daily|weekly|monthly)\s+)?(?:returns?|profits?|munafa|gain)(?!\s+(?:policy|accepted|within))'
+    r'|\d+(?:\.\d+)?\s*%\s*(?:daily|weekly|per\s+(?:day|week)|roz\w*))\b'
+    # "This share will be up 40% tomorrow" or "yesterday's call gave 18%", in any script. Outside \b…\b: "%" is not
+    # a word character.
+    r'|(?:call|tip)s?\s+(?:gave|given|delivered|hit)\s+\d+(?:\.\d+)?\s*%'
+    r'|(?:this|ye|yeh|is|यह|ये|इस|हा|ఈ|এই|இந்த)\s+(?:share|शेयर|शेअर|షేర్|শেয়ার|ஷேர்)\S*\s+(?:\S+\s+){0,3}\d+(?:\.\d+)?\s*%'
+    r'|निवेश|इन्वेस्ट|शेयर\s*(?:मार्केट|बाज)|ट्रेडिंग(?!\s*कं)|स्टॉक\s*(?:मार्केट|टिप)|क्रिप्टो|म्यूचुअल\s*फंड|आईपीओ|निफ्टी'
+    r'|डीमैट|सेबी|(?:गारंटी\S*|पक्का|फिक्स्ड|निश्चित)\s*(?:रिटर्न|मुनाफ|प्रॉफिट)'
+    r'|(?:रिटर्न|मुनाफ\S*|प्रॉफिट)\s*(?:की\s*)?(?:गारंटी|पक्का)|रोज\S*\s*(?:का\s*)?मुनाफ|पैस[ाे]\s*डबल'
     r'|\d+(?:\.\d+)?\s*%\s*(?:का\s*)?(?:रिटर्न|मुनाफ|प्रॉफिट|नफ|லாபம்|లాభం|ಲಾಭ|লাভ|মুনাফা)'
-    r'|गुंतवणूक|शेअर\s*(?:मार्केट|बाजार)|முதலீ|பங்கு(?:ச்)?\s*சந்தை|டிரேடிங்|పెట్టుబడి|షేర్\s*మార్కెట్'
-    r'|స్టాక్\s*మార్కెట్|ట్రేడింగ్|ಹೂಡಿಕೆ|ಷೇರು|ಟ್ರೇಡಿಂಗ್|বিনিয়োগ|শেয়ার\s*(?:বাজার|মার্কেট)|ট্রেডিং', re.I)
+    r'|गुंतवणूक|शेअर\s*(?:मार्केट|बाजार)|முதலீ|(?:பங்கு(?:ச்)?|ஷேர்)\s*(?:சந்தை|மார்க்கெட்)'
+    r'|(?:டிரேடிங்|ட்ரேடிங்)(?!\s*(?:கம்பெனி|நிறுவன))|పెట్టుబడి|షేర్\s*మార్కెట్|స్టాక్\s*(?:మార్కెట్|టిప్స్)'
+    r'|ట్రేడింగ్(?!\s*కంపెనీ)|ಹೂಡಿಕೆ|(?:ಷೇರು|ಶೇರ್)\s*(?:ಮಾರುಕಟ್ಟೆ|ಮಾರ್ಕೆಟ್)|ಸ್ಟಾಕ್\s*ಮಾರ್ಕೆಟ್|ಟ್ರೇಡಿಂಗ್(?!\s*ಕಂಪನಿ)'
+    r'|বিনিয়োগ|(?:শেয়ার|স্টক)\s*(?:বাজার|মার্কেট)|ট্রেডিং(?!\s*কোম্পানি)', re.I)
 # A verified quote for one of these claims puts the payment request in an investment context on its own.
 INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment', 'withdrawal_fee'}
 PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|bhej\w*|jama|bharo)\b|भेज|भुगतान|जमा|पाठवा|भरा|செலுத்த|அனுப்பு|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ|জমা|পাঠান|পেমেন্ট', re.I)
@@ -98,7 +113,11 @@ def evaluate(text: str, extracted: Extraction, domain_ages: dict[str, tuple[int,
     result = []
     clean = normalize(source_text(text))
     invalid = [u for u in extracted.entities.upi_ids if not u.split('@')[-1].startswith('valid')]
-    investment = INVESTMENT.search(clean) or any(
+    # The sender picks the UPI name, and "mahalaxmi.trading@okicici" is a shop: only the message says it's investing.
+    context = clean
+    for upi in extracted.entities.upi_ids:
+        context = context.replace(upi, ' ')
+    investment = INVESTMENT.search(context) or any(
         c.type in INVESTMENT_CLAIMS and normalize(c.quote) in clean for c in extracted.claims)
     if invalid and investment and PAYMENT.search(clean):
         result.append(signal('S1', weights.S1, 'Investment payment handle',

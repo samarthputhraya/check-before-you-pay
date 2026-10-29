@@ -36,8 +36,8 @@ class Extraction(BaseModel):
 
 
 ZERO_WIDTH = re.compile('[\u200b\u200c\u200d\u2060\ufeff]')
-# A full stop may end the sentence ("…@ybl." or "…@ybl.Thanks"); an email's ".com" may not.
-UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\w@]|\.[a-z0-9])')
+# A full stop may end the sentence ("…@ybl." or "…@ybl.Thanks"); an email's ".com" or ".COM" may not.
+UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\w@]|\.[a-z0-9]|\.(?i:com|in|org|net|co|gov|edu|io)\b)')
 PHONE = re.compile(r'(?<!\w)(?:\+?91[\s-]?)?([6-9](?:[\s-]?\d){9})(?!\w)')
 WALLET = re.compile(r'\b(?:0x[0-9a-fA-F]{40}|T[1-9A-HJ-NP-Za-km-z]{33}|bc1[ac-hj-np-z02-9]{25,62}|[13][1-9A-HJ-NP-Za-km-z]{25,34})\b')
 URL = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
