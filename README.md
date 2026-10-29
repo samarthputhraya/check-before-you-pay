@@ -51,8 +51,11 @@ Read [`AGENTS.md`](AGENTS.md) first. Secrets go only in `.env`, which is gitigno
 
 ## Backend status (role B, 29 October)
 
-The check, public verdict, reports, events and stats now use the real backend.
-The quiz still returns labelled sample responses. API shapes are unchanged.
+The check, public verdict, reports, events, stats and the quiz now use the real backend.
+API shapes are unchanged. The quiz serves 10 messages each in English, Hindi, Marathi
+and Hinglish from `seed/quiz/` (other languages get English), scores answers on the
+server and stores each result, so `quiz_shared` and `quiz_plays` count. The messages are
+examples we wrote from real scam patterns, and the quiz page says so.
 
 - Gemini extracts source-verified claims and explains fixed scores; it never
   chooses points. Model names are discovered from the configured key. Run

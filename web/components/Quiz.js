@@ -6,7 +6,7 @@ import { anonId, track } from './session.js';
 
 const COPY = {
   en: {
-    title: 'Spot the scam', intro: 'Read each message and decide: Scam or Genuine?', loading: 'Loading quiz…',
+    title: 'Spot the scam', intro: 'Read each message and decide: Scam or Genuine? All messages are examples written by us.', loading: 'Loading quiz…',
     empty: 'There are no quiz messages available right now.', question: (n, total) => `Message ${n} of ${total}`,
     scam: 'Scam', genuine: 'Genuine', submit: 'See my score', scoring: 'Checking your answers…',
     score: (score, total) => `You spotted ${score}/${total}.`, sample: 'Sample quiz result', share: 'Share score', youSaid: (answer) => `You said ${answer}`, answer: 'Answer',
@@ -14,7 +14,7 @@ const COPY = {
     error: 'Could not load the quiz. Check your connection and try again.', answerError: 'Could not save your answers. Please try again.', retry: 'Try again', explanation: 'Why',
   },
   hi: {
-    title: 'धोखाधड़ी पहचानें', intro: 'हर संदेश पढ़ें और चुनें: धोखाधड़ी या सही?', loading: 'क्विज़ लोड हो रही है…',
+    title: 'धोखाधड़ी पहचानें', intro: 'हर संदेश पढ़ें और चुनें: धोखाधड़ी या सही? ये सभी संदेश उदाहरण हैं, जो हमने लिखे हैं।', loading: 'क्विज़ लोड हो रही है…',
     empty: 'अभी कोई क्विज़ संदेश उपलब्ध नहीं है।', question: (n, total) => `संदेश ${n} / ${total}`,
     scam: 'धोखाधड़ी', genuine: 'सही', submit: 'मेरा स्कोर देखें', scoring: 'जवाब जाँचे जा रहे हैं…',
     score: (score, total) => `आपने ${score}/${total} पहचाने।`, sample: 'नमूना क्विज़ नतीजा', share: 'स्कोर साझा करें', youSaid: (answer) => `आपने ${answer} चुना`, answer: 'सही जवाब',
@@ -22,7 +22,7 @@ const COPY = {
     error: 'क्विज़ लोड नहीं हो सकी। इंटरनेट देखें और फिर कोशिश करें।', answerError: 'जवाब सेव नहीं हो सके। फिर कोशिश करें।', retry: 'फिर कोशिश करें', explanation: 'क्यों',
   },
   mr: {
-    title: 'फसवणूक ओळखा', intro: 'प्रत्येक संदेश वाचा आणि ठरवा: फसवणूक की खरा?', loading: 'क्विझ लोड होत आहे…',
+    title: 'फसवणूक ओळखा', intro: 'प्रत्येक संदेश वाचा आणि ठरवा: फसवणूक की खरा? हे सर्व संदेश आम्ही लिहिलेली उदाहरणे आहेत.', loading: 'क्विझ लोड होत आहे…',
     empty: 'सध्या क्विझचे संदेश उपलब्ध नाहीत.', question: (n, total) => `संदेश ${n} / ${total}`,
     scam: 'फसवणूक', genuine: 'खरा', submit: 'माझा गुण पाहा', scoring: 'तुमची उत्तरे तपासत आहे…',
     score: (score, total) => `तुम्ही ${score}/${total} ओळखले.`, sample: 'नमुना क्विझ निकाल', share: 'गुण शेअर करा', youSaid: (answer) => `तुम्ही ${answer} निवडले`, answer: 'योग्य उत्तर',
