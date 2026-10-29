@@ -160,7 +160,155 @@ const HI = {
   },
 };
 
-const TABLES = { en: EN, hi: HI };
+const MR = {
+  ...EN,
+  tagline: 'कोणतीही गुंतवणूक टिप किंवा पैशांची मागणी इथे पाठवा आणि 5 सेकंदांत धोक्याचे संकेत पाहा.',
+  language: 'भाषा',
+  inputLabel: 'मेसेज, लिंक किंवा UPI आयडी इथे पेस्ट करा',
+  placeholder: 'उदा.: VIP Stock Tips. 300% खात्रीशीर परतावा. ₹50,000 पाठवा …',
+  addScreenshot: 'स्क्रीनशॉट जोडा',
+  addVoice: 'व्हॉइस नोट जोडा',
+  remove: 'काढा',
+  submit: 'पैसे पाठवण्याआधी तपासा',
+  checking: 'तपासणी सुरू आहे… सहसा 5 सेकंदांपेक्षा कमी',
+  privacy: 'तुम्ही रिपोर्ट करेपर्यंत आम्ही तुमचा मेसेज सेव्ह करत नाही.',
+  emptyInput: 'मेसेज पेस्ट करा, किंवा स्क्रीनशॉट किंवा व्हॉइस नोट जोडा.',
+  tooLong: 'मेसेज 5,000 अक्षरांपेक्षा मोठा असू शकत नाही.',
+  fileTooBig: 'फाइल 5 MB पेक्षा मोठी असू शकत नाही.',
+  imageType: 'स्क्रीनशॉट PNG किंवा JPEG असावा.',
+  audioType: 'व्हॉइस नोट OGG, OPUS, M4A किंवा MP3 असावी.',
+  readFailed: 'ही फाइल वाचता आली नाही. दुसरी फाइल वापरून पाहा.',
+  tryAgain: 'पुन्हा प्रयत्न करा',
+  band: {
+    high_risk: 'जास्त धोका',
+    caution: 'सावधान',
+    no_known_signals: 'ओळखीचे संकेत नाहीत',
+  },
+  noProof: 'याचा अर्थ हे खरे आहे असा नाही.',
+  signals: 'धोक्याचे संकेत',
+  ring: (c, r) => `आधीच्या ${c} तपासण्या आणि ${r} रिपोर्टशी जोडलेले`,
+  via: {
+    same_upi: 'तोच UPI आयडी',
+    same_phone: 'तोच फोन नंबर',
+    same_domain: 'तीच वेबसाइट',
+    same_group_link: 'तीच ग्रुप लिंक',
+    same_wallet: 'तेच वॉलेट',
+    same_script: 'तोच मेसेज',
+  },
+  through: 'याद्वारे:',
+  nextSteps: 'आता काय करावे',
+  unchecked: (list) => `काही तपासण्या होऊ शकल्या नाहीत (${list}), म्हणून त्यांचे 0 गुण धरले.`,
+  checks: {
+    claims: 'मेसेजमधील दावे',
+    domain_age: 'वेबसाइटचे वय',
+    links: 'आधीचे रिपोर्ट',
+    script_similarity: 'सारखे मेसेज',
+    phishing_feed: 'फिशिंग यादी',
+    transcription: 'फाइल वाचणे',
+  },
+  transcript: 'आम्ही हे वाचले',
+  share: 'कुटुंबाला पाठवा',
+  copied: 'लिंक कॉपी झाली',
+  another: 'दुसरा मेसेज तपासा',
+  report: {
+    open: 'फसवणूक म्हणून रिपोर्ट करा',
+    why: 'रिपोर्टमुळे हा UPI आयडी, नंबर किंवा वेबसाइट पुढच्या तपासण्यांशी जोडली जाते, म्हणजे पुढे तपासणाऱ्याला इशारा मिळतो.',
+    consent: 'तपासणी सुधारण्यासाठी मेसेजचा मजकूरही सेव्ह करा (ऐच्छिक)',
+    send: 'रिपोर्ट पाठवा',
+    sending: 'पाठवत आहे…',
+    done: 'रिपोर्ट झाला. धन्यवाद. पैसे गेले असतील तर आत्ताच 1930 वर कॉल करा किंवा cybercrime.gov.in वर तक्रार करा.',
+    cancel: 'रद्द करा',
+  },
+  sample: 'नमुना निकाल: खरी तपासणी अजून तयार होत आहे, म्हणून हे फक्त एक उदाहरण आहे.',
+  soon: 'हे पान लवकरच येत आहे.',
+  back: 'तपासणीकडे परत जा',
+  errors: {
+    empty_input: 'मेसेज पेस्ट करा, किंवा स्क्रीनशॉट किंवा व्हॉइस नोट जोडा.',
+    input_too_large: 'हे खूप मोठे आहे. मेसेज 5,000 अक्षरांपर्यंत आणि फाइल 5 MB पर्यंत असू शकते.',
+    unsupported_media: 'हा फाइल प्रकार चालत नाही. PNG किंवा JPEG स्क्रीनशॉट, किंवा OGG, M4A किंवा MP3 व्हॉइस नोट पाठवा.',
+    rate_limited: 'थोड्या वेळात खूप तपासण्या झाल्या. काही मिनिटे थांबून पुन्हा प्रयत्न करा.',
+    timeout: 'याला खूप वेळ लागत आहे. इंटरनेट तपासा आणि पुन्हा प्रयत्न करा.',
+    network: 'सर्व्हरशी जोडता आले नाही. इंटरनेट तपासा आणि पुन्हा प्रयत्न करा.',
+    internal_error: 'आमच्याकडून काहीतरी चूक झाली. पुन्हा प्रयत्न करा.',
+    check_unavailable: 'सध्या तपासणी होऊ शकत नाही. एका मिनिटाने पुन्हा प्रयत्न करा.',
+  },
+};
+
+const HINGLISH = {
+  ...EN,
+  tagline: 'Koi bhi investment tip ya payment request yahan bhejo aur 5 second mein red flags dekho.',
+  language: 'Bhasha',
+  inputLabel: 'Message, link ya UPI ID yahan paste karo',
+  placeholder: 'Jaise: VIP Stock Tips. 300% guaranteed returns. ₹50,000 bhejo …',
+  addScreenshot: 'Screenshot jodo',
+  addVoice: 'Voice note jodo',
+  remove: 'Hatao',
+  submit: 'Pay karne se pehle check karo',
+  checking: 'Check ho raha hai… aam taur pe 5 second se kam',
+  privacy: 'Jab tak aap report na karo, hum aapka message save nahi karte.',
+  emptyInput: 'Koi message paste karo, ya screenshot ya voice note jodo.',
+  tooLong: 'Message 5,000 characters se lamba nahi ho sakta.',
+  fileTooBig: 'File 5 MB se badi nahi ho sakti.',
+  imageType: 'Screenshot PNG ya JPEG hona chahiye.',
+  audioType: 'Voice note OGG, OPUS, M4A ya MP3 hona chahiye.',
+  readFailed: 'Ye file padh nahi paaye. Koi doosri file try karo.',
+  tryAgain: 'Phir try karo',
+  band: {
+    high_risk: 'Zyada khatra',
+    caution: 'Saavdhaan',
+    no_known_signals: 'Koi jaana-pehchaana signal nahi',
+  },
+  noProof: 'Iska matlab ye nahi ki ye asli hai.',
+  signals: 'Khatre ke signals',
+  ring: (c, r) => `Pehle ke ${c} checks aur ${r} reports se juda hua`,
+  via: {
+    same_upi: 'wahi UPI ID',
+    same_phone: 'wahi phone number',
+    same_domain: 'wahi website',
+    same_group_link: 'wahi group link',
+    same_wallet: 'wahi wallet',
+    same_script: 'wahi message',
+  },
+  through: 'inke through:',
+  nextSteps: 'Ab kya karein',
+  unchecked: (list) => `Kuch checks nahi ho paaye (${list}), isliye unke 0 points jude.`,
+  checks: {
+    claims: 'message ke daave',
+    domain_age: 'website ki umar',
+    links: 'pichhli reports',
+    script_similarity: 'milte-julte messages',
+    phishing_feed: 'phishing list',
+    transcription: 'file padhna',
+  },
+  transcript: 'Humne ye padha',
+  share: 'Family ko bhejo',
+  copied: 'Link copy ho gaya',
+  another: 'Doosra message check karo',
+  report: {
+    open: 'Ise scam ke roop mein report karo',
+    why: 'Report karne se ye UPI ID, number ya website aage ke checks se jud jaati hai, taaki agle insaan ko warning mile.',
+    consent: 'Checks behtar banane ke liye message ka text bhi save karo (optional)',
+    send: 'Report bhejo',
+    sending: 'Bhej rahe hain…',
+    done: 'Report ho gaya. Thank you. Agar paise gaye hain, to abhi 1930 pe call karo ya cybercrime.gov.in pe report karo.',
+    cancel: 'Cancel',
+  },
+  sample: 'Sample result: asli check abhi ban raha hai, isliye ye sirf ek example hai.',
+  soon: 'Ye page jaldi aa raha hai.',
+  back: 'Check pe wapas jao',
+  errors: {
+    empty_input: 'Koi message paste karo, ya screenshot ya voice note jodo.',
+    input_too_large: 'Ye bahut bada hai. Message 5,000 characters tak aur file 5 MB tak ho sakti hai.',
+    unsupported_media: 'Ye file type nahi chalta. PNG ya JPEG screenshot, ya OGG, M4A ya MP3 voice note bhejo.',
+    rate_limited: 'Thode time mein bahut zyada checks ho gaye. Kuch minute ruk ke phir try karo.',
+    timeout: 'Isme bahut time lag raha hai. Apna internet check karo aur phir try karo.',
+    network: 'Server se connect nahi ho paaye. Apna internet check karo aur phir try karo.',
+    internal_error: 'Hamari taraf se kuch gadbad hui. Phir try karo.',
+    check_unavailable: 'Abhi check nahi ho pa raha. Ek minute baad phir try karo.',
+  },
+};
+
+const TABLES = { en: EN, hi: HI, mr: MR, hinglish: HINGLISH };
 
 export function strings(lang) {
   return TABLES[lang] || EN;
@@ -168,7 +316,7 @@ export function strings(lang) {
 
 /** The language the labels are actually shown in (for <html lang>, so screen readers pick the right voice). */
 export function uiLang(lang) {
-  return TABLES[lang] ? lang : 'en';
+  return TABLES[lang] ? contentLang(lang) : 'en';
 }
 
 /** BCP 47 tag for content written in `lang` (Hinglish is Hindi in Latin script). */

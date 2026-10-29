@@ -26,7 +26,7 @@ function CheckPage() {
   const [lang, setLang] = useState(defaultLang());
   const [state, setState] = useState({ status: 'idle' });
   const t = strings(lang);
-  const quizLink = ({ en: 'Try the Spot the scam quiz', hi: 'धोखाधड़ी पहचानने की क्विज़ खेलें', mr: 'फसवणूक ओळखण्याची क्विझ खेळा' })[lang] || 'Try the Spot the scam quiz';
+  const quizLink = ({ en: 'Try the Spot the scam quiz', hi: 'धोखाधड़ी पहचानने की क्विज़ खेलें', mr: 'फसवणूक ओळखण्याची क्विझ खेळा', hinglish: 'Spot the scam quiz khelo' })[lang] || 'Try the Spot the scam quiz';
 
   useEffect(() => {
     document.documentElement.lang = uiLang(lang);
