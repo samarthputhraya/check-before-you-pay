@@ -15,9 +15,31 @@ BAND_EN = {
 }
 
 
+# The page body speaks the check's language; the Open Graph tags stay English for WhatsApp's preview (brief, F3).
+# (pill labels for high_risk, caution, no_known_signals; "Risk signals"; "What to do"; call to action)
+PAGE_TEXT = {
+    "en": (("High risk", "Caution", "No known scam signals"), "Risk signals", "What to do", "Check a message yourself"),
+    "hi": (("ज़्यादा ख़तरा", "सावधान", "कोई जाना-पहचाना संकेत नहीं"), "ख़तरे के संकेत", "अब क्या करें", "ख़ुद कोई मैसेज जाँचें"),
+    "mr": (("जास्त धोका", "सावधान", "ओळखीचे संकेत नाहीत"), "धोक्याचे संकेत", "आता काय करावे", "स्वतः मेसेज तपासा"),
+    "hinglish": (("Zyada khatra", "Saavdhaan", "Koi jaana-pehchaana signal nahi"), "Khatre ke signals", "Ab kya karein",
+                 "Khud koi message check karo"),
+    "ta": (("அதிக ஆபத்து", "கவனம்", "தெரிந்த அறிகுறிகள் இல்லை"), "ஆபத்து அறிகுறிகள்", "இப்போது என்ன செய்வது",
+           "நீங்களே ஒரு மெசேஜை சரிபாருங்கள்"),
+    "te": (("ఎక్కువ ప్రమాదం", "జాగ్రత్త", "తెలిసిన సంకేతాలు లేవు"), "ప్రమాద సంకేతాలు", "ఇప్పుడు ఏం చేయాలి",
+           "మీరే ఒక మెసేజ్ చెక్ చేయండి"),
+    "kn": (("ಹೆಚ್ಚು ಅಪಾಯ", "ಎಚ್ಚರಿಕೆ", "ತಿಳಿದ ಸೂಚನೆಗಳಿಲ್ಲ"), "ಅಪಾಯದ ಸೂಚನೆಗಳು", "ಈಗ ಏನು ಮಾಡಬೇಕು",
+           "ನೀವೇ ಒಂದು ಮೆಸೇಜ್ ಪರಿಶೀಲಿಸಿ"),
+    "bn": (("বেশি ঝুঁকি", "সাবধান", "জানা কোনো সংকেত নেই"), "বিপদের সংকেত", "এখন কী করবেন", "নিজেই একটি মেসেজ যাচাই করুন"),
+}
+_BAND_INDEX = {"high_risk": 0, "caution": 1, "no_known_signals": 2}
+
+
 def render_share_page(view: CheckView, page_url: str, ref: str | None = None) -> str:
     """`ref` is the sharer's validated anon_id; the call to action carries it so the new visit is credited."""
-    cta_href = f"/?ref={escape(ref)}" if ref else "/"
+    # The visitor lands on the check page in the sharer's language, and the sharer is credited.
+    cta_href = f"/?lang={escape(view.lang)}" + (f"&amp;ref={escape(ref)}" if ref else "")
+    pills, signals_heading, steps_heading, cta = PAGE_TEXT.get(view.lang, PAGE_TEXT["en"])
+    html_lang = "hi-Latn" if view.lang == "hinglish" else view.lang
     band_title, band_line = BAND_EN[view.band]
     n = len(view.signals)
     og_title = f"Check Before You Pay: {band_title}"
@@ -35,7 +57,7 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
         for st in view.next_steps
     )
     return f"""<!doctype html>
-<html lang="{escape(view.lang if view.lang != 'hinglish' else 'hi')}">
+<html lang="{escape(html_lang)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -60,17 +82,16 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
   <p class="eyebrow">Check Before You Pay</p>
   <section class="verdict band-{escape(view.band)}">
     <div class="verdict-head">
-      <span class="band-pill">{escape(band_title)}</span>
+      <span class="band-pill">{escape(pills[_BAND_INDEX[view.band]])}</span>
       <span class="score">{view.score}<small>/100</small></span>
     </div>
     <h1>{escape(view.headline)}</h1>
     <p class="explanation">{escape(view.explanation)}</p>
-    <h2>Risk signals</h2>
-    <ul class="signals">{signals}</ul>
-    <h2>What to do</h2>
+    {f'<h2>{escape(signals_heading)}</h2><ul class="signals">{signals}</ul>' if view.signals else ''}
+    <h2>{escape(steps_heading)}</h2>
     <ul class="steps">{steps}</ul>
   </section>
-  <a class="button primary" href="{cta_href}">Check a message yourself</a>
+  <a class="button primary" href="{cta_href}">{escape(cta)}</a>
 </main>
 </body>
 </html>"""

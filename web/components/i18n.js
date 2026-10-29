@@ -614,6 +614,8 @@ export function errorText(t, err) {
 }
 
 export function defaultLang() {
+  const asked = new URLSearchParams(location.search).get('lang');
+  if (asked && LANGS.some((l) => l.code === asked)) return asked;
   const saved = savedLang();
   if (saved && LANGS.some((l) => l.code === saved)) return saved;
   const nav = (navigator.language || 'en').toLowerCase().split('-')[0];

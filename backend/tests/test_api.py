@@ -252,14 +252,15 @@ def test_share_page_escapes_everything(client, monkeypatch):
 
 
 def test_share_page_passes_ref_to_call_to_action(client):
-    assert 'href="/?ref=u_12ab44"' in client.get("/c/chk_01JB8Q?ref=u_12ab44").text
+    # The sample check is in Hindi: the visitor lands on the check page in Hindi, and the sharer is credited.
+    assert 'href="/?lang=hi&amp;ref=u_12ab44"' in client.get("/c/chk_01JB8Q?ref=u_12ab44").text
 
 
 @pytest.mark.parametrize("bad_ref", ['"><script>x</script>', "user1", "u_" + "a" * 60])
 def test_share_page_drops_invalid_ref(client, bad_ref):
     resp = client.get("/c/chk_01JB8Q", params={"ref": bad_ref})
     assert resp.status_code == 200
-    assert 'href="/"' in resp.text
+    assert 'href="/?lang=hi"' in resp.text  # no ref at all, not a broken one
     assert "<script>x" not in resp.text
 
 
@@ -359,3 +360,9 @@ def test_security_headers_on_pages_and_api(client):
         assert "frame-ancestors 'none'" in headers["content-security-policy"]
         assert "script-src 'self' 'sha256-" in headers["content-security-policy"]  # the import map's hash was found
         assert headers["x-frame-options"] == "DENY"
+
+
+def test_share_page_speaks_the_checks_language(client):
+    html = client.get("/c/chk_01JB8Q").text  # the sample check is in Hindi
+    assert 'lang="hi"' in html and "ख़तरे के संकेत" in html and "अब क्या करें" in html
+    assert '<meta property="og:title" content="Check Before You Pay: High risk">' in html  # preview stays English
