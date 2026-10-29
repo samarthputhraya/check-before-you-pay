@@ -15,6 +15,12 @@ from backend.schemas import Band, Evidence, Signal
 SEBI_SOURCE = 'https://www.sebi.gov.in/legal/circulars/jun-2025/adoption-of-standardised-validated-and-exclusive-upi-ids-for-payment-collection-by-sebi-registered-intermediaries-from-investors_94535.html'
 INVESTMENT = re.compile(r'\b(invest\w*|trad(?:e|ing)|stock\w*|broker\w*|mutual\s+fund|ipo|institutional|nivesh|share\s+market)\b|निवेश|शेयर|ट्रेड|गुंतवणूक|முதலீ|பங்கு|పెట్టుబడి|షేర్|ಹೂಡಿಕೆ|ಷೇರು|বিনিয়োগ|শেয়ার', re.I)
 PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|bhej\w*|jama|bharo)\b|भेज|भुगतान|जमा|पाठवा|भरा|செலுத்த|அனுப்பு|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ|জমা|পাঠান|পেমেন্ট', re.I)
+INVESTMENT = re.compile(INVESTMENT.pattern +
+    r'|\b(crypto\w*|bitcoin|usdt|profits?|returns?|guaranteed|tips?|nifty|sensex|options?|futures?|forex|dividends?)\b'
+    r'|स्टॉक|मुनाफ|मुनाफ़|रिटर्न|क्रिप्टो|निफ्टी|ऑप्शन|फॉरेक्स|गारंट|नफा|परतावा'
+    r'|லாபம்|வருமானம்|லாபம்|లాభం|రాబడి|ಲಾಭ|ಆದಾಯ|লাভ|মুনাফা|রিটার্ন', re.I)
+_BRAND_AFFIXES = frozenset(('app', 'apps', 'apk', 'trade', 'trading', 'broker', 'stocks',
+    'invest', 'investment', 'pay', 'payment', 'login', 'secure', 'support', 'vip', 'pro', 'official', 'download'))
 _LOOKALIKE = str.maketrans({'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','і':'i','у':'y','ѕ':'s','ӏ':'l','ο':'o','ι':'i','0':'o','1':'l'})
 
 
@@ -51,12 +57,22 @@ def lookalike(host: str) -> str | None:
     # A real, explicitly allowed domain is not suspicious just because another brand resembles it.
     if any(host == d or host.endswith('.' + d) for b in brokers() for d in b['domains']):
         return None
-    full = _skeleton(host)
+    try:
+        host = host.encode('ascii').decode('idna')
+    except UnicodeError:
+        pass
     tokens = [_skeleton(t) for t in re.split(r'[.-]', host)]
     for broker in brokers():
         for alias in broker['aliases']:
             name = _skeleton(alias)
-            if len(name) >= 4 and (name in full or any(_one_edit(name, t) for t in tokens)):
+            def brand_token(token: str) -> bool:
+                if _one_edit(name, token):
+                    return True
+                if name in token:
+                    prefix, _, suffix = token.partition(name)
+                    return (not prefix or prefix in _BRAND_AFFIXES) and (not suffix or suffix in _BRAND_AFFIXES)
+                return False
+            if len(name) >= 4 and any(brand_token(t) for t in tokens):
                 return broker['domains'][0]
     return None
 

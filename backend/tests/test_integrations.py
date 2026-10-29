@@ -93,7 +93,7 @@ def test_wallet_matches_connect_reports_without_storing_address(client, tmp_path
     wallet = 'TQ5NGy8Ke3b5JkEzVb9Ji8u2JAoPTxRQjF'
     first = submit(client, wallet)
     client.post('/api/report', json={'check_id': first['check_id'], 'anon_id': 'u_owner', 'consent_store_text': False})
-    second = submit(client, wallet)
+    second = submit(client, wallet + ' new request')
     assert second['score'] == 10
     assert second['ring']['via'] == ['same_wallet']
     assert wallet not in json.dumps(second)
@@ -154,6 +154,7 @@ REAL_PHISHING = lookups.phishing_hits
 async def test_gemini_retry_and_openai_fallback_use_structured_schema():
     provider = llm.Providers()
     provider._attempted = True
+    provider.ready = True
     provider.models = {'extract': 'listed-model'}
     google_call = AsyncMock(side_effect=RuntimeError('provider failure'))
     openai_call = AsyncMock(return_value=SimpleNamespace(output_parsed=Extraction()))

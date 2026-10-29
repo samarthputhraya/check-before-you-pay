@@ -49,7 +49,7 @@ def test_failed_report_save_retains_consented_text_for_retry(tmp_path, monkeypat
         raise sqlite3.OperationalError('database temporarily unavailable')
 
     monkeypatch.setattr(db, 'add_report', failed)
-    assert client.post('/api/report', json=body).status_code == 503
+    assert client.post('/api/report', json=body).status_code == 500
     monkeypatch.setattr(db, 'add_report', original)
     response = client.post('/api/report', json=body)
     assert response.status_code == 200
@@ -57,10 +57,12 @@ def test_failed_report_save_retains_consented_text_for_retry(tmp_path, monkeypat
         assert con.execute('SELECT text_if_consented FROM reports').fetchone()[0] == message
 
 
-def test_returning_referral_does_not_count_as_new_user(tmp_path):
+def test_returning_referral_does_not_count_as_new_user(tmp_path, monkeypatch):
     path = tmp_path / 'metrics.db'
+    monkeypatch.setenv('SQLITE_PATH', str(path))
+    checked = TestClient(app).post('/api/check', json={'lang': 'en', 'anon_id': 'u_sharer', 'input': {'text': 'hello'}}).json()
     for event in [
-        EventRequest(anon_id='u_sharer', event='share_clicked'),
+        EventRequest(anon_id='u_sharer', event='share_clicked', check_id=checked['check_id']),
         EventRequest(anon_id='u_existing', event='visit'),
         EventRequest(anon_id='u_existing', event='ref_visit', ref='u_sharer'),
         EventRequest(anon_id='u_new', event='visit', ref='u_sharer'),

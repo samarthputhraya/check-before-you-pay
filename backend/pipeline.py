@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import re
 import sqlite3
 import time
@@ -35,7 +36,7 @@ async def bounded(task: Awaitable[T], seconds: float) -> T | None:
 async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResponse:
     started = time.perf_counter()
     created = time.time()
-    deadline = started + (9.5 if inp.image or inp.audio else 4.65)
+    deadline = started + 9.5
     path = get_settings().sqlite_path
     key = input_hash(inp)
     check_id = new_id('chk')
@@ -66,16 +67,18 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         return result
 
     transcript = None
+    media_extracted = None
     text = inp.text or ''
     for data, mime in [(inp.image, inp.image_mime), (inp.audio, inp.audio_mime)]:
         if data:
-            media_budget = 5.0 if mime and mime.startswith('audio/') else 3.5
-            reading = await bounded(llm.transcribe(data, mime), min(media_budget, deadline - time.perf_counter() - 2))
+            read_result = await bounded(llm.read_media(data, mime, text), deadline - time.perf_counter() - 0.3)
+            reading, found = read_result if read_result is not None else ('', None)
             if reading and reading.strip():
+                media_extracted = found
                 transcript = '\n'.join(filter(None, [transcript, reading]))
                 text = '\n'.join(filter(None, [text, reading]))
             else:
-                unchecked.extend(['transcription', 'claims'])
+                unchecked.append('transcription')
     if not text.strip():
         raise ApiError(503, 'check_unavailable', 'We could not read this file. Paste the message text or send a clearer file.')
     text = text[:20000]
@@ -83,18 +86,21 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     regex = regex_extract(clean)
     # Independent evidence work runs concurrently, rather than adding its worst-case delays.
     has_script = len(clean.split()) >= 4
-    extract_task = bounded(llm.extract(clean), min(2.8, deadline - time.perf_counter() - 1.2))
-    embed_task = bounded(llm.embed(clean), 2.0) if has_script else asyncio.sleep(0, result=False)
+    extract_task = (asyncio.sleep(0, result=media_extracted) if media_extracted is not None
+                    else bounded(llm.extract(clean), deadline - time.perf_counter() - 0.3))
+    embed_task = bounded(llm.embed(clean), min(8, deadline - time.perf_counter() - 0.3)) if has_script else asyncio.sleep(0, result=False)
     extracted, embedding, ages_result = await asyncio.gather(
-        extract_task, embed_task, lookups.domain_ages(regex.entities.domains))
+        extract_task, embed_task, bounded(lookups.domain_ages(regex.entities.domains),
+                                         min(2, deadline - time.perf_counter() - 0.3)))
     if extracted is None:
         extracted = regex
         unchecked.append('claims')
-    ages, age_failed = ages_result
+    ages, age_failed = ages_result if ages_result is not None else ({}, bool(regex.entities.domains))
     if age_failed:
         unchecked.append('domain_age')
-    feed_result = await bounded(asyncio.to_thread(lookups.phishing_hits, extracted.entities.urls),
+    feed_result = (await bounded(asyncio.to_thread(lookups.phishing_hits, extracted.entities.urls),
                                 min(0.3, deadline - time.perf_counter() - 0.8))
+                   if extracted.entities.urls and os.getenv('PHISHTANK_FEED_PATH', '').strip() else ([], False))
     hits, feed_failed = feed_result if feed_result is not None else ([], True)
     if feed_failed:
         unchecked.append('phishing_feed')
@@ -109,7 +115,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         records = identifiers(extracted)
         if 'links' not in unchecked:
             context = await bounded(asyncio.to_thread(db.link_context, path, records,
-                                                     embedding or None, created),
+                                                     embedding or None, created, key),
                                     min(2, deadline - time.perf_counter() - 0.8))
             if context is None:
                 unchecked.append('links')
@@ -132,7 +138,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     headline, explanation, steps = language.fallback(band, body.lang, unchecked)
     localized = language.localize(signals, body.lang)
     generated = await bounded(llm.explain(signals, band, body.lang, unchecked),
-                              min(1.5, deadline - time.perf_counter() - 0.25))
+                              min(8, deadline - time.perf_counter() - 0.25))
     if generated and not re.search(r'\b(safe|genuine|100%|scammer)\b', generated.explanation, re.I):
         explanation = mask_text(generated.explanation)
         # Lookup translations may change words, never source facts, numbers or quote evidence.
@@ -143,7 +149,6 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
                     localized[i] = original.model_copy(update={'label':mask_text(translated.label),
                         'evidence':original.evidence.model_copy(update={'text':mask_text(translated.evidence)})})
     else:
-        unchecked = sorted(set(unchecked + ['explanation']))
         headline, explanation, steps = language.fallback(band, body.lang, unchecked)
     result = CheckResponse(check_id=check_id, band=band, score=total, lang=body.lang,
         headline=headline, explanation=explanation, signals=localized, entities=display_entities(extracted),

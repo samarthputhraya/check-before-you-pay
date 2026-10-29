@@ -43,6 +43,8 @@ URL = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
 BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?:/[^\s<>"\[\]{}]*)?')
 SEBI = re.compile(r'\bIN[A-Z]{1,3}\d{8,12}\b', re.I)
 GROUP_HOSTS = frozenset(('t.me', 'telegram.me', 'chat.whatsapp.com'))
+SHARED_HOSTS = GROUP_HOSTS | frozenset(('drive.google.com', 'docs.google.com', 'youtube.com',
+    'www.youtube.com', 'youtu.be', 'bit.ly', 'tinyurl.com', 'linktr.ee'))
 # Bundled PSL only: no network or disk writes on a request.
 PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
 _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instructions?[^\n.!?]*(?:[.!?]|$)', re.I)

@@ -11,7 +11,9 @@ from backend.links import Embedding
 @pytest.fixture(autouse=True)
 def offline_providers(monkeypatch):
     for name in ('GEMINI_API_KEY', 'OPENAI_API_KEY', 'VIASOCKET_REPORT_WEBHOOK_URL',
-                 'PHISHTANK_FEED_PATH', 'ADMIN_TOKEN'):
+                 'PHISHTANK_FEED_PATH', 'ADMIN_TOKEN', 'GEMINI_EXTRACT_MODEL', 'GEMINI_EXPLAIN_MODEL',
+                 'GEMINI_EMBED_MODEL', 'GEMINI_TTS_MODEL', 'OPENAI_MODEL', 'OPENAI_EMBED_MODEL',
+                 'OPENAI_TRANSCRIBE_MODEL'):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv('IDENTIFIER_SALT', 'test-only-identifier-salt-32-characters')
     monkeypatch.setattr(llm.providers, 'ready', False)
@@ -31,6 +33,10 @@ def offline_providers(monkeypatch):
     async def transcribe(*args):
         return 'Investment: pay sample@ybl for an institutional account. 300% guaranteed.'
 
+    async def read_media(data, mime, text=''):
+        transcript = await transcribe()
+        return transcript, await extract(text + '\n' + transcript)
+
     async def ages(domains):
         return {}, False
 
@@ -38,5 +44,6 @@ def offline_providers(monkeypatch):
     monkeypatch.setattr(llm, 'embed', embed)
     monkeypatch.setattr(llm, 'explain', explain)
     monkeypatch.setattr(llm, 'transcribe', transcribe)
+    monkeypatch.setattr(llm, 'read_media', read_media)
     monkeypatch.setattr(lookups, 'domain_ages', ages)
     monkeypatch.setattr(lookups, 'phishing_hits', lambda urls: ([], False))

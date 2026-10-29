@@ -7,7 +7,7 @@ import time
 from collections import OrderedDict
 from threading import Lock
 
-from backend.extraction import normalize, regex_extract
+from backend.extraction import normalize, regex_extract, source_text
 from backend.inputs import ValidInput
 
 
@@ -17,7 +17,7 @@ def input_hash(inp: ValidInput) -> str:
     # addresses are not. Keep those distinctions inside the digest only.
     case_sensitive = [entities.urls,
                       [w for w in entities.wallet_addresses if not w.startswith('0x')]]
-    payload = [normalize(inp.text or ''), inp.image_mime, inp.audio_mime,
+    payload = [normalize(source_text(inp.text or '')), inp.image_mime, inp.audio_mime,
                hashlib.sha256(inp.image).hexdigest() if inp.image else None,
                hashlib.sha256(inp.audio).hexdigest() if inp.audio else None, case_sensitive]
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False).encode()).hexdigest()

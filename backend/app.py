@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db, llm, pipeline, rate_limit, webhooks
+from backend import db, events as event_proof, llm, pipeline, rate_limit, webhooks
 from backend.cache import consent_buffer
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
@@ -36,15 +36,22 @@ logging.getLogger("httpx2").setLevel(logging.WARNING)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await asyncio.to_thread(db.ping, get_settings().sqlite_path)
+    try:
+        await asyncio.to_thread(db.prepare_cache, get_settings().sqlite_path)
+    except (sqlite3.Error, OSError):
+        pass  # Health reports the outage; checks retain their regex/zero-link fallback.
     await llm.providers.initialize()
     webhook_worker = asyncio.create_task(webhooks.worker())
+    model_worker = asyncio.create_task(llm.providers.refresh_loop())
     try:
         yield
     finally:
         webhook_worker.cancel()
+        model_worker.cancel()
         with suppress(asyncio.CancelledError):
             await webhook_worker
+        with suppress(asyncio.CancelledError):
+            await model_worker
         await llm.providers.close()
 
 
@@ -68,17 +75,19 @@ def health(response: Response) -> HealthResponse:
     db_up = db.ping(s.sqlite_path)
     # 503 when the database can't be written, so a deploy with a missing or read-only volume fails its healthcheck
     # instead of going live without storing any usage data. Checks themselves still work while the db is down.
-    if not db_up:
+    if not db_up or not llm.providers.ready:
         response.status_code = 503
-    return HealthResponse(ok=db_up, llm="up" if llm.providers.ready else "down", db="up" if db_up else "down")
+    return HealthResponse(ok=db_up and llm.providers.ready, llm="up" if llm.providers.ready else "down", db="up" if db_up else "down")
 
 
 @app.post("/api/check", response_model=CheckResponse)
 async def check(body: CheckRequest, request: Request, response: Response) -> CheckResponse:
     inp = await asyncio.to_thread(validate_check_input, body.input)
-    await asyncio.to_thread(rate_limit.enforce, body.anon_id, request.client.host if request.client else 'unknown')
+    await asyncio.to_thread(rate_limit.enforce, body.anon_id, rate_limit.client_ip(request))
     response.headers['Cache-Control'] = 'no-store'
-    return await pipeline.run_check(body, inp, base_url(request))
+    result = await pipeline.run_check(body, inp, base_url(request))
+    event_proof.issue(response, body.anon_id, secure=base_url(request).startswith('https://'))
+    return result
 
 
 @app.get("/api/check/{check_id}", response_model=CheckView)
@@ -100,7 +109,7 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
     except KeyError:
         raise ApiError(404, 'not_found', 'No check with that ID.') from None
     except (sqlite3.Error, OSError):
-        raise ApiError(503, 'internal_error', 'We could not save your report. Please try again.') from None
+        raise ApiError(500, 'internal_error', 'We could not save your report. Please try again.') from None
     consent_buffer.take(body.check_id, body.anon_id, False)
     if created and configured:
         background_tasks.add_task(webhooks.deliver_pending)
@@ -122,7 +131,10 @@ def quiz_answer(body: QuizAnswerRequest, request: Request, response: Response) -
 
 
 @app.post("/api/events", status_code=204)
-def events(body: EventRequest) -> Response:
+def events(body: EventRequest, request: Request) -> Response:
+    rate_limit.enforce_events(body.anon_id, rate_limit.client_ip(request))
+    if body.event in ('share_clicked', 'quiz_shared') and not event_proof.verified(request, body.anon_id):
+        return Response(status_code=204)
     db.record_event(get_settings().sqlite_path, body)
     return Response(status_code=204)
 

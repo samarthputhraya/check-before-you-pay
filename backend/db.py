@@ -45,7 +45,10 @@ CREATE TABLE IF NOT EXISTS quiz_results (
  id TEXT PRIMARY KEY, anon_id TEXT NOT NULL, quiz_id TEXT NOT NULL, score INTEGER NOT NULL, created_at REAL NOT NULL);
 CREATE TABLE IF NOT EXISTS rate_limits (bucket TEXT NOT NULL, created_at REAL NOT NULL);
 CREATE INDEX IF NOT EXISTS rate_bucket ON rate_limits(bucket, created_at);
+CREATE TABLE IF NOT EXISTS app_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
+
+CACHE_REVISION = '2026-10-29-review-1'
 
 
 def connect(path: Path) -> sqlite3.Connection:
@@ -80,6 +83,16 @@ def ping(path: Path) -> bool:
         return False
 
 
+def prepare_cache(path: Path) -> None:
+    """Invalidate old verdicts once when scoring/extraction semantics change."""
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        row = con.execute("SELECT value FROM app_metadata WHERE key='cache_revision'").fetchone()
+        if not row or row[0] != CACHE_REVISION:
+            con.execute('DELETE FROM cache')
+            con.execute("INSERT OR REPLACE INTO app_metadata VALUES ('cache_revision',?)", (CACHE_REVISION,))
+
+
 def get_check(path: Path, check_id: str) -> CheckView | None:
     with session(path) as con:
         row = con.execute('SELECT response_json FROM checks WHERE id=?', (check_id,)).fetchone()
@@ -94,21 +107,24 @@ def cached_check(path: Path, key: str, lang: str, now: float | None = None) -> C
         return CheckView.model_validate_json(row[0]) if row else None
 
 
-def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None) -> Ring:
+def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None,
+          input_hash: str | None = None) -> Ring:
     linked: dict[str, set[str]] = {}
     if ids:
         placeholders = ','.join('?' for _ in ids)
         rows = con.execute(f'''SELECT c.id,e.type FROM checks c JOIN check_entities ce ON ce.check_id=c.id
              JOIN entities e ON e.id=ce.entity_id WHERE e.id IN ({placeholders}) AND c.created_at<? AND c.id!=?
+             AND (? IS NULL OR c.input_hash!=?)
              AND (c.band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                           (*ids, before, exclude)).fetchall()
+                           (*ids, before, exclude, input_hash, input_hash)).fetchall()
         for row in rows:
             if row['type'] in ('upi', 'phone', 'domain', 'group_link', 'wallet'):
                 linked.setdefault(row['id'], set()).add('same_' + row['type'])
     if script_id:
         rows = con.execute('''SELECT id FROM checks c WHERE script_id=? AND created_at<? AND id!=?
+            AND (? IS NULL OR input_hash!=?)
             AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                           (script_id, before, exclude)).fetchall()
+                           (script_id, before, exclude, input_hash, input_hash)).fetchall()
         for row in rows:
             linked.setdefault(row['id'], set()).add('same_script')
     reports = 0
@@ -121,15 +137,15 @@ def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str =
 
 def ring_for_check(path: Path, check_id: str) -> Ring:
     with session(path) as con:
-        row = con.execute('SELECT created_at,script_id FROM checks WHERE id=?', (check_id,)).fetchone()
+        row = con.execute('SELECT created_at,script_id,input_hash FROM checks WHERE id=?', (check_id,)).fetchone()
         if not row:
             return Ring(linked_checks=0, linked_reports=0, via=[])
         ids = [r[0] for r in con.execute('SELECT entity_id FROM check_entities WHERE check_id=?', (check_id,))]
-        return _ring(con, ids, row['created_at'], check_id, row['script_id'])
+        return _ring(con, ids, row['created_at'], check_id, row['script_id'], row['input_hash'])
 
 
 def link_context(path: Path, identifiers: list[Identifier], embedding: Embedding | None,
-                 before: float) -> tuple[Ring, str | None, int]:
+                 before: float, input_hash: str | None = None) -> tuple[Ring, str | None, int]:
     with session(path) as con:
         script_id = None
         count = 0
@@ -141,9 +157,10 @@ def link_context(path: Path, identifiers: list[Identifier], embedding: Embedding
                     best, script_id = similarity, row['id']
             if script_id:
                 count = con.execute('''SELECT COUNT(*) FROM checks c WHERE script_id=? AND created_at<?
+                    AND (? IS NULL OR input_hash!=?)
                     AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                                    (script_id, before)).fetchone()[0]
-        return _ring(con, [i.id for i in identifiers], before, script_id=script_id), script_id, count
+                                    (script_id, before, input_hash, input_hash)).fetchone()[0]
+        return _ring(con, [i.id for i in identifiers], before, script_id=script_id, input_hash=input_hash), script_id, count
 
 
 def save_check(path: Path, result: CheckResponse, identifiers: list[Identifier], embedding: Embedding | None,
@@ -217,9 +234,20 @@ def _event(con: sqlite3.Connection, body: EventRequest, now: float) -> None:
 
 
 def record_event(path: Path, body: EventRequest) -> None:
-    if body.event in ('check_done', 'report'):
+    if body.event in ('check_done', 'report', 'quiz_done'):
         return  # These are authoritative server events; ignore client copies.
     with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        if body.event == 'share_clicked':
+            if not con.execute('SELECT 1 FROM checks WHERE id=? AND anon_id=? AND is_sample=0',
+                               (body.check_id, body.anon_id)).fetchone():
+                return
+            if con.execute("SELECT 1 FROM events WHERE event='share_clicked' AND anon_id=? AND check_id=?",
+                           (body.anon_id, body.check_id)).fetchone():
+                return
+        if body.event == 'quiz_shared' and not con.execute(
+                'SELECT 1 FROM quiz_results WHERE anon_id=?', (body.anon_id,)).fetchone():
+            return
         if body.event in ('visit', 'ref_visit', 'return_visit') and con.execute(
                 'SELECT 1 FROM events WHERE anon_id=? AND event=? AND created_at>? LIMIT 1',
                 (body.anon_id, body.event, time.time() - 3600)).fetchone():

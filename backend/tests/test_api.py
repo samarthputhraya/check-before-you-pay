@@ -86,8 +86,8 @@ def test_example_score_is_sum_of_signal_points():
 
 def test_health_reports_db_up_and_llm_down_without_key(client):
     resp = client.get("/api/health")
-    assert resp.status_code == 200
-    assert resp.json() == {"ok": True, "llm": "down", "db": "up"}
+    assert resp.status_code == 503
+    assert resp.json() == {"ok": False, "llm": "down", "db": "up"}
 
 
 def test_health_reports_llm_up_with_ready_provider(client, monkeypatch):
@@ -106,7 +106,7 @@ def test_health_is_503_when_db_unusable(client, monkeypatch, tmp_path):
 
 @pytest.mark.parametrize("path", ["/api/health", "/c/chk_01JB8Q"])
 def test_head_is_supported(client, path):
-    assert client.head(path).status_code == 200
+    assert client.head(path).status_code == (503 if path == "/api/health" else 200)
 
 
 # ---- POST /api/check ----------------------------------------------------------

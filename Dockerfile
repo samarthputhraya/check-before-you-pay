@@ -24,5 +24,6 @@ COPY seed ./seed
 RUN mkdir -p /data
 
 EXPOSE 8000
-# --proxy-headers so share links use https behind Railway's proxy.
-CMD ["sh", "-c", "uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
+# Keep socket peer addresses intact; PUBLIC_BASE_URL supplies the HTTPS share origin.
+# Railway edge-only deployments may explicitly enable TRUST_RAILWAY_EDGE for X-Real-IP.
+CMD ["sh", "-c", "uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000} --no-proxy-headers"]

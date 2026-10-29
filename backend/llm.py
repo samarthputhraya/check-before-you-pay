@@ -38,6 +38,10 @@ class Reading(BaseModel):
     text: str = Field(max_length=20000)
 
 
+class MediaExtraction(Extraction):
+    transcript: str = Field(max_length=20000)
+
+
 class SignalTranslation(BaseModel):
     id: str
     label: str = Field(max_length=160)
@@ -63,16 +67,24 @@ class Providers:
         self.last_success = 0.0
         self._lock = asyncio.Lock()
         self._attempted = False
+        self._retry_after = 0.0
 
     async def initialize(self) -> None:
         get_settings()  # loads .env for the CLI as well as the web app
         async with self._lock:
-            if self._attempted:
+            if self.ready or (self._attempted and time.monotonic() < self._retry_after):
                 return
             self._attempted = True
+            self._retry_after = time.monotonic() + 30
+            self.models.clear()
+            self.openai_models.clear()
+            self.ready = False
             if os.getenv('GEMINI_API_KEY', '').strip():
-                self.google = genai.Client(api_key=os.environ['GEMINI_API_KEY'], http_options=types.HttpOptions(
-                    timeout=10000, retry_options=types.HttpRetryOptions(attempts=1)))
+                if self.google is None:
+                    self.google = genai.Client(api_key=os.environ['GEMINI_API_KEY'], http_options=types.HttpOptions(
+                        # Gemini rejects an advertised HTTP deadline below 10 s.
+                        # asyncio.timeout(8) below still cancels each attempt at 8 s.
+                        timeout=10000, retry_options=types.HttpRetryOptions(attempts=1)))
                 try:
                     async with asyncio.timeout(8):
                         available = {m.name.removeprefix('models/'): m async for m in await self.google.aio.models.list()}
@@ -93,13 +105,21 @@ class Providers:
                 except Exception:
                     self.ready = False
             if os.getenv('OPENAI_API_KEY', '').strip():
-                self.openai = AsyncOpenAI(api_key=os.environ['OPENAI_API_KEY'], timeout=8, max_retries=0)
+                if self.openai is None:
+                    self.openai = AsyncOpenAI(api_key=os.environ['OPENAI_API_KEY'], timeout=8, max_retries=0)
                 try:
                     async with asyncio.timeout(8):
                         self.openai_models = {m.id for m in (await self.openai.models.list()).data}
                 except Exception:
                     self.openai_models = set()
                 self.ready = self.ready or os.getenv('OPENAI_MODEL', '').strip() in self.openai_models
+            if self.ready:
+                self._retry_after = time.monotonic() + 300
+
+    async def refresh_loop(self) -> None:
+        while True:
+            await asyncio.sleep(30)
+            await self.initialize()
 
     async def close(self) -> None:
         if self.google:
@@ -113,6 +133,7 @@ class Providers:
         self.openai_models.clear()
         self.ready = False
         self._attempted = False
+        self._retry_after = 0.0
 
     def _openai_model(self, setting: str) -> str:
         value = os.getenv(setting, '').strip()
@@ -140,6 +161,7 @@ class Providers:
                                 automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)))
                     parsed = schema.model_validate_json(response.text or '')
                     self.last_success = time.monotonic()
+                    self.ready = True
                     return parsed
                 except Exception:
                     continue
@@ -157,9 +179,12 @@ class Providers:
                         input=[{'role':'user','content':content}], text_format=schema, store=False)
                 if response.output_parsed:
                     self.last_success = time.monotonic()
+                    self.ready = True
                     return response.output_parsed
             except Exception:
                 pass
+        self.ready = False
+        self._retry_after = min(self._retry_after, time.monotonic() + 30)
         raise ProviderUnavailable()
 
     async def extract(self, text: str) -> Extraction:
@@ -175,16 +200,35 @@ class Providers:
                 'Read the attached media.', Reading, (data, mime))
             return result.text
         except ProviderUnavailable:
-            if not self.openai or not mime.startswith('audio/'):
-                raise
-            try:
-                model = self._openai_model('OPENAI_TRANSCRIBE_MODEL')
-                ext = {'audio/ogg':'ogg','audio/mp4':'m4a','audio/mpeg':'mp3'}[mime]
+            return await self._openai_transcribe(data, mime)
+
+    async def _openai_transcribe(self, data: bytes, mime: str) -> str:
+        if not self.openai or not mime.startswith('audio/'):
+            raise ProviderUnavailable()
+        try:
+            model = self._openai_model('OPENAI_TRANSCRIBE_MODEL')
+            ext = {'audio/ogg':'ogg','audio/mp4':'m4a','audio/mpeg':'mp3'}[mime]
+            async with asyncio.timeout(8):
                 response = await self.openai.audio.transcriptions.create(model=model,
                     file=(f'voice.{ext}', data, mime))
-                return response.text
-            except Exception:
-                raise ProviderUnavailable() from None
+            return response.text
+        except Exception:
+            raise ProviderUnavailable() from None
+
+    async def read_media(self, data: bytes, mime: str, text: str = '') -> tuple[str, Extraction]:
+        """Read first, then extract in one response; verify every quote against the transcript."""
+        try:
+            result = await self.structured('extract', EXTRACT_INSTRUCTION +
+                '\nFirst transcribe the attached media exactly in its original language into transcript. '
+                'For an image, read its visible text. If unreadable, transcript is empty. '
+                'Then extract claims and entities from the transcript and the accompanying message. '
+                'Every claim quote must occur verbatim in the transcript or accompanying message.',
+                json.dumps({'accompanying_message': source_text(text)}, ensure_ascii=False),
+                MediaExtraction, (data, mime))
+            return result.transcript, verified_extraction(result, text + '\n' + result.transcript)
+        except ProviderUnavailable:
+            transcript = await self._openai_transcribe(data, mime)
+            return transcript, await self.extract(text + '\n' + transcript)
 
     async def explain(self, signals: list[Signal], band: Band, lang: Lang, unchecked: list[str]) -> Explanation:
         # No original message/transcript. Only verified, masked evidence and fixed outcome.
@@ -251,6 +295,10 @@ async def explain(signals: list[Signal], band: Band, lang: Lang, unchecked: list
 
 async def transcribe(data: bytes, mime: str) -> str:
     return await providers.transcribe(data, mime)
+
+
+async def read_media(data: bytes, mime: str, text: str = '') -> tuple[str, Extraction]:
+    return await providers.read_media(data, mime, text)
 
 
 async def embed(text: str) -> Embedding:
