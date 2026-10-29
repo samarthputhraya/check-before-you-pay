@@ -366,6 +366,11 @@ def fail_order(path: Path, order_id: str) -> None:
         con.execute("UPDATE orders SET status='failed' WHERE id=? AND status='pending'", (order_id,))
 
 
+def has_paid_order(path: Path, anon_id: str) -> bool:
+    with session(path) as con:
+        return con.execute("SELECT 1 FROM orders WHERE anon_id=? AND status='paid' LIMIT 1", (anon_id,)).fetchone() is not None
+
+
 def get_order(path: Path, order_id: str) -> dict | None:
     with session(path) as con:
         row = con.execute('SELECT * FROM orders WHERE id=?', (order_id,)).fetchone()

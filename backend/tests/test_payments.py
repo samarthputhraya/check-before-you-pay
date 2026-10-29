@@ -487,3 +487,17 @@ def test_access_log_drops_the_return_url_query():
                               ('1.2.3.4:5', 'GET', '/c/chk_1?ref=u_1', '1.1', 200), None)
     payments.RedactReturnQuery().filter(other)
     assert '/c/chk_1?ref=u_1' in other.getMessage()
+
+
+def test_a_paid_family_plan_raises_this_phones_hourly_limit(tmp_path, monkeypatch):
+    from backend import db as db_module, rate_limit
+    path = tmp_path / 'limits.db'
+    monkeypatch.setenv('SQLITE_PATH', str(path))
+    db_module.prepare_cache(path) if hasattr(db_module, 'prepare_cache') else None
+    order_id = db_module.create_order(path, 'family', 'u_payer', 'test_mode')
+    assert not db_module.has_paid_order(path, 'u_payer')
+    with db_module.session(path) as con:
+        con.execute("UPDATE orders SET status='paid' WHERE id=?", (order_id,))
+    assert db_module.has_paid_order(path, 'u_payer') and not db_module.has_paid_order(path, 'u_other')
+    for _ in range(rate_limit.FREE_CHECKS_PER_HOUR + 5):
+        rate_limit.enforce('u_payer', '203.0.113.9')  # past the free limit without a 429

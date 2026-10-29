@@ -8,6 +8,7 @@ import { anonId, isReturning, ref, saveLang, track } from './components/session.
 import { Verdict } from './components/Verdict.js';
 import { QuizPage } from './components/Quiz.js';
 import { StatsPage } from './components/Stats.js';
+import { PricingPage } from './components/Pricing.js';
 
 function Header() {
   return html`<header class="site-header">
@@ -18,7 +19,7 @@ function Header() {
 function Footer() {
   return html`<footer class="site-footer">
     <p>An independent tool. It is not run by SEBI, NPCI or any bank.</p>
-    <p><a href="/stats">Live numbers</a> · <a href="/quiz">Spot the scam quiz</a></p>
+    <p><a href="/stats">Live numbers</a> · <a href="/quiz">Spot the scam quiz</a> · <a href="/pricing">Plans</a></p>
   </footer>`;
 }
 
@@ -87,7 +88,7 @@ function SoonPage() {
 
 function App() {
   const home = location.pathname === '/' || location.pathname === '/index.html';
-  const routes = { '/quiz': QuizPage, '/stats': StatsPage };
+  const routes = { '/quiz': QuizPage, '/stats': StatsPage, '/pricing': PricingPage };
   const Page = home ? CheckPage : routes[location.pathname] || SoonPage;
   const page = html`<${Page} />`;
   return html`<${Header} />${page}<${Footer} />`;

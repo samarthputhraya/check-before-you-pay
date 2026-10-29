@@ -195,6 +195,7 @@ The pricing page reads its plans from here, so the prices on the page always mat
 ```
 
 - `available` is `false` when that plan's Dodo product isn't configured. The page disables its button and says "Coming soon".
+- **What a paid Family plan does today:** the phone that bought it (its `anon_id`) can run 300 checks an hour instead of 30. Checking stays free for everyone.
 - `test_mode` is `true` unless the server runs with live Dodo keys. While it's `true`, the page shows "Test mode: no real money is charged".
 
 ---
