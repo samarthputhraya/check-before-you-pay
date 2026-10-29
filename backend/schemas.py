@@ -11,7 +11,7 @@ EntityType = Literal["upi", "phone", "domain", "url", "group_link", "wallet", "a
 RingVia = Literal["same_upi", "same_phone", "same_domain", "same_group_link", "same_wallet", "same_script"]
 EventName = Literal[
     "visit", "check_started", "check_done", "share_clicked", "ref_visit",
-    "report", "quiz_done", "quiz_shared", "return_visit", "pricing_view",
+    "report", "quiz_done", "quiz_shared", "return_visit", "pricing_view", "listen_played",
     "checkout_started", "checkout_paid",  # server-only; db.record_event drops client copies
 ]
 PlanId = Literal["family", "api"]

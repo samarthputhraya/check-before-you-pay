@@ -188,6 +188,9 @@ label.button:focus-within { outline: 3px solid var(--focus); outline-offset: 2px
 .verdict h2:focus { outline: none; }
 .verdict h3, .verdict .verdict-section { font-size: 15px; text-transform: none; margin: 20px 0 8px; color: var(--muted); }
 .explanation { margin: 0; }
+.listen { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
+.listen .button { min-height: 44px; }
+.spinner.dark { border-color: rgba(22, 32, 27, 0.25); border-top-color: var(--ink); }
 .sample-note {
   margin: 0 0 12px; padding: 8px 12px; border-radius: var(--radius-sm);
   background: var(--none-bg); color: var(--none); font-size: 14px; border: 1px dashed var(--line);

@@ -188,7 +188,7 @@ The HTML share page. It includes Open Graph tags (an English title and the band)
 
 **Response:** `204`.
 
-`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`, `pricing_view`.
+`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`, `pricing_view`, `listen_played`.
 
 The server records `check_done`, `report` and `quiz_done` itself, plus `checkout_started` and `checkout_paid`. A client that sends any of these five is ignored.
 

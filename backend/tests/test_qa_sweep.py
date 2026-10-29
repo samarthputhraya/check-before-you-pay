@@ -25,6 +25,13 @@ def test_emoji_between_words_do_not_hide_a_claim():
     ('इसमें धोखाधड़ी के संकेत हैं।', 'hi', 'high_risk', True),
     ('Is message mein scam ke signals hain.', 'hinglish', 'high_risk', True),
     ('Is message mein स्कैम ke signals hain.', 'hinglish', 'high_risk', False),
+    # Seen live: a Hindi check answered in Latin letters.
+    ('li…@ybl yha paisa bhejna theek nhi h kyuki ye SEBI ke rule ke khilaf hai aur VIP group me 30% pakka munafa '
+     'milne ka daawa kiya gya h.', 'hi', 'high_risk', False),
+    # IDs, links and acronyms in Latin letters are fine inside a Hindi or Tamil sentence.
+    ('tr…@ybl SEBI का @valid हैंडल नहीं है, और kite-zerodha-pro.in असली Zerodha नहीं है।', 'hi', 'high_risk', True),
+    ('tr…@ybl என்பது SEBI-யின் @valid UPI முகவரி அல்ல.', 'ta', 'high_risk', True),
+    ('This UPI ID is not a SEBI @valid handle.', 'mr', 'high_risk', False),
 ])
 def test_explanation_guard(text, lang, band, ok):
     assert language.explanation_ok(text, lang, band) is ok

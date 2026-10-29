@@ -42,6 +42,44 @@ async function shareResult(result, bandLabel, t) {
   track('share_clicked', { checkId: result.check_id, props: { method: 'wa_link' } });
 }
 
+// Reads the verdict aloud in its language (GET /api/check/{id}/audio: the masked headline, explanation and first
+// step). The server makes the MP3 once per check, so the first tap can take a few seconds.
+function ListenButton({ checkId, t }) {
+  const [status, setStatus] = useState('idle');
+  const audio = useRef(null);
+  const l = t.listen;
+  useEffect(() => () => audio.current && audio.current.pause(), []);
+  async function toggle() {
+    if (status === 'loading') return;
+    if (status === 'playing') {
+      audio.current.pause();
+      audio.current.currentTime = 0;
+      setStatus('idle');
+      return;
+    }
+    if (!audio.current) {
+      audio.current = new Audio(`/api/check/${encodeURIComponent(checkId)}/audio`);
+      audio.current.onended = () => setStatus('idle');
+    }
+    setStatus('loading');
+    try {
+      await audio.current.play(); // called inside the tap, so phones allow it
+      setStatus('playing');
+      track('listen_played', { checkId });
+    } catch (e) {
+      audio.current = null; // a 503 is not cached by the browser; the next tap asks again
+      setStatus('error');
+    }
+  }
+  const label = status === 'loading' ? l.loading : status === 'playing' ? l.stop : l.play;
+  return html`<div class="listen">
+    <button type="button" class="button secondary small" onClick=${toggle} aria-busy=${status === 'loading'}>
+      ${status === 'loading' ? html`<span class="spinner dark" aria-hidden="true"></span>` : status === 'playing' ? stopIcon : speakerIcon}${label}
+    </button>
+    ${status === 'error' && html`<span class="small muted" role="status">${l.error}</span>`}
+  </div>`;
+}
+
 // A report links this check's identifiers to future checks (S4) and fires the viaSocket alert. Text is kept only with
 // explicit consent, and only the server's short-lived copy from the same anon_id can be saved.
 function ReportBox({ checkId, t }) {
@@ -112,6 +150,7 @@ export function Verdict({ result, sample, t, onReset }) {
       </div>
       <h1 id="verdict-headline" tabindex="-1" ref=${heading}>${result.headline}</h1>
       <p class="explanation">${result.explanation}</p>
+      <${ListenButton} checkId=${result.check_id} t=${t} key=${result.check_id} />
 
       ${result.signals.length > 0 &&
       html`<h2 class="verdict-section">${t.signals}</h2>
@@ -152,6 +191,10 @@ export function Verdict({ result, sample, t, onReset }) {
     </section>
   `;
 }
+
+const speakerIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>`;
+const stopIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`;
 
 const shareIcon = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/>

@@ -83,12 +83,24 @@ _INDIC = (0x0900, 0x0DFF)
 _SAFE = re.compile(r'\b(?:safe|genuine)\b|सुरक्षित|பாதுகாப்பான|సురక్షితం|ಸುರಕ್ಷಿತ|নিরাপদ|\bsurakshit', re.I)
 
 
+# Masked IDs, links and acronyms (li…@ybl, kite-zerodha-pro.in, SEBI, UPI) are Latin in every language.
+_LATIN_TOKENS = re.compile(r'\S*[.@…/]\S*|\b[A-Z]{2,}\b')
+
+
 def explanation_ok(text: str, lang: Lang, band: Band) -> bool:
     own = _SCRIPTS.get(lang)
+    native = 0
     for ch in text:
         code = ord(ch)
-        if _INDIC[0] <= code <= _INDIC[1] and not (own and own[0] <= code <= own[1]):
-            return False
+        if _INDIC[0] <= code <= _INDIC[1]:
+            if not (own and own[0] <= code <= own[1]):
+                return False
+            native += 1
+    # The model once answered a Hindi check in SMS-style Latin letters ("paisa bhejna theek nhi h"): that is the
+    # Hinglish option, not Hindi, and the speech for it sounds wrong. Most letters must be in the language's script.
+    latin = sum(ch.isascii() and ch.isalpha() for ch in _LATIN_TOKENS.sub(' ', text))
+    if own and native <= latin:
+        return False
     return not (band == 'no_known_signals' and _SAFE.search(text))
 
 
