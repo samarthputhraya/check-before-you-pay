@@ -1,0 +1,60 @@
+"""Fixes from the live QA sweep, 29 Oct: emoji between words, explanation guards, readable localized evidence,
+next steps when nothing was flagged, and overlapping quotes."""
+from __future__ import annotations
+
+import pytest
+
+from backend import language
+from backend.extraction import Claim, Extraction, normalize, regex_extract, verified_extraction
+from backend.schemas import Evidence, Signal
+from backend.signals import evaluate
+
+
+def test_emoji_between_words_do_not_hide_a_claim():
+    text = '🚀 VIP 💰 Stock Tips 📈 300% 🔥🔥 guaranteed profit, pay ₹10,000 to qa.emoji.desk@ybl'
+    claimed = verified_extraction(Extraction(claims=[Claim(type='guaranteed_returns', quote='300% guaranteed profit')]), text)
+    assert [c.type for c in claimed.claims] == ['guaranteed_returns']
+    assert normalize('₹10,000 🔥 at 5%') == '₹10,000 at 5%'  # currency and percent stay
+
+
+@pytest.mark.parametrize(('text', 'lang', 'band', 'ok'), [
+    ('ఈ సందేశంలో నకిలీ డొమైన్ ఉంది.', 'te', 'high_risk', True),
+    ('ఈ సందేశంలో నకిలీ ম డొమైన్ ఉంది.', 'te', 'high_risk', False),  # a Bengali letter inside Telugu
+    ('This looks safe to pay.', 'en', 'no_known_signals', False),
+    ('यह भुगतान सुरक्षित है।', 'hi', 'no_known_signals', False),
+    ('इसमें धोखाधड़ी के संकेत हैं।', 'hi', 'high_risk', True),
+    ('Is message mein scam ke signals hain.', 'hinglish', 'high_risk', True),
+    ('Is message mein स्कैम ke signals hain.', 'hinglish', 'high_risk', False),
+])
+def test_explanation_guard(text, lang, band, ok):
+    assert language.explanation_ok(text, lang, band) is ok
+
+
+def signal(id, text, kind='lookup'):
+    return Signal(id=id, points=10, label='x', evidence=Evidence(kind=kind, text=text, source_url=None))
+
+
+def test_localized_domain_evidence_reads_naturally():
+    s2, s3 = language.localize([signal('S2', 'kite-zerodha-pro.in is not zerodha.com'),
+                                signal('S3', 'kite-zerodha-pro.in: registered 12 days ago')], 'hi')
+    assert s2.evidence.text == 'kite-zerodha-pro.in असली zerodha.com नहीं है'
+    assert s3.evidence.text == 'kite-zerodha-pro.in सिर्फ़ 12 दिन पहले रजिस्टर हुई है'
+    bn = language.localize([signal('S2', 'a.in is not zerodha.com')], 'bn')[0]
+    assert 'সরকারি' not in bn.evidence.text  # it said "government domain"
+
+
+@pytest.mark.parametrize('lang', list(language.COPY))
+def test_nothing_flagged_never_says_dont_pay(lang):
+    _, _, steps = language.fallback('no_known_signals', lang, [])
+    assert steps[0].text == language.NO_SIGNAL_STEPS[lang][0]
+    assert steps[2].url == 'https://cybercrime.gov.in'
+    high = language.fallback('high_risk', lang, [])[2]
+    assert high[0].text == language.COPY[lang][5]
+
+
+def test_overlapping_quotes_are_shown_once():
+    text = 'Join now: 30% guaranteed monthly returns, 30% guaranteed. Pay to x.desk@ybl for stock tips'
+    claims = [Claim(type='guaranteed_returns', quote='30% guaranteed monthly returns'),
+              Claim(type='urgency_pressure', quote='Join now'), Claim(type='vip_or_institutional_account', quote='30% guaranteed')]
+    s6 = next(s for s in evaluate(text, verified_extraction(Extraction(claims=claims), text), {}) if s.id == 'S6')
+    assert s6.evidence.text.count('30% guaranteed') == 1

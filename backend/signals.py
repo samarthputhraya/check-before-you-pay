@@ -162,8 +162,11 @@ def evaluate(text: str, extracted: Extraction, domain_ages: dict[str, tuple[int,
         seen.add(group)
         claims.append((weights.CLAIMS[group], claim.quote))
     if claims:
+        quotes = [q for _, q in claims]
+        shown = [q for i, q in enumerate(quotes) if not any(
+            normalize(q) in normalize(other) and (normalize(q) != normalize(other) or j < i) for j, other in enumerate(quotes) if j != i)]
         result.append(signal('S6', min(weights.S6_CAP, sum(p for p, _ in claims)),
-                             'Claims in the message', ' | '.join(q for _, q in claims), kind='quote'))
+                             'Claims in the message', ' | '.join(shown), kind='quote'))
     if phishing_hits:
         result.append(signal('S7', weights.S7, 'Public phishing feed match',
                              'A URL matches a verified, online PhishTank report.', 'https://phishtank.org'))

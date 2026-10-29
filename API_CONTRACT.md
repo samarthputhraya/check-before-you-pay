@@ -106,6 +106,7 @@
 | 400 | `empty_input` | No text, image or audio was sent |
 | 413 | `input_too_large` | Text over 5,000 characters, or a file over 5 MB |
 | 415 | `unsupported_media` | Image or audio type not on the list above |
+| 422 | `unreadable_file` | A screenshot or voice note with no text we could read and no typed text alongside. The page asks for a clearer file or the pasted text |
 | 429 | `rate_limited` | More than 30 checks per hour for this user, or the per-IP limit |
 | 503 | `check_unavailable` | Only when even the regex fallback fails |
 
