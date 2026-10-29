@@ -24,6 +24,13 @@ def wav(seconds=1):
     return output.getvalue()
 
 
+@pytest.fixture(autouse=True)
+def no_recent_failures():
+    audio._failed.clear()
+    yield
+    audio._failed.clear()
+
+
 @pytest.fixture
 def saved(tmp_path, monkeypatch):
     path = tmp_path / 'audio.db'
@@ -74,7 +81,10 @@ def test_failure_clean_and_retryable(saved, monkeypatch, failure):
         assert response.status_code == 503
         assert response.json()['error']['code'] == 'audio_unavailable'
         assert 'private detail' not in response.text
-    assert tts.await_count == 2
+    assert tts.await_count == 1  # a retry within a minute doesn't spend the TTS quota again
+    monkeypatch.setattr(audio, 'RETRY_AFTER', 0.0)
+    assert TestClient(app).get(f'/api/check/{view.check_id}/audio').status_code == 503
+    assert tts.await_count == 2  # after the backoff it does try again
 
 
 def test_missing_check_does_not_synthesize(saved, monkeypatch):

@@ -320,8 +320,8 @@ class Providers:
             'If unchecked is nonempty, add that some checks could not be completed; a check that could not run is '
             'never a reason for the risk. Use simple everyday words a parent would use, in one script only. '
             'The application already shows localized evidence; do not repeat the evidence list. '
-            'S4 and S5 count earlier high-risk checks on this site that share an ID, link or wording; they are not '
-            'complaints, victims or police reports, so never call them that. '
+            'S4 and S5 count earlier checks on this site that were high risk or reported and share an ID, link or '
+            'wording; they are not complaints, victims or police reports, so never call them that. '
             'Keep the explanation under 30 words and preserve any numbers or domains you mention.',
             mask_text(prompt), ExplanationText)
         return Explanation(explanation=result.explanation, signals=[])

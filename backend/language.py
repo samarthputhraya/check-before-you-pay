@@ -12,7 +12,7 @@ COPY = {
         "No known scam signals. This doesn't prove it's genuine.", 'Some checks could not be completed.',
         'The evidence below explains the risk signals found.', "Don't pay until you verify.",
         'Verify on SEBI Check', 'Report on 1930 or cybercrime.gov.in',
-        ['Investment payment handle','Look-alike domain','New domain','Linked to earlier high-risk checks','Similar script','Claims in the message','Phishing feed'],
+        ['Investment payment handle','Look-alike domain','New domain','Linked to earlier flagged checks','Similar script','Claims in the message','Phishing feed'],
         'This investment payment handle is not a SEBI @valid handle: {facts}', '{domain} is not {official}',
         '{domain}: registered {age} days ago', '{facts} earlier checks linked', '{facts} earlier checks match this script',
         'A URL matches a verified online PhishTank report.'],
@@ -68,7 +68,7 @@ COPY = {
         'Koi jaana-pehchana scam signal nahi mila. Isse asli hone ka saboot nahi milta.', 'Kuch jaanch poori nahi ho saki.',
         'Mile hue risk signals ke saboot neeche hain.', 'Verify hone tak paise na bhejein.',
         'SEBI Check par verify karein', '1930 ya cybercrime.gov.in par report karein',
-        ['Investment payment UPI handle','Milta-julta domain','Naya domain','Purane high-risk checks se link','Milta-julta message','Message ke daave','Phishing list'],
+        ['Investment payment UPI handle','Milta-julta domain','Naya domain','Purane flagged checks se link','Milta-julta message','Message ke daave','Phishing list'],
         'Ye investment payment handle SEBI ka @valid handle nahi hai: {facts}', '{domain} asli {official} nahi hai',
         '{domain} sirf {age} din pehle register hua hai', 'Judi hui purani checks: {facts}', 'Is message se milti purani checks: {facts}',
         'Ek URL, PhishTank ki verified active phishing report se milta hai.'],
@@ -87,10 +87,11 @@ _SAFE = re.compile(r'\b(?:safe|genuine)\b|सुरक्षित|பாது�
 _LATIN_TOKENS = re.compile(r'\S*[.@…/]\S*|\b[A-Z]{2,}\b')
 
 
-# S4 and S5 count earlier high-risk checks on this site. Unless people actually pressed "report", calling them complaints
-# or reports is a made-up fact (live, 30 Oct: "पुरानी शिकायतों से जुड़ा है", "linked to old complaints").
-_COMPLAINT = re.compile(r'complain|\breport|शिकायत|तक्रार|रिपोर्ट|புகார்|ఫిర్యాదు|రిపోర్ట్|ದೂರು|ರಿಪೋರ್ಟ್|অভিযোগ|রিপোর্ট'
-                        r'|shikayat', re.I)
+# S4 and S5 count earlier flagged checks on this site. Unless people actually pressed "report", calling them complaints
+# or reports is a made-up fact (live, 30 Oct: "पुरानी शिकायतों से जुड़ा है", "linked to old complaints"). Advice to
+# report ("report it on 1930", "1930 पर रिपोर्ट करें") is fine, so only complaint words and "reported"/plural forms count.
+_COMPLAINT = re.compile(r'complain|\breported\b|\breports\b|\breport\s+ho\b|shikayat|शिकायत|तक्रार|रिपोर्टों|रिपोर्टें'
+                        r'|रिपोर्ट\s+(?:हो|की\s+गई|किया\s+गया|झाल)|புகார்|ఫిర్యాదు|రిపోర్ట్‌లు|ದೂರು|ರಿಪೋರ್ಟ್‌ಗಳ|অভিযোগ', re.I)
 
 
 # The danda (।, ॥) sits in the Devanagari block but ends sentences in Bengali too: punctuation, not a script mix.
@@ -98,7 +99,7 @@ _COMPLAINT = re.compile(r'complain|\breport|शिकायत|तक्रा�
 _DANDA = (0x0964, 0x0965)
 # An ID in the explanation must be a masked one copied as is (tr…@ybl) or the SEBI @valid rule; the model once wrote
 # "ట్రే3@వైబిఎల్", a made-up ID in Telugu letters.
-_ID_OK = re.compile(r'(?:[\w.-]*…@[a-z0-9]+|@valid[\w-]*)(?:-?[ऀ-෿]+)?', re.I)  # case endings: …@ybl-க்கு
+_ID_OK = re.compile(r'(?:[\w.-]*…@[a-z0-9]+|@valid[\w-]*)(?:-?[\u0900-\u0DFF]+)?', re.I)  # case endings: …@ybl-க்கு
 
 
 def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0) -> bool:

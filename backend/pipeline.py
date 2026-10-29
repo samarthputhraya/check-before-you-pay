@@ -133,12 +133,14 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         kinds = [v for v in ring.via if v != 'same_script']
         if kinds:
             n = ring.linked_checks
+            wording = ' or the same wording' if 'same_script' in ring.via else ''
             signals.append(signal('S4', min(weights.S4_CAP, len(kinds) * weights.S4_PER_TYPE),
-                'Linked to earlier high-risk checks', f'{n} earlier high-risk check{"" if n == 1 else "s"} on this site used '
-                f'the same {", ".join(VIA_NAMES[k] for k in kinds)}'))
+                'Linked to earlier flagged checks', f'Linked to {n} earlier check{"" if n == 1 else "s"} on this site that '
+                f'{"was" if n == 1 else "were"} high risk or reported, through the same '
+                f'{", ".join(VIA_NAMES[k] for k in kinds)}{wording}'))
         if script_count:
-            signals.append(signal('S5', weights.S5, 'Matching message script', f'{script_count} earlier high-risk '
-                                  f'check{" on this site matches" if script_count == 1 else "s on this site match"} this wording'))
+            signals.append(signal('S5', weights.S5, 'Matching message script', f'{script_count} earlier '
+                                  f'check{" on this site that was high risk or reported matches" if script_count == 1 else "s on this site that were high risk or reported match"} this wording'))
     signals.sort(key=lambda s: s.id)
     total, band = score(signals)
     unchecked = sorted(set(unchecked))

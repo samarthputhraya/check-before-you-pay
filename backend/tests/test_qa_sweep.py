@@ -92,3 +92,13 @@ def test_payment_written_as_a_loanword_still_counts(text):
     # Held-out h_hi_s04 scored only 30: "पेमेंट" and "लगाओ" were not read as asking for money.
     found = verified_extraction(Extraction(claims=[]), text)
     assert 'S1' in [s.id for s in evaluate(text, found, {})]
+
+
+@pytest.mark.parametrize(('text', 'lang', 'ok'), [
+    ("Don't pay; report this on 1930.", 'en', True),  # advice to report is fine
+    ('पैसे न भेजें, 1930 पर रिपोर्ट करें।', 'hi', True),
+    ('This UPI ID has been reported before.', 'en', False),  # nobody reported it
+    ('यह आईडी पहले की रिपोर्टों से जुड़ी है।', 'hi', False),
+])
+def test_advice_to_report_is_not_a_claim_of_reports(text, lang, ok):
+    assert language.explanation_ok(text, lang, 'high_risk') is ok

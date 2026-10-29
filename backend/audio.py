@@ -5,7 +5,9 @@ import asyncio
 import hashlib
 import io
 import re
+import time
 import wave
+import weakref
 from contextlib import suppress
 
 from backend import db, llm
@@ -18,8 +20,14 @@ _MASKED_UPI = re.compile(r'[\w.-]*…@[\w.-]+')
 SPOKEN_UPI = {'en': 'this UPI ID', 'hi': 'यह UPI आईडी', 'mr': 'हा UPI आयडी', 'hinglish': 'ye UPI ID',
               'ta': 'இந்த UPI ஐடி', 'te': 'ఈ UPI ఐడీ', 'kn': 'ಈ UPI ಐಡಿ', 'bn': 'এই UPI আইডি'}
 
-# One deployment worker. Fixed stripes bound memory and serialize duplicate requests.
-_locks = [asyncio.Lock() for _ in range(32)]
+# One deployment worker. A lock per check serializes duplicate requests without making unrelated checks wait (32
+# shared stripes could hold a second verdict for a whole TTS call plus encode). Locks vanish when no request holds them.
+_locks: weakref.WeakValueDictionary[str, asyncio.Lock] = weakref.WeakValueDictionary()
+# At most two syntheses at once on the e2-micro, and a check whose audio just failed isn't retried for a minute, so a
+# reload loop on a broken verdict can't spend the TTS quota.
+_synth = asyncio.Semaphore(2)
+_failed: dict[str, float] = {}
+RETRY_AFTER = 60.0
 
 
 def pcm_wave(data: bytes, mime: str) -> bytes:
@@ -90,14 +98,24 @@ async def for_check(check_id: str) -> bytes:
             if len(text) > 2000:
                 raise ValueError('speech too long')
             digest = hashlib.sha256((view.lang + '\n' + text).encode()).hexdigest()
-            lock = _locks[int(hashlib.sha256((str(path) + check_id).encode()).hexdigest()[:8], 16) % len(_locks)]
+            lock = _locks.setdefault(f'{path}:{check_id}', asyncio.Lock())
             async with lock:
                 cached = await asyncio.to_thread(db.get_audio, path, check_id, digest)
                 if cached is not None:
                     return cached
-                async with asyncio.timeout(8):
-                    wav = await llm.tts(text)
-                result = await encode_mp3(wav)
+                if time.monotonic() - _failed.get(check_id, -RETRY_AFTER) < RETRY_AFTER:
+                    raise ValueError('failed a moment ago')
+                try:
+                    async with _synth:
+                        async with asyncio.timeout(8):
+                            wav = await llm.tts(text)
+                        result = await encode_mp3(wav)
+                except Exception:
+                    if len(_failed) > 10000:
+                        _failed.clear()
+                    _failed[check_id] = time.monotonic()
+                    raise
+                _failed.pop(check_id, None)
                 await asyncio.to_thread(db.save_audio, path, check_id, digest, result)
                 return result
     except ApiError:

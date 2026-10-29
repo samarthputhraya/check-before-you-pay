@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS orders (
  id TEXT PRIMARY KEY, plan TEXT NOT NULL, anon_id TEXT NOT NULL, session_id TEXT, status TEXT NOT NULL,
  mode TEXT NOT NULL, created_at REAL NOT NULL, paid_at REAL, dodo_ref TEXT);
 CREATE TABLE IF NOT EXISTS dodo_webhooks (id TEXT PRIMARY KEY, type TEXT NOT NULL, created_at REAL NOT NULL);
+CREATE INDEX IF NOT EXISTS orders_paid_by_anon ON orders(anon_id, status);
 CREATE TABLE IF NOT EXISTS verdict_audio (
  check_id TEXT PRIMARY KEY REFERENCES checks(id), digest TEXT NOT NULL, mp3 BLOB NOT NULL);
 '''
