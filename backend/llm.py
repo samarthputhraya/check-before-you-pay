@@ -345,17 +345,20 @@ class Providers:
         raise ProviderUnavailable()
 
     async def tts(self, text: str) -> bytes:
-        """Stretch-only internal wrapper; no unapproved endpoint added to the contract."""
+        """Return WAV from the discovered model, never unlabeled raw PCM."""
+        from backend.audio import pcm_wave
         await self.initialize()
         if not self.google or 'tts' not in self.models:
             raise ProviderUnavailable()
         try:
             response = await self.google.aio.models.generate_content(model=self.models['tts'],
-                contents=mask_text(text), config=types.GenerateContentConfig(response_modalities=['AUDIO']))
+                contents=mask_text(text), config=types.GenerateContentConfig(response_modalities=['AUDIO'],
+                    speech_config=types.SpeechConfig(voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name='Kore')))))
             for candidate in response.candidates or []:
                 for part in candidate.content.parts or []:
                     if part.inline_data and part.inline_data.data:
-                        return part.inline_data.data
+                        return pcm_wave(part.inline_data.data, part.inline_data.mime_type or '')
         except Exception:
             pass
         raise ProviderUnavailable()
