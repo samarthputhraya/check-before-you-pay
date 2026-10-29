@@ -269,6 +269,7 @@ def allow_request(path: Path, buckets: list[tuple[str, int]], now: float | None 
 
 def top_rings(path: Path, k: int | None = 10, include_samples: bool = False) -> list[list[str]]:
     with session(path) as con:
+        con.execute('BEGIN')  # One WAL snapshot across the node and edge reads.
         # Rechecking one forward cannot create a ring in the public totals.
         # Fold its copies into one node, retaining all discovered entity edges.
         representatives: dict[str, str] = {}

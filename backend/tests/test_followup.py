@@ -2,11 +2,15 @@
 from __future__ import annotations
 
 import sqlite3
+import asyncio
+import json
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
 
-from backend import db
+from backend import db, llm
 from backend.app import app
 from backend.extraction import canonical_url, regex_extract
 from backend.cache import input_hash
@@ -83,3 +87,88 @@ def test_rechecks_alone_do_not_inflate_public_ring_total(client):
     distinct = submit(client, text + ' Join today.')
     assert distinct['ring']['linked_checks'] > 0
     assert client.get('/api/stats').json()['rings'] == 1
+
+
+@pytest.mark.parametrize(('raw', 'expected'), [
+    ('{"transcript":"complete phrase", "claims":[', 'complete phrase'),
+    ('{"transcript":"cut off phrase', None),
+    ('{"transcript":"a \\"quoted\\" phrase",', 'a "quoted" phrase'),
+    ('{"transcript":123,', None),
+    ('{"transcript":"",', None),
+    ('{"claims":[{"quote":"transcript"}],', None),
+    ('{"transcript":"\\ud800",', None),
+])
+def test_partial_media_accepts_only_complete_transcript_strings(raw, expected):
+    assert llm.completed_transcript(raw) == expected
+
+
+def streaming_provider(chunks, failure=None):
+    provider = llm.Providers()
+    provider.ready = True
+    provider.models = {'extract': 'test-flash-lite'}
+    closed = []
+
+    async def stream():
+        try:
+            for chunk in chunks:
+                yield SimpleNamespace(text=chunk)
+            if failure:
+                raise failure
+        finally:
+            closed.append(True)
+
+    generate = AsyncMock(side_effect=lambda **kwargs: stream())
+    provider.google = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(generate_content_stream=generate)))
+    return provider, generate, closed
+
+
+@pytest.mark.asyncio
+async def test_streamed_media_verifies_quotes_and_closes_response():
+    raw = json.dumps({'transcript': 'Pay sample@ybl. 300% guaranteed.', 'claims': [
+        {'type': 'guaranteed_returns', 'quote': '300% guaranteed'},
+        {'type': 'withdrawal_fee', 'quote': 'not in the source'}], 'app_names': []})
+    provider, generate, closed = streaming_provider([raw[:35], raw[35:]])
+    transcript, extracted = await provider.read_media(b'test audio', 'audio/ogg')
+    assert transcript == 'Pay sample@ybl. 300% guaranteed.'
+    assert extracted.entities.upi_ids == ['sample@ybl']
+    assert len(extracted.claims) == 1
+    assert generate.await_count == 1 and closed == [True]
+
+
+@pytest.mark.asyncio
+async def test_stream_failure_retains_complete_transcript_without_claims():
+    provider, generate, closed = streaming_provider(
+        ['{"transcript":"Investment: pay sample@ybl.", "claims":['], TimeoutError())
+    transcript, extracted = await provider.read_media(b'test audio', 'audio/ogg')
+    assert transcript == 'Investment: pay sample@ybl.' and extracted is None
+    assert generate.await_count == 1 and closed == [True]
+
+
+@pytest.mark.asyncio
+async def test_truncated_transcript_is_retried_then_rejected():
+    provider, generate, closed = streaming_provider(['{"transcript":"never complete'], TimeoutError())
+    with pytest.raises(llm.ProviderUnavailable):
+        await provider.read_media(b'test audio', 'audio/ogg')
+    assert generate.await_count == 2 and closed == [True, True]
+
+
+@pytest.mark.asyncio
+async def test_stream_does_not_swallow_request_cancellation():
+    provider, generate, closed = streaming_provider(['{"transcript":"complete",'], asyncio.CancelledError())
+    with pytest.raises(asyncio.CancelledError):
+        await provider.read_media(b'test audio', 'audio/ogg')
+    assert generate.await_count == 1 and closed == [True]
+
+
+def test_recovered_media_can_return_regex_verdict_with_unchecked_claims(client, monkeypatch):
+    # Exercise orchestration directly using validated media, without needing a codec fixture.
+    from backend.pipeline import run_check
+    from backend.schemas import CheckRequest
+
+    monkeypatch.setattr(llm, 'read_media', AsyncMock(return_value=('Investment: pay sample@ybl.', None)))
+    monkeypatch.setattr(llm, 'extract', AsyncMock(side_effect=llm.ProviderUnavailable()))
+    body = CheckRequest(lang='en', anon_id='u_followup', input={'text': 'Accompanying message'})
+    result = asyncio.run(run_check(body, ValidInput(None, None, None, b'test audio', 'audio/ogg'), 'https://example.org'))
+    assert result.score == 35
+    assert 'claims' in result.unchecked and 'transcription' not in result.unchecked
+    assert result.transcript == 'Investment: pay sample@ybl.'

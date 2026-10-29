@@ -1,0 +1,345 @@
+{
+  "measured_at": "2026-10-29T07:37:41.555173+00:00",
+  "models": {
+    "extract": "gemini-2.5-flash-lite",
+    "explain": "gemini-2.5-flash-lite",
+    "embed": "gemini-embedding-001",
+    "tts": "gemini-3.8-flash-tts"
+  },
+  "startup_ms": 3158,
+  "method": "Sequential real Gemini calls through FastAPI TestClient; fresh temporary DB per case; no cache hits; made-up inputs. Local measurements, not phone/Railway acceptance.",
+  "summary": {
+    "audio": {
+      "n": 5,
+      "successes": 3,
+      "complete_risk_checks": 3,
+      "p50_ms": 8919,
+      "p95_ms": 9530,
+      "max_ms": 9546,
+      "complete_p50_ms": 8670,
+      "complete_p95_ms": 8894
+    },
+    "image": {
+      "n": 5,
+      "successes": 5,
+      "complete_risk_checks": 5,
+      "p50_ms": 6223,
+      "p95_ms": 8272,
+      "max_ms": 8644,
+      "complete_p50_ms": 6223,
+      "complete_p95_ms": 8272
+    },
+    "text": {
+      "n": 20,
+      "successes": 20,
+      "complete_risk_checks": 20,
+      "p50_ms": 3046,
+      "p95_ms": 5098,
+      "max_ms": 6481,
+      "complete_p50_ms": 3046,
+      "complete_p95_ms": 5098
+    }
+  },
+  "results": [
+    {
+      "case": 1,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2920,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 2,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3246,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 3,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2620,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 4,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2522,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 5,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2721,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 6,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3114,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 7,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 3310,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 8,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 5025,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 9,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 4252,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 10,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2544,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 11,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 4169,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 12,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2573,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 13,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2649,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 14,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3007,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 15,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2519,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 16,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3102,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 17,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 6481,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 18,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3084,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 19,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 3235,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 20,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2997,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 21,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 6223,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 22,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 6785,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 23,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 8644,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 24,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 5879,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 25,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 6101,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 26,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 9546,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 27,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 9464,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 28,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 8670,
+      "score": 30,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 29,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 7060,
+      "score": 30,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 30,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 8919,
+      "score": 30,
+      "unchecked": [],
+      "cached": false
+    }
+  ]
+}

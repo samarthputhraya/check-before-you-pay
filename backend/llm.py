@@ -5,6 +5,7 @@ import asyncio
 import base64
 import json
 import os
+import re
 import time
 from typing import TypeVar
 
@@ -13,7 +14,7 @@ from google.genai import types
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 
-from backend.extraction import Extraction, source_text, verified_extraction
+from backend.extraction import Claim, ExtractedEntities, Extraction, source_text, verified_extraction
 from backend.config import get_settings
 from backend.links import Embedding
 from backend.privacy import mask_text
@@ -34,12 +35,39 @@ class ProviderUnavailable(Exception):
     """Intentionally contains no provider payload or credentials."""
 
 
+class MediaReadFailure(ProviderUnavailable):
+    """A complete transcript survived, but the remaining extraction did not."""
+
+    def __init__(self, transcript: str) -> None:
+        super().__init__('Media extraction incomplete')
+        self.transcript = transcript
+
+
 class Reading(BaseModel):
     text: str = Field(max_length=20000)
 
 
-class MediaExtraction(Extraction):
+class MediaExtraction(BaseModel):
+    # Emit the source first. Identifiers are extracted independently from it;
+    # asking the model to repeat every identifier wastes output and latency.
     transcript: str = Field(max_length=20000)
+    claims: list[Claim]
+    app_names: list[str] = Field(default_factory=list)
+
+
+def completed_transcript(raw: str) -> str | None:
+    """Accept only a complete first JSON string, never a truncated spoken phrase."""
+    prefix = re.match(r'\s*\{\s*"transcript"\s*:\s*', raw)
+    if prefix is None:
+        return None
+    try:
+        value, _ = json.JSONDecoder().raw_decode(raw, prefix.end())
+        if not isinstance(value, str) or not value.strip():
+            return None
+        value.encode('utf-8')
+        return Reading(text=value).text
+    except (ValueError, UnicodeError):
+        return None
 
 
 class SignalTranslation(BaseModel):
@@ -141,6 +169,24 @@ class Providers:
             raise ProviderUnavailable()
         return value
 
+    async def _stream_media(self, model: str, contents: list, config: types.GenerateContentConfig) -> MediaExtraction:
+        raw = ''
+        try:
+            async with asyncio.timeout(8):
+                stream = await self.google.aio.models.generate_content_stream(
+                    model=model, contents=contents, config=config)
+                try:
+                    async for chunk in stream:
+                        raw += chunk.text or ''
+                finally:
+                    await stream.aclose()
+            return MediaExtraction.model_validate_json(raw)
+        except Exception:
+            transcript = completed_transcript(raw)
+            if transcript is not None:
+                raise MediaReadFailure(transcript) from None
+            raise
+
     async def structured(self, role: str, instruction: str, text: str, schema: type[T],
                          media: tuple[bytes, str] | None = None) -> T:
         await self.initialize()
@@ -152,17 +198,24 @@ class Providers:
             # One retry, within the caller's overall deadline. Never multiply SDK retries.
             for _ in range(2):
                 try:
-                    async with asyncio.timeout(8):
-                        response = await self.google.aio.models.generate_content(
-                            model=self.models[role], contents=contents,
-                            config=types.GenerateContentConfig(system_instruction=instruction, temperature=0,
-                                response_mime_type='application/json', response_schema=schema,
-                                max_output_tokens=350 if role == 'explain' else 2500,
-                                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)))
-                    parsed = schema.model_validate_json(response.text or '')
+                    config = types.GenerateContentConfig(system_instruction=instruction, temperature=0,
+                        response_mime_type='application/json', response_schema=schema,
+                        max_output_tokens=350 if role == 'explain' else 2500,
+                        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True))
+                    if media and schema is MediaExtraction:
+                        parsed = await self._stream_media(self.models[role], contents, config)
+                    else:
+                        async with asyncio.timeout(8):
+                            response = await self.google.aio.models.generate_content(
+                                model=self.models[role], contents=contents, config=config)
+                        parsed = schema.model_validate_json(response.text or '')
                     self.last_success = time.monotonic()
                     self.ready = True
                     return parsed
+                except MediaReadFailure:
+                    # Continue with this complete source in the pipeline instead
+                    # of discarding it and retranscribing the file on a retry.
+                    raise
                 except Exception:
                     continue
         if self.openai:
@@ -215,17 +268,23 @@ class Providers:
         except Exception:
             raise ProviderUnavailable() from None
 
-    async def read_media(self, data: bytes, mime: str, text: str = '') -> tuple[str, Extraction]:
+    async def read_media(self, data: bytes, mime: str, text: str = '') -> tuple[str, Extraction | None]:
         """Read first, then extract in one response; verify every quote against the transcript."""
         try:
             result = await self.structured('extract', EXTRACT_INSTRUCTION +
                 '\nFirst transcribe the attached media exactly in its original language into transcript. '
                 'For an image, read its visible text. If unreadable, transcript is empty. '
-                'Then extract claims and entities from the transcript and the accompanying message. '
+                'Then extract claims and app names from the transcript and the accompanying message. '
+                'Do not repeat payment identifiers or URLs in separate fields. '
                 'Every claim quote must occur verbatim in the transcript or accompanying message.',
                 json.dumps({'accompanying_message': source_text(text)}, ensure_ascii=False),
                 MediaExtraction, (data, mime))
-            return result.transcript, verified_extraction(result, text + '\n' + result.transcript)
+            extracted = Extraction(entities=ExtractedEntities(app_names=result.app_names), claims=result.claims)
+            return result.transcript, verified_extraction(extracted, text + '\n' + result.transcript)
+        except MediaReadFailure as exc:
+            # The pipeline retries claims using the complete transcript within
+            # the remaining budget, then discloses unchecked claims if needed.
+            return exc.transcript, None
         except ProviderUnavailable:
             transcript = await self._openai_transcribe(data, mime)
             return transcript, await self.extract(text + '\n' + transcript)
@@ -297,7 +356,7 @@ async def transcribe(data: bytes, mime: str) -> str:
     return await providers.transcribe(data, mime)
 
 
-async def read_media(data: bytes, mime: str, text: str = '') -> tuple[str, Extraction]:
+async def read_media(data: bytes, mime: str, text: str = '') -> tuple[str, Extraction | None]:
     return await providers.read_media(data, mime, text)
 
 
