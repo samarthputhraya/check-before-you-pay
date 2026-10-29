@@ -40,7 +40,7 @@ UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\
 PHONE = re.compile(r'(?<!\w)(?:\+?91[\s-]?)?([6-9](?:[\s-]?\d){9})(?!\w)')
 WALLET = re.compile(r'\b(?:0x[0-9a-fA-F]{40}|T[1-9A-HJ-NP-Za-km-z]{33}|bc1[ac-hj-np-z02-9]{25,62}|[13][1-9A-HJ-NP-Za-km-z]{25,34})\b')
 URL = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
-BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?:/[^\s<>"\[\]{}]*)?')
+BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?![\w@-]|\.[\w])(?:/[^\s<>"\[\]{}]*)?')
 SEBI = re.compile(r'\bIN[A-Z]{1,3}\d{8,12}\b', re.I)
 GROUP_HOSTS = frozenset(('t.me', 'telegram.me', 'chat.whatsapp.com'))
 SHARED_HOSTS = GROUP_HOSTS | frozenset(('drive.google.com', 'docs.google.com', 'youtube.com',
@@ -68,7 +68,8 @@ def canonical_url(value: str) -> str | None:
         if not PSL(host).suffix:
             return None
         port = parts.port
-        netloc = host + (f':{port}' if port and port not in (80, 443) else '')
+        default_port = 80 if parts.scheme == 'http' else 443
+        netloc = host + (f':{port}' if port and port != default_port else '')
         return urlunsplit((parts.scheme, netloc, parts.path or '/', parts.query, ''))
     except (ValueError, UnicodeError):
         return None

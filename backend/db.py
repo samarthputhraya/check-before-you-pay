@@ -48,7 +48,7 @@ CREATE INDEX IF NOT EXISTS rate_bucket ON rate_limits(bucket, created_at);
 CREATE TABLE IF NOT EXISTS app_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 '''
 
-CACHE_REVISION = '2026-10-29-review-1'
+CACHE_REVISION = '2026-10-29-review-2'
 
 
 def connect(path: Path) -> sqlite3.Connection:
@@ -269,12 +269,19 @@ def allow_request(path: Path, buckets: list[tuple[str, int]], now: float | None 
 
 def top_rings(path: Path, k: int | None = 10, include_samples: bool = False) -> list[list[str]]:
     with session(path) as con:
+        # Rechecking one forward cannot create a ring in the public totals.
+        # Fold its copies into one node, retaining all discovered entity edges.
+        representatives: dict[str, str] = {}
+        nodes: dict[str, str] = {}
+        for row in con.execute('''SELECT id,input_hash FROM checks WHERE band='high_risk'
+                AND (? OR is_sample=0) ORDER BY created_at,id''', (include_samples,)):
+            nodes[row['id']] = representatives.setdefault(row['input_hash'], row['id'])
         rows = con.execute('''SELECT c.id,ce.entity_id FROM checks c JOIN check_entities ce ON ce.check_id=c.id
             JOIN entities e ON e.id=ce.entity_id WHERE c.band='high_risk' AND (? OR c.is_sample=0)
             AND e.type IN ('upi','phone','domain','group_link','wallet')''', (include_samples,)).fetchall()
         scripts = con.execute("SELECT id,'script:'||script_id FROM checks WHERE band='high_risk' AND script_id IS NOT NULL AND (? OR is_sample=0)",
                               (include_samples,)).fetchall()
-        return connected_groups([(r[0], r[1]) for r in [*rows, *scripts]], k)
+        return connected_groups([(nodes[r[0]], r[1]) for r in [*rows, *scripts]], k)
 
 
 def stats(path: Path) -> StatsResponse:

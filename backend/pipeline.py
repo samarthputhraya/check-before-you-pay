@@ -61,6 +61,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
             result.score, result.band = score(result.signals)
             result.ring = Ring(linked_checks=0, linked_reports=0, via=[])
             result.headline, result.explanation, result.next_steps = language.fallback(result.band, body.lang, result.unchecked)
+            result.share.card_title = result.headline
         if inp.text:
             consent_buffer.put(check_id, body.anon_id, inp.text)
         result.latency_ms = int((time.perf_counter() - started) * 1000)
