@@ -22,12 +22,17 @@ changes have been merged into this branch.
 | Stats and backup | Stored checks/reports/events, users, languages, share rate, referral factor, p50/p95, sample exclusions, token-protected SQLite online backup |
 | Privacy and outages | No provider keys in browser; no unconsented raw text on disk; owner-bound volatile consent buffer; masked public pages; partial verdicts for failed checks |
 
-`python -m pytest` runs 153 offline tests. Tests stub the provider boundary and
+`python -m pytest` runs 202 offline tests. Tests stub the provider boundary and
 never send real webhooks. `python -m ruff check backend seed --select F` checks
 unused names and imports. The test suite includes the fixed-score determinism
 and prompt-injection cases required by the brief.
 
 ## Live validation
+
+The latest pre-merge evidence supersedes the earlier smoke timings below. See
+`docs/REVIEW_FIXES.md` and `docs/benchmark-review.json`: 20/20 complete text checks,
+5/5 complete screenshot checks, and 3/5 successful voice checks. Voice still has
+a provider-latency limitation and is not claimed ready for phone acceptance.
 
 These are local Gemini smoke measurements using explicitly made-up messages and
 a temporary database, not deployed performance or real usage figures.
@@ -41,9 +46,10 @@ a temporary database, not deployed performance or real usage figures.
 | Cached text | Cache hit; 40 ms |
 | Hindi ring check | Linked to one earlier report through UPI and script; 2.96 seconds in the earlier smoke run |
 
-The audio transcription budget is five seconds inside the media request's
-9.5-second budget. Screenshot reading retains a shorter budget. Provider/network
-variance can still trigger fallbacks; an unreadable file returns a plain error.
+Provider attempts now have an eight-second local cap inside a shared 9.5-second
+request budget. Media transcription and extraction use one structured response.
+Provider/network variance can still trigger fallbacks; an unreadable file returns
+a plain error. The updated timings and retry constraints are in `docs/REVIEW_FIXES.md`.
 
 ## Team integration
 
@@ -99,4 +105,4 @@ the process clears that buffer. The public verdict never includes a transcript.
   buffer; a successful retry can still store the text they agreed to report.
 - K-factor uses first-touch referral attribution. A returning user's later share
   click cannot count as a newly acquired user.
-- The full 153-test suite passes, including regression coverage for these cases.
+- The full 202-test suite passes, including regression coverage for these cases.

@@ -1,0 +1,355 @@
+{
+  "measured_at": "2026-10-29T05:13:14.956099+00:00",
+  "models": {
+    "extract": "gemini-2.5-flash-lite",
+    "explain": "gemini-2.5-flash-lite",
+    "embed": "gemini-embedding-001",
+    "tts": "gemini-3.8-flash-tts"
+  },
+  "startup_ms": 2713,
+  "method": "Sequential real Gemini calls through FastAPI TestClient; fresh temporary DB per case; no cache hits; made-up inputs. Local measurements, not phone/Railway acceptance.",
+  "summary": {
+    "audio": {
+      "n": 5,
+      "successes": 3,
+      "complete_risk_checks": 2,
+      "p50_ms": 9342,
+      "p95_ms": 9378,
+      "max_ms": 9387,
+      "complete_p50_ms": 9342,
+      "complete_p95_ms": 9342
+    },
+    "image": {
+      "n": 5,
+      "successes": 5,
+      "complete_risk_checks": 4,
+      "p50_ms": 4726,
+      "p95_ms": 8674,
+      "max_ms": 9340,
+      "complete_p50_ms": 4648,
+      "complete_p95_ms": 5817
+    },
+    "text": {
+      "n": 20,
+      "successes": 20,
+      "complete_risk_checks": 20,
+      "p50_ms": 2523,
+      "p95_ms": 3309,
+      "max_ms": 3400,
+      "complete_p50_ms": 2523,
+      "complete_p95_ms": 3309
+    }
+  },
+  "results": [
+    {
+      "case": 1,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2992,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 2,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3304,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 3,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2486,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 4,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2254,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 5,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2510,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 6,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2546,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 7,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2329,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 8,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2355,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 9,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2513,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 10,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2494,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 11,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2278,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 12,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2590,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 13,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2533,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 14,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2300,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 15,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2420,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 16,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2534,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 17,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2929,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 18,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2623,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 19,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2734,
+      "score": 45,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 20,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 3400,
+      "score": 0,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 21,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 6009,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 22,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 4570,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 23,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 4726,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 24,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 4346,
+      "score": 55,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 25,
+      "input_type": "image",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 9340,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "links",
+        "phishing_feed",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 26,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 9387,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 27,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 9342,
+      "score": 30,
+      "unchecked": [],
+      "cached": false
+    },
+    {
+      "case": 28,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 9343,
+      "score": 30,
+      "unchecked": [
+        "links",
+        "phishing_feed",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 29,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 9255,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 30,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 9342,
+      "score": 30,
+      "unchecked": [],
+      "cached": false
+    }
+  ],
+  "outcome": "Baseline after HTTP deadline fix, before combining media transcription/extraction. Media results exposed the serial-call bottleneck; see the final benchmark-review.json for the revised media path."
+}

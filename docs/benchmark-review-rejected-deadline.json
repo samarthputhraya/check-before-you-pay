@@ -1,0 +1,387 @@
+{
+  "measured_at": "2026-10-29T05:09:17.240603+00:00",
+  "models": {
+    "extract": "gemini-2.5-flash-lite",
+    "explain": "gemini-2.5-flash-lite",
+    "embed": "gemini-embedding-001",
+    "tts": "gemini-3.8-flash-tts"
+  },
+  "startup_ms": 3671,
+  "method": "Sequential real Gemini calls through FastAPI TestClient; fresh temporary DB per case; no cache hits; made-up inputs. Local measurements, not phone/Railway acceptance.",
+  "summary": {
+    "audio": {
+      "n": 5,
+      "successes": 0,
+      "p50_ms": 56,
+      "p95_ms": 123,
+      "max_ms": 140
+    },
+    "image": {
+      "n": 5,
+      "successes": 0,
+      "p50_ms": 46,
+      "p95_ms": 52,
+      "max_ms": 52
+    },
+    "text": {
+      "n": 20,
+      "successes": 20,
+      "p50_ms": 1176,
+      "p95_ms": 8399,
+      "max_ms": 9455
+    }
+  },
+  "results": [
+    {
+      "case": 1,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2778,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 2,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2278,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 3,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2373,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 4,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2383,
+      "score": 0,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 5,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2412,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 6,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 4774,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 7,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 2961,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 8,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 2548,
+      "score": 0,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 9,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 8343,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 10,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 9455,
+      "score": 35,
+      "unchecked": [
+        "claims"
+      ],
+      "cached": false
+    },
+    {
+      "case": 11,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 64,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 12,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 63,
+      "score": 0,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 13,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 60,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 14,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 62,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 15,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 56,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 16,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 73,
+      "score": 0,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 17,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 65,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 18,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 60,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 19,
+      "input_type": "text",
+      "lang": "en",
+      "status": 200,
+      "wall_ms": 57,
+      "score": 35,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 20,
+      "input_type": "text",
+      "lang": "hi",
+      "status": 200,
+      "wall_ms": 64,
+      "score": 0,
+      "unchecked": [
+        "claims",
+        "script_similarity"
+      ],
+      "cached": false
+    },
+    {
+      "case": 21,
+      "input_type": "image",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 46,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 22,
+      "input_type": "image",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 45,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 23,
+      "input_type": "image",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 40,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 24,
+      "input_type": "image",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 52,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 25,
+      "input_type": "image",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 50,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 26,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 140,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 27,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 56,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 28,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 57,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 29,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 48,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    },
+    {
+      "case": 30,
+      "input_type": "audio",
+      "lang": "en",
+      "status": 503,
+      "wall_ms": 48,
+      "score": null,
+      "unchecked": null,
+      "cached": false
+    }
+  ],
+  "outcome": "Rejected benchmark: SDK advertised an 8-second HTTP deadline; Gemini requires at least 10 seconds. Fixed transport deadline to 10 seconds while retaining local 8-second per-attempt cancellation. Do not use these fallback/media-failure latencies as acceptance results."
+}
