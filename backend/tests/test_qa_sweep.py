@@ -102,3 +102,9 @@ def test_payment_written_as_a_loanword_still_counts(text):
 ])
 def test_advice_to_report_is_not_a_claim_of_reports(text, lang, ok):
     assert language.explanation_ok(text, lang, 'high_risk') is ok
+
+
+def test_a_fee_to_a_personal_upi_id_is_a_payment_request():
+    # Live, 30 Oct: "Premium group fee Rs 4,999 to x@ybl" had no S1 because "fee" wasn't read as asking for money.
+    text = '(sample) Bank Nifty jackpot call tomorrow, 40% up. Premium group fee Rs 4,999 to review.fix@ybl'
+    assert 'S1' in [s.id for s in evaluate(text, verified_extraction(Extraction(claims=[]), text), {})]
