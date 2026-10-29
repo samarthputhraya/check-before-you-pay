@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { apiFetch } from './api.js';
 import { html } from './html.js';
-import { contentLang } from './i18n.js';
+import { contentLang, errorText } from './i18n.js';
 import { createShareCard } from './shareCard.js';
-import { track } from './session.js';
+import { anonId, track } from './session.js';
 
 const BAND_ICON = {
   high_risk: html`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -39,6 +40,38 @@ async function shareResult(result, bandLabel, t) {
   }
   track('share_clicked', { checkId: result.check_id, props: { method: 'wa_link' } });
   window.open(`https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`, '_blank', 'noopener');
+}
+
+// A report links this check's identifiers to future checks (S4) and fires the viaSocket alert. Text is kept only with
+// explicit consent, and only the server's short-lived copy from the same anon_id can be saved.
+function ReportBox({ checkId, t }) {
+  const [state, setState] = useState({ status: 'closed' });
+  const [consent, setConsent] = useState(false);
+  const r = t.report;
+  if (state.status === 'closed') {
+    return html`<button type="button" class="button ghost block report-open" onClick=${() => setState({ status: 'open' })}>${r.open}</button>`;
+  }
+  if (state.status === 'done') return html`<p class="report-done" role="status">${r.done}</p>`;
+  async function send() {
+    setState({ status: 'sending' });
+    try {
+      await apiFetch('/api/report', { method: 'POST', body: { check_id: checkId, anon_id: anonId, consent_store_text: consent, note: null } });
+      setState({ status: 'done' });
+    } catch (error) {
+      setState({ status: 'error', error });
+    }
+  }
+  const busy = state.status === 'sending';
+  return html`<div class="report-box">
+    <p class="small">${r.why}</p>
+    <label class="report-consent"><input type="checkbox" checked=${consent} disabled=${busy}
+      onChange=${(e) => setConsent(e.currentTarget.checked)} /> ${r.consent}</label>
+    ${state.status === 'error' && html`<p class="error" role="alert">${errorText(t, state.error)}</p>`}
+    <div class="actions">
+      <button type="button" class="button primary" disabled=${busy} onClick=${send}>${busy ? r.sending : r.send}</button>
+      <button type="button" class="button secondary" disabled=${busy} onClick=${() => setState({ status: 'closed' })}>${r.cancel}</button>
+    </div>
+  </div>`;
 }
 
 export function Verdict({ result, sample, t, onReset }) {
@@ -94,6 +127,7 @@ export function Verdict({ result, sample, t, onReset }) {
         <button type="button" class="button primary" onClick=${() => shareResult(result, t.band[result.band], t)}>${shareIcon}${t.share}</button>
         <button type="button" class="button secondary" onClick=${onReset}>${t.another}</button>
       </div>
+      ${!sample && html`<${ReportBox} checkId=${result.check_id} t=${t} key=${result.check_id} />`}
     </section>
   `;
 }

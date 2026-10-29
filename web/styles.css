@@ -186,6 +186,12 @@ label.button:focus-within { outline: 3px solid var(--focus); outline-offset: 2px
 .transcript { margin-top: 16px; }
 .transcript summary { cursor: pointer; font-weight: 600; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.report-open { margin-top: 8px; font-size: 15px; min-height: 44px; text-decoration: underline; }
+.report-box { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.report-box .small { margin: 0 0 12px; color: var(--muted); }
+.report-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.report-consent input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--accent); }
+.report-done { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); }
 
 .share-page .eyebrow { margin: 16px 0 12px; font-weight: 700; color: var(--accent); }
 .share-page > .button { margin-top: 16px; width: 100%; }
