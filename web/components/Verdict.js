@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { html } from './html.js';
 import { contentLang } from './i18n.js';
+import { createShareCard } from './shareCard.js';
 import { track } from './session.js';
 
 const BAND_ICON = {
@@ -21,17 +22,22 @@ function Evidence({ evidence }) {
   </p>`;
 }
 
-async function shareResult(result) {
-  track('share_clicked', { checkId: result.check_id });
+async function shareResult(result, bandLabel, t) {
   const { url, card_title: title } = result.share;
-  if (navigator.share) {
+  if (navigator.share && navigator.canShare) {
     try {
-      await navigator.share({ title, text: title, url });
-      return;
+      const file = await createShareCard(result, bandLabel, t.noProof);
+      const payload = { title, text: title, url, files: [file] };
+      if (navigator.canShare({ files: [file] })) {
+        track('share_clicked', { checkId: result.check_id, props: { method: 'image' } });
+        await navigator.share(payload);
+        return;
+      }
     } catch (e) {
       if (e && e.name === 'AbortError') return; // the user closed the share sheet
     }
   }
+  track('share_clicked', { checkId: result.check_id, props: { method: 'wa_link' } });
   window.open(`https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`, '_blank', 'noopener');
 }
 
@@ -85,7 +91,7 @@ export function Verdict({ result, sample, t, onReset }) {
       </ol>
 
       <div class="actions">
-        <button type="button" class="button primary" onClick=${() => shareResult(result)}>${shareIcon}${t.share}</button>
+        <button type="button" class="button primary" onClick=${() => shareResult(result, t.band[result.band], t)}>${shareIcon}${t.share}</button>
         <button type="button" class="button secondary" onClick=${onReset}>${t.another}</button>
       </div>
     </section>
