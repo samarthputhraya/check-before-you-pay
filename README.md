@@ -11,7 +11,7 @@ python -m venv .venv
 .venv/Scripts/activate          # Windows; use source .venv/bin/activate elsewhere
 pip install -r requirements.txt
 cp .env.example .env            # fill in the keys you have; the skeleton runs with none
-uvicorn backend.app:app --reload
+uvicorn backend.app:app --reload --no-proxy-headers
 ```
 
 Open http://localhost:8000. The API docs are at http://localhost:8000/api/docs.

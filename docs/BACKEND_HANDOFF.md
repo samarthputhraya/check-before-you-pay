@@ -59,7 +59,7 @@ git switch --track origin/codex/radnor-backend
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe -m pytest
 .venv\Scripts\python.exe -m seed.load
-.venv\Scripts\python.exe -m uvicorn backend.app:app --reload
+.venv\Scripts\python.exe -m uvicorn backend.app:app --reload --no-proxy-headers
 ```
 
 If you already have the branch locally, switch to it and pull instead of using
