@@ -117,7 +117,7 @@ export function Verdict({ result, sample, t, onReset }) {
       html`<h2 class="verdict-section">${t.signals}</h2>
         <ul class="signals">
           ${result.signals.map(
-            (s) => html`<li key=${s.id}>
+            (s, i) => html`<li key=${`${s.id}-${i}`}>
               <span class="pts">+${s.points}</span>
               <div><strong>${s.label}</strong><${Evidence} evidence=${s.evidence} t=${t} /></div>
             </li>`,

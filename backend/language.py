@@ -130,8 +130,7 @@ UNREGISTERED = {
 def unregistered(domain: str, source_url: str, lang: Lang) -> Signal:
     from backend.schemas import Evidence
     return Signal(id='S3', label=UNREGISTERED[lang], points=0,
-                  evidence=Evidence(kind='lookup', text=f'{domain}: {UNREGISTERED[lang]} (RDAP 404)',
-                                    source_url=source_url))
+                  evidence=Evidence(kind='lookup', text=domain, source_url=source_url))
 
 
 def localize(signals: list[Signal], lang: Lang) -> list[Signal]:

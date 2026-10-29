@@ -41,5 +41,6 @@ def test_zero_point_registered_evidence_all_languages(tmp_path, monkeypatch, lan
     assert body['score'] == 0
     evidence = next(s for s in body['signals'] if s['id'] == 'S3')
     assert evidence['points'] == 0
-    assert UNREGISTERED[lang] in evidence['evidence']['text']
-    assert 'RDAP 404' in evidence['evidence']['text']
+    assert evidence['label'] == UNREGISTERED[lang]
+    assert evidence['evidence']['text'] == 'missing-site.com'  # no 'RDAP 404' jargon; the Source link carries it
+    assert evidence['evidence']['source_url'].startswith('https://rdap.')
