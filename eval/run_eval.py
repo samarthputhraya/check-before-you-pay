@@ -67,8 +67,11 @@ def load_key(env_file: Path) -> None:
     print('key: set', flush=True)
 
 
+MESSAGES = HERE / 'messages.jsonl'
+
+
 def load_messages(limit: int | None, only: set[str] | None) -> list[dict]:
-    rows = [json.loads(line) for line in (HERE / 'messages.jsonl').read_text(encoding='utf-8').splitlines() if line.strip()]
+    rows = [json.loads(line) for line in MESSAGES.read_text(encoding='utf-8').splitlines() if line.strip()]
     if only:
         rows = [r for r in rows if r['id'] in only]
     return rows[:limit] if limit else rows
@@ -418,6 +421,8 @@ def print_report(summary: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--messages', type=Path, default=HERE / 'messages.jsonl',
+                        help='the labelled message file, e.g. eval/heldout.jsonl')
     parser.add_argument('--limit', type=int, help='only the first N messages (smoke run)')
     parser.add_argument('--only', help='comma-separated message ids to (re)run')
     parser.add_argument('--concurrency', type=int, default=3)
@@ -428,6 +433,8 @@ def main() -> None:
     parser.add_argument('--report', action='store_true', help='no model calls: summarize an existing results file')
     parser.add_argument('--compare', type=Path, help='another results file: print band and score agreement per message')
     args = parser.parse_args()
+    global MESSAGES
+    MESSAGES = args.messages
     if args.concurrency < 1 or args.concurrency > 3:
         parser.error('--concurrency must be 1 to 3')
 
