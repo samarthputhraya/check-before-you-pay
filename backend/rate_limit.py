@@ -53,7 +53,13 @@ def enforce_events(anon_id: str, ip: str) -> None:
     _enforce_buckets([('events:user:' + anon_id, 300), ('events:ip:' + _ip_key(ip), 10000)])
 
 
-def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
+def enforce_checkout(anon_id: str, ip: str) -> None:
+    # A buyer opens checkout once or twice; the IP budget still lets a whole house on one Wi-Fi buy.
+    _enforce_buckets([('checkout:user:' + anon_id, 10), ('checkout:ip:' + _ip_key(ip), 100)],
+                     'Too many checkout attempts. Please try again in an hour.')
+
+
+def _enforce_buckets(buckets: list[tuple[str, int]], message: str = 'Too many checks. Please try again in an hour.') -> None:
     try:
         allowed = db.allow_request(get_settings().sqlite_path, buckets)
     except (sqlite3.Error, OSError):
@@ -70,4 +76,4 @@ def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
                 for bucket, _ in buckets:
                     _recent.setdefault(bucket, deque()).append(now)
     if not allowed:
-        raise ApiError(429, 'rate_limited', 'Too many checks. Please try again in an hour.')
+        raise ApiError(429, 'rate_limited', message)
