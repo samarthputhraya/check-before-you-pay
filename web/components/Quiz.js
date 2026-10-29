@@ -9,7 +9,7 @@ const COPY = {
     title: 'Spot the scam', intro: 'Read each message and decide: Scam or Genuine?', loading: 'Loading quiz…',
     empty: 'There are no quiz messages available right now.', question: (n, total) => `Message ${n} of ${total}`,
     scam: 'Scam', genuine: 'Genuine', submit: 'See my score', scoring: 'Checking your answers…',
-    score: (score, total) => `You spotted ${score}/${total}.`, sample: 'Sample quiz result', share: 'Share score',
+    score: (score, total) => `You spotted ${score}/${total}.`, sample: 'Sample quiz result', share: 'Share score', youSaid: (answer) => `You said ${answer}`, answer: 'Answer',
     shareText: (score, total) => `I spotted ${score}/${total}. Can you?`, again: 'Play again', back: 'Back to checking',
     error: 'Could not load the quiz. Check your connection and try again.', answerError: 'Could not save your answers. Please try again.', retry: 'Try again', explanation: 'Why',
   },
@@ -17,7 +17,7 @@ const COPY = {
     title: 'धोखाधड़ी पहचानें', intro: 'हर संदेश पढ़ें और चुनें: धोखाधड़ी या सही?', loading: 'क्विज़ लोड हो रही है…',
     empty: 'अभी कोई क्विज़ संदेश उपलब्ध नहीं है।', question: (n, total) => `संदेश ${n} / ${total}`,
     scam: 'धोखाधड़ी', genuine: 'सही', submit: 'मेरा स्कोर देखें', scoring: 'जवाब जाँचे जा रहे हैं…',
-    score: (score, total) => `आपने ${score}/${total} पहचाने।`, sample: 'नमूना क्विज़ नतीजा', share: 'स्कोर साझा करें',
+    score: (score, total) => `आपने ${score}/${total} पहचाने।`, sample: 'नमूना क्विज़ नतीजा', share: 'स्कोर साझा करें', youSaid: (answer) => `आपने ${answer} चुना`, answer: 'सही जवाब',
     shareText: (score, total) => `मैंने ${score}/${total} पहचाने। क्या आप पहचान सकते हैं?`, again: 'फिर खेलें', back: 'जाँच पर वापस जाएँ',
     error: 'क्विज़ लोड नहीं हो सकी। इंटरनेट देखें और फिर कोशिश करें।', answerError: 'जवाब सेव नहीं हो सके। फिर कोशिश करें।', retry: 'फिर कोशिश करें', explanation: 'क्यों',
   },
@@ -25,7 +25,7 @@ const COPY = {
     title: 'फसवणूक ओळखा', intro: 'प्रत्येक संदेश वाचा आणि ठरवा: फसवणूक की खरा?', loading: 'क्विझ लोड होत आहे…',
     empty: 'सध्या क्विझचे संदेश उपलब्ध नाहीत.', question: (n, total) => `संदेश ${n} / ${total}`,
     scam: 'फसवणूक', genuine: 'खरा', submit: 'माझा गुण पाहा', scoring: 'तुमची उत्तरे तपासत आहे…',
-    score: (score, total) => `तुम्ही ${score}/${total} ओळखले.`, sample: 'नमुना क्विझ निकाल', share: 'गुण शेअर करा',
+    score: (score, total) => `तुम्ही ${score}/${total} ओळखले.`, sample: 'नमुना क्विझ निकाल', share: 'गुण शेअर करा', youSaid: (answer) => `तुम्ही ${answer} निवडले`, answer: 'योग्य उत्तर',
     shareText: (score, total) => `मी ${score}/${total} ओळखले. तुम्ही ओळखू शकता का?`, again: 'पुन्हा खेळा', back: 'तपासणीवर परत जा',
     error: 'क्विझ लोड झाली नाही. इंटरनेट तपासून पुन्हा प्रयत्न करा.', answerError: 'तुमची उत्तरे जतन झाली नाहीत. पुन्हा प्रयत्न करा.', retry: 'पुन्हा प्रयत्न करा', explanation: 'का',
   },
@@ -99,7 +99,7 @@ export function QuizPage() {
         body: { quiz_id: state.quiz.quiz_id, anon_id: anonId, answers: next },
       });
       track('quiz_done', { props: { score: data.score } });
-      setState({ status: 'done', quiz: state.quiz, result: data, sample: state.sample });
+      setState({ status: 'done', quiz: state.quiz, result: data, answers: next, sample: state.sample });
     } catch (error) {
       setState({ status: 'answer_error', quiz: state.quiz, sample: state.sample, error });
     }
@@ -133,7 +133,7 @@ export function QuizPage() {
     setReload((value) => value + 1);
   }
 
-  const label = (key) => text(lang, key);
+  const label = (key, ...args) => text(lang, key, ...args);
   const languageOptions = LANGS.filter(({ code }) => ['en', 'hi', 'mr'].includes(code));
   const quiz = state.quiz;
 
@@ -154,7 +154,7 @@ export function QuizPage() {
                 ${state.sample && html`<p class="sample-note">${label('sample')}</p>`}
                 <p class="quiz-score">${label('score', state.result.score, state.result.total)}</p>
                 <ol class="quiz-review">${state.result.results.map((item) => html`<li class=${item.correct ? 'correct' : 'incorrect'}>
-                  <strong>${item.correct ? '✓' : '•'} ${item.answer === 'scam' ? label('scam') : label('genuine')}</strong><p>${item.why}</p></li>`)}</ol>
+                  <strong>${label('youSaid', state.answers[item.id] === 'scam' ? label('scam') : label('genuine'))} · ${label('answer')}: ${item.answer === 'scam' ? label('scam') : label('genuine')}</strong><p>${item.why}</p></li>`)}</ol>
                 <div class="quiz-actions"><button class="button primary" onClick=${share}>${label('share')}</button><button class="button secondary" onClick=${restart}>${label('again')}</button></div>
               </section>`
             : state.status === 'answer_error'
