@@ -50,6 +50,8 @@ CREATE TABLE IF NOT EXISTS orders (
  id TEXT PRIMARY KEY, plan TEXT NOT NULL, anon_id TEXT NOT NULL, session_id TEXT, status TEXT NOT NULL,
  mode TEXT NOT NULL, created_at REAL NOT NULL, paid_at REAL, dodo_ref TEXT);
 CREATE TABLE IF NOT EXISTS dodo_webhooks (id TEXT PRIMARY KEY, type TEXT NOT NULL, created_at REAL NOT NULL);
+CREATE TABLE IF NOT EXISTS verdict_audio (
+ check_id TEXT PRIMARY KEY REFERENCES checks(id), digest TEXT NOT NULL, mp3 BLOB NOT NULL);
 '''
 
 CACHE_REVISION = '2026-10-29-review-2'
@@ -109,6 +111,18 @@ def cached_check(path: Path, key: str, lang: str, now: float | None = None) -> C
                              WHERE k.input_hash=? AND k.lang=? AND k.created_at>?''',
                           (key, lang, (now or time.time()) - 86400)).fetchone()
         return CheckView.model_validate_json(row[0]) if row else None
+
+
+def get_audio(path: Path, check_id: str, digest: str) -> bytes | None:
+    with session(path) as con:
+        row = con.execute('SELECT mp3 FROM verdict_audio WHERE check_id=? AND digest=?',
+                          (check_id, digest)).fetchone()
+        return bytes(row[0]) if row else None
+
+
+def save_audio(path: Path, check_id: str, digest: str, mp3: bytes) -> None:
+    with session(path) as con:
+        con.execute('INSERT OR REPLACE INTO verdict_audio VALUES (?,?,?)', (check_id, digest, mp3))
 
 
 def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None,

@@ -133,6 +133,19 @@ The public, masked view of a check. It has the same shape as the `/api/check` re
 
 ---
 
+## GET /api/check/{check_id}/audio
+
+Returns `audio/mpeg` (MP3,
+under 60 seconds) speaking the masked headline, explanation and first next step
+in the stored check's language. Successful audio is cached per check in SQLite
+and has `Cache-Control: public, max-age=86400`. Unknown or malformed IDs return
+`not_found` (404); provider, conversion, cache or timeout failures return
+`audio_unavailable` (503) in the standard JSON error envelope. Generation has an
+8-second provider timeout and a 12-second overall budget. No request body or
+credentials are required. Added with Round 2 Role B endpoint authorization.
+
+---
+
 ## GET /c/{check_id}
 
 The HTML share page. It includes Open Graph tags (an English title and the band) and links to the web app.

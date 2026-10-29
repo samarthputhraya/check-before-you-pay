@@ -19,6 +19,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, webhooks
 from backend.cache import consent_buffer
+from backend import audio
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
 from backend.guard import Guard
@@ -120,6 +121,14 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
     elif created:
         logging.getLogger('cbyp').info('viasocket not configured')
     return ReportResponse(report_id=report_id, ok=True, text_saved=text_saved)
+
+
+@app.get('/api/check/{check_id}/audio', response_class=Response,
+         responses={200: {'content': {'audio/mpeg': {}}}})
+async def check_audio(check_id: str) -> Response:
+    _require_check_id(check_id)
+    return Response(await audio.for_check(check_id), media_type='audio/mpeg',
+                    headers={'Cache-Control': 'public, max-age=86400', 'X-Content-Type-Options': 'nosniff'})
 
 
 @app.get("/api/quiz", response_model=QuizResponse)
