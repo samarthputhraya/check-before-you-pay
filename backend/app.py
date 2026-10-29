@@ -11,7 +11,7 @@ import secrets
 import sqlite3
 from contextlib import asynccontextmanager, suppress
 
-from fastapi import FastAPI, Query, Request, Response
+from fastapi import BackgroundTasks, FastAPI, Query, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
@@ -91,15 +91,20 @@ def check_view(check_id: str, request: Request, response: Response) -> CheckView
 
 
 @app.post("/api/report", response_model=ReportResponse)
-def report(body: ReportRequest, response: Response) -> ReportResponse:
+def report(body: ReportRequest, response: Response, background_tasks: BackgroundTasks) -> ReportResponse:
     text = consent_buffer.take(body.check_id, body.anon_id, body.consent_store_text)
+    configured = bool(os.getenv('VIASOCKET_REPORT_WEBHOOK_URL', '').strip())
     try:
-        report_id, _ = db.add_report(get_settings().sqlite_path, body.check_id, body.anon_id, text,
-                                     body.note if body.consent_store_text else None)
+        report_id, created = db.add_report(get_settings().sqlite_path, body.check_id, body.anon_id, text,
+                                     body.note if body.consent_store_text else None, webhook_enabled=configured)
     except KeyError:
         raise ApiError(404, 'not_found', 'No check with that ID.') from None
     except (sqlite3.Error, OSError):
         raise ApiError(503, 'internal_error', 'We could not save your report. Please try again.') from None
+    if created and configured:
+        background_tasks.add_task(webhooks.deliver_pending)
+    elif created:
+        logging.getLogger('cbyp').info('viasocket not configured')
     return ReportResponse(report_id=report_id, ok=True)
 
 

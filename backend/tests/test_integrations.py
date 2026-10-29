@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -183,6 +184,8 @@ async def test_webhook_sends_masked_metadata_and_tracks_delivery(client, tmp_pat
     report = client.post('/api/report', json={'check_id': check['check_id'], 'anon_id': 'u_owner',
         'consent_store_text': True, 'note': 'private note'}).json()
     monkeypatch.setenv('VIASOCKET_REPORT_WEBHOOK_URL', 'https://workflow.example/hook')
+    with db.session(tmp_path / 'test.db') as con:
+        con.execute("UPDATE reports SET webhook_status='pending'")
     received = []
 
     def handler(request):
@@ -205,6 +208,8 @@ async def test_webhook_retries_stop_after_three_failures(client, tmp_path, monke
     check = submit(client)
     client.post('/api/report', json={'check_id': check['check_id'], 'anon_id': 'u_owner', 'consent_store_text': False})
     monkeypatch.setenv('VIASOCKET_REPORT_WEBHOOK_URL', 'https://workflow.example/hook')
+    with db.session(tmp_path / 'test.db') as con:
+        con.execute("UPDATE reports SET webhook_status='pending'")
     real_client = httpx.AsyncClient
     transport = httpx.MockTransport(lambda request: httpx.Response(503))
     monkeypatch.setattr(webhooks.httpx, 'AsyncClient', lambda **kw: real_client(transport=transport, **kw))
@@ -216,3 +221,67 @@ async def test_webhook_retries_stop_after_three_failures(client, tmp_path, monke
     with db.session(path) as con:
         row = con.execute('SELECT webhook_attempts,webhook_status FROM reports').fetchone()
     assert tuple(row) == (3, 'failed')
+
+
+def test_report_without_webhook_logs_skip_and_still_saves(client, tmp_path, caplog):
+    check = submit(client)
+    with caplog.at_level(logging.INFO, logger='cbyp'):
+        response = client.post('/api/report', json={'check_id': check['check_id'], 'anon_id': 'u_owner',
+            'consent_store_text': False})
+    assert response.status_code == 200
+    assert 'viasocket not configured' in caplog.text
+    with db.session(tmp_path / 'test.db') as con:
+        assert con.execute('SELECT webhook_status FROM reports').fetchone()[0] == 'skipped'
+
+
+@pytest.mark.asyncio
+async def test_report_response_is_sent_before_failed_webhook(client, monkeypatch):
+    check = submit(client)
+    order = []
+
+    async def observed_app(scope, receive, send):
+        async def observed_send(message):
+            if message['type'] == 'http.response.body' and not message.get('more_body'):
+                order.append('response_sent')
+            await send(message)
+        await app(scope, receive, observed_send)
+
+    real_client = httpx.AsyncClient
+    api_client = real_client(transport=httpx.ASGITransport(app=observed_app), base_url='http://testserver')
+
+    def failed(request):
+        order.append('webhook_failed')
+        raise httpx.ReadTimeout('private provider failure')
+
+    monkeypatch.setenv('VIASOCKET_REPORT_WEBHOOK_URL', 'https://workflow.example/hook')
+    monkeypatch.setattr(webhooks.httpx, 'AsyncClient', lambda **kw: real_client(transport=httpx.MockTransport(failed), **kw))
+    async with api_client:
+        response = await api_client.post('/api/report', json={'check_id': check['check_id'], 'anon_id': 'u_owner',
+            'consent_store_text': False})
+    assert response.status_code == 200 and response.json()['ok'] is True
+    assert order == ['response_sent', 'webhook_failed']
+
+
+@pytest.mark.parametrize('mutation', ['unlabelled', 'no_consent', 'not_anonymized', 'duplicate_id', 'invented_quote'])
+def test_seed_format_rejects_missing_labels_consent_and_unverified_quotes(tmp_path, mutation):
+    from seed.load import read_messages
+
+    row = {'id': 'chk_test', 'label': '(test, made up) (sample)',
+        'text': '(test, made up) (sample) 300% guaranteed', 'source': 'made_up', 'claims': []}
+    rows = [row]
+    if mutation == 'unlabelled':
+        row['text'] = '300% guaranteed'
+    elif mutation == 'no_consent':
+        row['source'] = 'consented'
+        row['consent_to_use'] = False
+    elif mutation == 'not_anonymized':
+        row['source'] = 'consented'
+        row['consent_to_use'] = True
+        row['anonymized'] = False
+    elif mutation == 'duplicate_id':
+        rows.append(dict(row))
+    else:
+        row['claims'] = [{'type': 'withdrawal_fee', 'quote': 'unseen quote'}]
+    (tmp_path / 'sample.json').write_text(json.dumps(rows), encoding='utf-8')
+    with pytest.raises(ValueError):
+        read_messages(tmp_path)

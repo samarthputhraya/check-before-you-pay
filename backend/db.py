@@ -192,7 +192,8 @@ def entity_history(path: Path, entity_id: str) -> list[dict]:
             FROM checks c JOIN check_entities ce ON ce.check_id=c.id WHERE ce.entity_id=? ORDER BY c.created_at''', (entity_id,))]
 
 
-def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: str | None) -> tuple[str, bool]:
+def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: str | None,
+               webhook_enabled: bool = True) -> tuple[str, bool]:
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
         if not con.execute('SELECT 1 FROM checks WHERE id=?', (check_id,)).fetchone():
@@ -201,8 +202,9 @@ def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: 
         if existing:
             return existing[0], False
         report_id = new_id('rep')
-        con.execute('INSERT INTO reports(id,check_id,created_at,text_if_consented,anon_id,note) VALUES (?,?,?,?,?,?)',
-                    (report_id, check_id, time.time(), text, anon_id, note))
+        con.execute('''INSERT INTO reports(id,check_id,created_at,text_if_consented,anon_id,note,webhook_status)
+                       VALUES (?,?,?,?,?,?,?)''',
+                    (report_id, check_id, time.time(), text, anon_id, note, 'pending' if webhook_enabled else 'skipped'))
         con.execute('DELETE FROM cache')  # New reports change the available evidence.
         _event(con, EventRequest(anon_id=anon_id, event='report', check_id=check_id), time.time())
         return report_id, True

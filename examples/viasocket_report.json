@@ -1,0 +1,12 @@
+{
+  "event": "report",
+  "report_id": "rep_example",
+  "check_id": "chk_example",
+  "band": "high_risk",
+  "score": 65,
+  "lang": "hi",
+  "entities": [
+    {"type": "upi", "masked": "sa…@ybl"}
+  ],
+  "url": "https://your-app.up.railway.app/c/chk_example"
+}

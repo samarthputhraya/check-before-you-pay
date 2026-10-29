@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import sqlite3
 from urllib.parse import urlsplit
@@ -15,6 +16,15 @@ _delivery_lock = asyncio.Lock()
 
 
 async def deliver_pending() -> None:
+    try:
+        async with asyncio.timeout(25):
+            await _deliver_pending()
+    except Exception as exc:
+        # Never expose a webhook URL, payload, credential or provider exception text.
+        logging.getLogger('cbyp').warning('viasocket delivery unavailable: %s', type(exc).__name__)
+
+
+async def _deliver_pending() -> None:
     url = os.getenv('VIASOCKET_REPORT_WEBHOOK_URL', '').strip()
     parsed = urlsplit(url)
     if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
@@ -36,9 +46,10 @@ async def deliver_pending() -> None:
                                'band':view.band, 'score':view.score, 'lang':view.lang,
                                'entities':[e.model_dump() for e in view.entities],
                                'url':view.share.url.split('?')[0]}
-                    response = await client.post(url, json=payload,
-                        headers={'Idempotency-Key':report['id']})
-                    response.raise_for_status()
+                    async with asyncio.timeout(2):
+                        response = await client.post(url, json=payload,
+                            headers={'Idempotency-Key':report['id']})
+                        response.raise_for_status()
                     delivered = True
                 except Exception:
                     delivered = False

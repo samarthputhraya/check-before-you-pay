@@ -55,8 +55,8 @@ class ExplanationText(BaseModel):
 
 class Providers:
     def __init__(self) -> None:
-        self.google = None
-        self.openai = None
+        self.google: genai.Client | None = None
+        self.openai: AsyncOpenAI | None = None
         self.models: dict[str, str] = {}
         self.openai_models: set[str] = set()
         self.ready = False
@@ -84,7 +84,8 @@ class Providers:
                                                   ('embed','GEMINI_EMBED_MODEL', sorted(n for n,m in available.items() if 'embedContent' in (m.supported_actions or []) and 'preview' not in n)),
                                                   ('tts','GEMINI_TTS_MODEL', sorted(n for n in available if 'tts' in n))]:
                         chosen = os.getenv(env, '').strip()
-                        if chosen and chosen not in available:
+                        capability = 'embedContent' if role == 'embed' else 'generateContent'
+                        if chosen and (chosen not in available or capability not in (available[chosen].supported_actions or [])):
                             continue
                         if chosen or candidates:
                             self.models[role] = chosen or candidates[-1]
@@ -98,6 +99,7 @@ class Providers:
                         self.openai_models = {m.id for m in (await self.openai.models.list()).data}
                 except Exception:
                     self.openai_models = set()
+                self.ready = self.ready or os.getenv('OPENAI_MODEL', '').strip() in self.openai_models
 
     async def close(self) -> None:
         if self.google:
@@ -105,6 +107,12 @@ class Providers:
             self.google.close()
         if self.openai:
             await self.openai.close()
+        self.google = None
+        self.openai = None
+        self.models.clear()
+        self.openai_models.clear()
+        self.ready = False
+        self._attempted = False
 
     def _openai_model(self, setting: str) -> str:
         value = os.getenv(setting, '').strip()

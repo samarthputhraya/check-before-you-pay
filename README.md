@@ -67,6 +67,8 @@ The quiz still returns labelled sample responses. API shapes are unchanged.
   Without it, checks still return verdicts with links marked unchecked.
 - Configure `VIASOCKET_REPORT_WEBHOOK_URL` for the durable report delivery worker.
   It sends masked metadata, retries up to three times, and never sends source text.
+  Empty URLs skip delivery and log `viasocket not configured`. Delivery starts
+  after the report response. See [the exact payload and setup](docs/VIASOCKET.md).
   The family-alert and sheet workflow must still be configured in viaSocket.
 - `GET /api/admin/export` downloads an online SQLite backup when supplied
   `Authorization: Bearer <ADMIN_TOKEN>`. Keep the token in `.env`.
@@ -76,11 +78,11 @@ see [seed setup](seed/README.md) for optional phishing-feed configuration.
 Run `python -m pytest` for offline contract, privacy, scoring and outage tests.
 Tests replace provider calls and never spend credits or send webhooks.
 
-Recovery validation: live Gemini text checks returned a 55-point investment
-request verdict in 3.14 seconds (with a localized explanation fallback) and a
-zero-signal lunch message in 2.34 seconds. These are local smoke measurements,
-not deployment latency or usage metrics. A Hindi check linked an earlier report
-through UPI and script in 2.96 seconds; screenshot OCR returned a verdict in
-4.82 seconds. Both used the localized explanation fallback. All 116 offline
-tests pass. Phone/Railway validation, consented real
-seed collection and the external viaSocket workflow remain outstanding.
+Live validation: the same made-up investment message scored 55 across all eight
+languages in 2.39-2.76 seconds. Seven had complete model explanations; Kannada
+used the localized fallback. Screenshot OCR returned a complete verdict in 4.30
+seconds, OGG voice in 7.83 seconds, and a text cache hit in 40 ms. These are local
+smoke measurements, not deployment latency or usage metrics. All 144 offline
+tests pass. See [the role B handoff](docs/BACKEND_HANDOFF.md) for file ownership,
+team setup and the remaining external steps. Phone/Railway validation, consented
+real seed collection and the external viaSocket workflow remain outstanding.

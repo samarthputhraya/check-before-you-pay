@@ -69,7 +69,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     text = inp.text or ''
     for data, mime in [(inp.image, inp.image_mime), (inp.audio, inp.audio_mime)]:
         if data:
-            reading = await bounded(llm.transcribe(data, mime), min(3.5, deadline - time.perf_counter() - 2))
+            media_budget = 5.0 if mime and mime.startswith('audio/') else 3.5
+            reading = await bounded(llm.transcribe(data, mime), min(media_budget, deadline - time.perf_counter() - 2))
             if reading and reading.strip():
                 transcript = '\n'.join(filter(None, [transcript, reading]))
                 text = '\n'.join(filter(None, [text, reading]))

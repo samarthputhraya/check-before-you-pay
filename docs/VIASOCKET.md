@@ -1,0 +1,82 @@
+# Report webhook setup
+
+The code is ready; the external viaSocket workflow has not been configured or
+tested live yet. No family alert or spreadsheet row has been sent during the
+offline tests.
+
+## What the backend does
+
+`POST /api/report` saves the report and returns its normal response. If
+`VIASOCKET_REPORT_WEBHOOK_URL` is empty, it logs exactly `viasocket not configured`
+and skips delivery for that report. Adding a URL later does not send old skipped
+reports.
+
+If configured, a background task POSTs JSON after sending the report response.
+The network request has a two-second total timeout. Failure never changes report
+success. Pending deliveries survive restarts and retry after at least 60 seconds,
+up to three attempts total. The worker checks pending deliveries every 30 seconds.
+An HTTP redirect is treated as failure. The URL must use HTTPS.
+
+The `Idempotency-Key` HTTP header is the report ID. Configure the workflow to
+ignore already handled report IDs; this prevents duplicate notifications if a
+delivery succeeded but its acknowledgement was lost.
+
+## Exact JSON fields
+
+The made-up example below has the same fields the backend sends. IDs, scores,
+language, masked entities and the public URL vary with the actual report.
+
+```json
+{
+  "event": "report",
+  "report_id": "rep_example",
+  "check_id": "chk_example",
+  "band": "high_risk",
+  "score": 65,
+  "lang": "hi",
+  "entities": [{"type": "upi", "masked": "sa…@ybl"}],
+  "url": "https://your-app.up.railway.app/c/chk_example"
+}
+```
+
+There is no message text, transcript, report note, raw identifier, anonymous user
+ID or recipient address in the payload. The public URL has no referral parameter.
+The machine-readable example is `examples/viasocket_report.json`.
+
+## Map these fields in viaSocket
+
+1. Create a workflow with a Webhook trigger. Copy its HTTPS URL into `.env` as
+   `VIASOCKET_REPORT_WEBHOOK_URL`; restart the backend after changing `.env`.
+2. Set `PUBLIC_BASE_URL` in `.env` to the deployed HTTPS origin so the payload's
+   `url` opens the public verdict.
+3. Connect the intended Google Sheet. Add columns `report_id`, `check_id`, `band`,
+   `score`, `lang`, `entities`, `url`. Serialize `entities` as JSON for a single
+   cell. Use `report_id` to deduplicate deliveries.
+4. Add an email action to a family contact who has agreed to receive these alerts.
+   Configure the recipient inside the workflow. Example subject:
+   `Check Before You Pay: {{band}}`; body: `A check was reported. Risk score:
+   {{score}}. Review the evidence: {{url}}`.
+5. Activate the workflow and report a new, explicitly labelled test check. Confirm
+   one sheet row and one alert. Retry the same report and confirm no duplicates.
+   Do not test with a real victim's data.
+
+## Use the check API in another workflow
+
+Configure an HTTP POST action to `https://<deployed-host>/api/check`, with JSON:
+
+```json
+{
+  "lang": "en",
+  "anon_id": "u_viasocket_test",
+  "ref": null,
+  "input": {"text": "(test, made up) (sample) Investment: pay sample@ybl"}
+}
+```
+
+Map the incoming text into `input.text`. Set a caller timeout above ten seconds;
+route HTTP errors using their `error.code` and `error.message`. The normal
+30-checks/hour per anonymous ID limit still applies. No model key belongs in
+the workflow request.
+
+References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),
+[workflow actions](https://viasocket.com/help/workflow/actions).

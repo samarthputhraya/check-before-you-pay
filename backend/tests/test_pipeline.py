@@ -158,7 +158,7 @@ def test_cosine_rejects_invalid_vectors():
 def test_seed_is_repeatable_and_excluded_from_real_usage(client, tmp_path):
     from seed.load import load
 
-    assert load() == 2
+    assert load() == 4
     assert load() == 0
     path = tmp_path / 'checks.db'
     assert db.stats(path).checks == 0

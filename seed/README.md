@@ -1,10 +1,45 @@
 # Seed data
 
 Run `python -m seed.load` after configuring `IDENTIFIER_SALT` in `.env` (at least
-32 random characters). The command loads two explicitly labelled synthetic checks
-and their shared UPI link. It is repeatable, uses no provider calls, and excludes
+32 random characters). The command loads four checks labelled `(test, made up)`
+and `(sample)`, including a shared UPI link. It is repeatable, uses no provider calls, and excludes
 sample checks from usage totals and public ring totals. Open `/c/chk_sample02`
 to inspect the sample ring. No real housemate messages have been collected yet.
+
+## Message files for tonight's testing
+
+The loader reads every `seed/messages/*.json` file. Each file is an array with
+this shape (this example is made up):
+
+```json
+[
+  {
+    "id": "chk_test_example",
+    "label": "Investment request (test, made up) (sample)",
+    "source": "made_up",
+    "consent_to_use": false,
+    "text": "(test, made up) (sample) Investment: 300% guaranteed. Pay sample@ybl.",
+    "claims": [{"type": "guaranteed_returns", "quote": "300% guaranteed"}]
+  }
+]
+```
+
+For a real example, first obtain permission to use it and remove the victim's
+name, number and other identifying details. Set `source` to `consented`,
+`consent_to_use` to the boolean `true`, and `anonymized` to the boolean `true`.
+Keep `(sample)` in both label and text. Remove `(test, made up)` only when the
+message actually comes from a consented source. Do not include the sender's
+name, consent conversation, private screenshot or phone contact in the JSON.
+
+Give every message a fresh `chk_...` ID; loaded IDs are skipped on repeat runs.
+Use new IDs when replacing the made-up examples. `claims` can be empty; curated
+claims must use supported types from the brief and quotes present in the text.
+The loader checks labels, consent, anonymization confirmation, unique IDs and
+quote support before it writes. It never calls a model or invents claims.
+
+All imported examples stay excluded from real usage totals. The loader does not
+infer consent or automatically identify victims' names; review anonymization
+before committing a real example.
 
 The broker list is consumed directly by the signal engine; RDAP uses the bundled
 IANA bootstrap snapshot. The quiz remains a sample endpoint owned by role C.
