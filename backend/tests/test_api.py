@@ -227,6 +227,10 @@ def test_share_page_has_open_graph_tags(client):
     assert '<meta property="og:title" content="Check Before You Pay: High risk">' in html
     assert '<meta property="og:url" content="http://testserver/c/chk_01JB8Q">' in html
     assert "og:description" in html
+    # WhatsApp shows a picture preview; the image for the band must actually be served.
+    assert '<meta property="og:image" content="http://testserver/og/high_risk.png">' in html
+    image = client.get("/og/high_risk.png")
+    assert image.status_code == 200 and image.headers["content-type"] == "image/png"
 
 
 def test_share_page_escapes_everything(client, monkeypatch):
