@@ -272,3 +272,32 @@ Called by Dodo only, never by our pages. The server verifies the Standard Webhoo
 Answers `GET` and `HEAD`. Returns **503** with `"ok": false` when the database can't be written, so a deploy without a working volume fails its healthcheck.
 
 `db` returns `down` when the database can't be reached. Checks still return a verdict while it's down; S4 and S5 score 0, and `"links"` is added to `unchecked`.
+
+---
+
+## POST /api/telegram/webhook
+
+Added under Role B's Round 2 authorization in `docs/ROLE_B_NEXT.md`. Telegram
+posts its standard Update JSON here; the body limit is 64 KB. The
+`X-Telegram-Bot-Api-Secret-Token` header must match `TELEGRAM_WEBHOOK_SECRET`.
+The endpoint compares it in constant time before parsing/processing the update.
+
+**Response 200:** `{"ok": true}` acknowledges receipt, before a background task
+runs the check and sends a Telegram reply. Duplicate update IDs are ignored by
+a bounded in-memory cache. Ignored update types and non-private chats also get 200.
+
+Supported private-chat inputs: text, photos, PNG/JPEG documents and voice notes
+in the existing `/api/check` formats/limits. `/lang hi` switches language (the
+eight API language codes are accepted); otherwise Telegram's language code is
+used, falling back to English. Overrides expire after 24 hours or a restart.
+
+The reply contains the band, score, top three signals with masked evidence,
+next steps and the public referral URL. The pipeline, score and rate limits are
+the same as `/api/check`. Telegram user IDs become `u_tg_` plus a keyed HMAC;
+raw Telegram IDs, update bodies and message text are not persisted.
+
+Errors use the normal envelope: `invalid_signature` (401), `invalid_request`
+(400), `input_too_large` (413), or `telegram_unavailable` (503, missing configuration
+or capacity). Check/rate-limit failures after acknowledgment are reported in the
+chat, rather than changing the webhook response. See `docs/TELEGRAM.md` for
+delivery, restart and live acceptance limits.
