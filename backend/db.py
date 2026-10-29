@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS verdict_audio (
  check_id TEXT PRIMARY KEY REFERENCES checks(id), digest TEXT NOT NULL, mp3 BLOB NOT NULL);
 '''
 
-CACHE_REVISION = '2026-10-29-review-2'
+CACHE_REVISION = '2026-10-30-overnight'  # new S4 label, explanation script guard, claim definitions
 
 
 def connect(path: Path) -> sqlite3.Connection:

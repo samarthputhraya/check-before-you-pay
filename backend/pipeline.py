@@ -129,7 +129,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         kinds = [v for v in ring.via if v != 'same_script']
         if kinds:
             signals.append(signal('S4', min(weights.S4_CAP, len(kinds) * weights.S4_PER_TYPE),
-                'Linked to earlier reports', f'{ring.linked_checks} earlier high-risk checks or reported checks; links: {", ".join(kinds)}'))
+                'Linked to earlier high-risk checks', f'{ring.linked_checks} earlier high-risk checks or reported checks; links: {", ".join(kinds)}'))
         if script_count:
             signals.append(signal('S5', weights.S5, 'Matching message script',
                                    f'{script_count} earlier high-risk or reported checks match this script'))

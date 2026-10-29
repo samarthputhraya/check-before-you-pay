@@ -309,7 +309,7 @@ class Providers:
 
     async def explain(self, signals: list[Signal], band: Band, lang: Lang, unchecked: list[str]) -> Explanation:
         # No original message/transcript. Only verified, masked evidence and fixed outcome.
-        plain = {'claims': 'reading the claims', 'domain_age': 'website age', 'links': 'earlier reports',
+        plain = {'claims': 'reading the claims', 'domain_age': 'website age', 'links': 'links to earlier checks',
                  'script_similarity': 'similar messages', 'phishing_feed': 'phishing list', 'transcription': 'reading the file'}
         prompt = json.dumps({'band':band, 'signals':[s.model_dump() for s in signals],
                              'unchecked':[plain.get(u, 'one check') for u in unchecked]}, ensure_ascii=False)
@@ -320,6 +320,8 @@ class Providers:
             'If unchecked is nonempty, add that some checks could not be completed; a check that could not run is '
             'never a reason for the risk. Use simple everyday words a parent would use, in one script only. '
             'The application already shows localized evidence; do not repeat the evidence list. '
+            'S4 and S5 count earlier high-risk checks on this site that share an ID, link or wording; they are not '
+            'complaints, victims or police reports, so never call them that. '
             'Keep the explanation under 30 words and preserve any numbers or domains you mention.',
             mask_text(prompt), ExplanationText)
         return Explanation(explanation=result.explanation, signals=[])

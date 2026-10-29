@@ -53,7 +53,7 @@ const EN = {
   checks: {
     claims: 'claims in the message',
     domain_age: 'website age',
-    links: 'earlier reports',
+    links: 'links to earlier checks',
     script_similarity: 'similar messages',
     phishing_feed: 'phishing list',
     transcription: 'reading the file',
@@ -139,7 +139,7 @@ const HI = {
   checks: {
     claims: 'मैसेज के दावे',
     domain_age: 'वेबसाइट की उम्र',
-    links: 'पिछली रिपोर्टें',
+    links: 'पहले की जाँचों से संबंध',
     script_similarity: 'मिलते-जुलते मैसेज',
     phishing_feed: 'फ़िशिंग सूची',
     transcription: 'फ़ाइल पढ़ना',
@@ -226,7 +226,7 @@ const MR = {
   checks: {
     claims: 'मेसेजमधील दावे',
     domain_age: 'वेबसाइटचे वय',
-    links: 'आधीचे रिपोर्ट',
+    links: 'आधीच्या तपासण्यांशी संबंध',
     script_similarity: 'सारखे मेसेज',
     phishing_feed: 'फिशिंग यादी',
     transcription: 'फाइल वाचणे',
@@ -312,7 +312,7 @@ const HINGLISH = {
   checks: {
     claims: 'message ke daave',
     domain_age: 'website ki umar',
-    links: 'pichhli reports',
+    links: 'purane checks se link',
     script_similarity: 'milte-julte messages',
     phishing_feed: 'phishing list',
     transcription: 'file padhna',
@@ -389,7 +389,7 @@ const TA = {
   nextSteps: 'இப்போது என்ன செய்வது',
   unchecked: (list) => `சில சரிபார்ப்புகள் நடக்கவில்லை (${list}), அதனால் அவற்றுக்கு 0 புள்ளிகள்.`,
   checks: {
-    claims: 'மெசேஜில் உள்ள வாக்குறுதிகள்', domain_age: 'இணையதளத்தின் வயது', links: 'முந்தைய புகார்கள்',
+    claims: 'மெசேஜில் உள்ள வாக்குறுதிகள்', domain_age: 'இணையதளத்தின் வயது', links: 'முந்தைய சரிபார்ப்புகளுடன் தொடர்பு',
     script_similarity: 'இதே போன்ற மெசேஜ்கள்', phishing_feed: 'ஃபிஷிங் பட்டியல்', transcription: 'கோப்பைப் படித்தல்',
   },
   transcript: 'நாங்கள் படித்தது',
@@ -463,7 +463,7 @@ const TE = {
   nextSteps: 'ఇప్పుడు ఏం చేయాలి',
   unchecked: (list) => `కొన్ని చెక్‌లు జరగలేదు (${list}), అందుకే వాటికి 0 పాయింట్లు.`,
   checks: {
-    claims: 'మెసేజ్‌లోని హామీలు', domain_age: 'వెబ్‌సైట్ వయసు', links: 'గత రిపోర్ట్‌లు',
+    claims: 'మెసేజ్‌లోని హామీలు', domain_age: 'వెబ్‌సైట్ వయసు', links: 'గత తనిఖీలతో సంబంధం',
     script_similarity: 'ఇలాంటి మెసేజ్‌లు', phishing_feed: 'ఫిషింగ్ జాబితా', transcription: 'ఫైల్ చదవడం',
   },
   transcript: 'మేము చదివింది',
@@ -537,7 +537,7 @@ const KN = {
   nextSteps: 'ಈಗ ಏನು ಮಾಡಬೇಕು',
   unchecked: (list) => `ಕೆಲವು ಪರಿಶೀಲನೆಗಳು ನಡೆಯಲಿಲ್ಲ (${list}), ಆದ್ದರಿಂದ ಅವುಗಳಿಗೆ 0 ಅಂಕಗಳು.`,
   checks: {
-    claims: 'ಮೆಸೇಜ್‌ನಲ್ಲಿರುವ ಭರವಸೆಗಳು', domain_age: 'ವೆಬ್‌ಸೈಟ್‌ನ ವಯಸ್ಸು', links: 'ಹಿಂದಿನ ವರದಿಗಳು',
+    claims: 'ಮೆಸೇಜ್‌ನಲ್ಲಿರುವ ಭರವಸೆಗಳು', domain_age: 'ವೆಬ್‌ಸೈಟ್‌ನ ವಯಸ್ಸು', links: 'ಹಿಂದಿನ ಪರಿಶೀಲನೆಗಳೊಂದಿಗೆ ಸಂಬಂಧ',
     script_similarity: 'ಇದೇ ರೀತಿಯ ಮೆಸೇಜ್‌ಗಳು', phishing_feed: 'ಫಿಶಿಂಗ್ ಪಟ್ಟಿ', transcription: 'ಫೈಲ್ ಓದುವುದು',
   },
   transcript: 'ನಾವು ಓದಿದ್ದು',
@@ -610,7 +610,7 @@ const BN = {
   nextSteps: 'এখন কী করবেন',
   unchecked: (list) => `কিছু যাচাই হয়নি (${list}), তাই সেগুলোর জন্য 0 পয়েন্ট ধরা হয়েছে।`,
   checks: {
-    claims: 'মেসেজের প্রতিশ্রুতি', domain_age: 'ওয়েবসাইটের বয়স', links: 'আগের রিপোর্ট',
+    claims: 'মেসেজের প্রতিশ্রুতি', domain_age: 'ওয়েবসাইটের বয়স', links: 'আগের যাচাইয়ের সঙ্গে যোগ',
     script_similarity: 'একই রকম মেসেজ', phishing_feed: 'ফিশিং তালিকা', transcription: 'ফাইল পড়া',
   },
   transcript: 'আমরা যা পড়েছি',
