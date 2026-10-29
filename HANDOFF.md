@@ -1,7 +1,7 @@
 # Handoff: Fri 30 Oct, about 02:00 IST (end of the overnight session)
 
 ## What's live
-- **Site:** https://34-45-129-243.sslip.io runs branch `feat/pricing` (latest deploy: 4349060).
+- **Site:** https://34-45-129-243.sslip.io runs branch `feat/pricing` (latest deploy: 12e1748).
   - It was deployed from the branch because merging my own PR into `main` was blocked as "merge without review".
   - `main` is behind until PR #11 merges.
 - **Health:** `/api/health` returns ok; the LLM and the database are up.
