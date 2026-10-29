@@ -1,5 +1,51 @@
 # How well does the check work? (eval, 29 Oct 2026)
 
+## The numbers to quote: a held-out set nobody tuned on
+
+After the first eval (below), we changed the scoring (scoring v2). Then we measured on a **second set of 128 messages**, written by someone who never saw the code or the first set. It was committed before any run (`eval/heldout.jsonl`, commit 7e97847). Both versions ran on it with the real Gemini key, and each message was scored as if seen for the first time.
+
+| | Scoring before (the build live until 29 Oct night) | Scoring v2 |
+|---|---|---|
+| Scam messages flagged (caution or high risk) | 25 / 64 = 39% (95% CI 28–51%) | **60 / 64 = 94% (95% CI 85–98%)** |
+| Scam messages at high risk | 3 / 64 | **22 / 64** |
+| Ordinary payments flagged | 0 / 64 | **0 / 64 (95% CI 0–6%)** |
+| Scams with a personal UPI ID | 20 / 23 | 23 / 23 |
+| Scams with only a link | 5 / 13 | 12 / 13 |
+| Scams with only a phone number | 0 / 10 | 10 / 10 |
+| Scams with no identifier at all | 0 / 14 | 11 / 14 |
+| Scams with a fake `@valid` handle | 0 / 4 | 4 / 4 |
+| Check time, p50 / p95 (text, laptop, 3 at a time) | 3.2 s / 5.4 s | 3.3 s / 4.9 s |
+
+- **The set:** 64 scam and 64 ordinary messages, in English, Hindi, Hinglish, Marathi, Tamil, Telugu, Kannada and Bengali.
+- **The ordinary messages are mostly hard cases:**
+  - 33 ask for payment to a personal UPI ID: shop bills, rent, school fees, chit funds, gold schemes and family requests;
+  - 4 are real brokers asking for funds to a genuine `@validhdfc` or `@validicici` handle.
+- **The 4 v2 still misses** are invite-only VIP group pitches with no money request yet, scoring 5–15. That's an honest limit: the check flags a request to pay, and a first message that only invites you in gives it little to go on.
+
+**What changed in v2** (each change was measured on the first set, and the first set is never quoted as the result):
+- **New claim types:** sure-shot insider tips, pay-to-unlock tasks and recovery fees.
+- **A prompt that defines every claim.** A specific promised return ("10% weekly") counts as a guarantee.
+- **A stricter SEBI handle:** `@valid` must be followed by a bank's name, so `@validupi` or a bare `@valid` doesn't pass.
+- **More payment verbs:** recharge, top up, "daal do" and the Tamil form.
+- **Weights v2:**
+  - S1 goes from 35 to 50.
+  - Five scam-only claims go from 10 to 30 each: guaranteed returns, a fee to withdraw, pay-to-unlock tasks, sure-shot tips and recovery fees.
+  - The claims cap goes from 30 to 40, so claims alone can only reach caution. A high-risk verdict always needs a checked fact as well.
+
+**Three lines for the pitch:**
+- "On 128 messages we'd never tuned on, in eight languages, it flagged 60 of 64 scams and none of 64 ordinary payments."
+- "It flags a scam even with no UPI ID in it: 10 of 10 phone-only scams, 11 of 14 with no identifier at all."
+- "Before this week's changes it caught 39%; now it catches 94%, with zero false alarms on bills, rent and family transfers."
+
+**Caveats:**
+- We wrote both sets ourselves, though blind, and the held-out author never saw the code.
+- Real messages from users come next (see `docs/COLLECT.md`).
+- Ring links (S4 and S5) are switched off in this measurement. On the live site they only add points.
+
+---
+
+# The first eval (the development set: what we tuned on)
+
 **Short answer.** We ran 156 messages in 8 languages through the real pipeline, with the live Gemini key, twice.
 
 - **It flagged 40 of the 78 scam messages.** That's 51% (95% CI 40–62%).
@@ -10,7 +56,7 @@
 The data, the runner and how to rerun it are in [`eval/`](../eval/README.md). Run 1 (`eval/results.json`) is the main
 measurement. Run 2 (`eval/results_run2.json`) is the same 156 messages again, run to check stability.
 
-## Method
+### Method
 
 - **We wrote the messages blind, and committed them first.** 78 scam and 78 ordinary messages were committed (a9f90ba)
   before anyone opened `signals.py`, `extraction.py`, `weights.py` or the S1 tests.
@@ -33,7 +79,7 @@ measurement. Run 2 (`eval/results_run2.json`) is the same 156 messages again, ru
 - **What "flagged" means:** a band of `caution` or `high_risk`. Recall is the share of scams flagged. The false-positive
   rate is the share of ordinary messages flagged.
 
-## Results (run 1; run 2 gave the same band for all 156)
+### Results (run 1; run 2 gave the same band for all 156)
 
 ### Scam messages (n = 78)
 
@@ -157,7 +203,7 @@ start. p95 is the number least likely to hold in production, in either direction
 three claim types. S6 is capped at 30, so reaching `caution` without S1 or S2 takes three different claim types at full
 value, and the model rarely finds that many.
 
-## The S1 weight: 35, 40, 45 or 50
+### The S1 weight: 35, 40, 45 or 50
 
 For each weight, we re-added the saved signal points with that S1 value; there were no new model calls. Run 2's
 `high_risk` count is in brackets.
@@ -185,7 +231,7 @@ For each weight, we re-added the saved signal points with that S1 value; there w
   likeliest cases.
 - **Before changing it:** update the tests (brief section 6), and check again once real forwarded messages come in.
 
-## The 10 worst errors
+### The 10 worst errors
 
 None of the errors were false positives, so all 10 are missed scams. They're listed by how clear the scam is.
 
@@ -205,7 +251,7 @@ None of the errors were false positives, so all 10 are missed scams. They're lis
 **Near misses that were still flagged.** en_s11 and te_s02 (fake broker apps) lost S1 because "recharge your trading
 wallet via UPI to …" and రీఛార్జ్ చేయండి have no payment verb the regex knows. S2 kept them in `caution`.
 
-## The patterns behind the misses, and where each could be fixed
+### The patterns behind the misses, and where each could be fixed
 
 These are described, not changed. Scoring changes need the team to agree.
 
@@ -240,7 +286,7 @@ These are described, not changed. Scoring changes need the team to agree.
 **Smaller:** a SEBI claim that comes with any registration number scores nothing (`signals.py:154-155`), and SEBI
 isn't in the look-alike list (`seed/brokers.json`).
 
-## Three lines for the pitch
+### Three lines for the pitch
 
 These are exact, and true for both runs.
 
@@ -252,7 +298,7 @@ These are exact, and true for both runs.
 3. "We ran all 156 twice through the live Gemini pipeline, and every verdict came out in the same band. The median check
    took 3 seconds."
 
-## Caveats
+### Caveats
 
 - **We wrote the data ourselves.** We wrote it before reading the scoring code and committed it before the first run,
   but the same team built both the product and the test. The scam messages paraphrase public patterns (the SEBI warning
