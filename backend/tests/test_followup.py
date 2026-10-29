@@ -30,7 +30,7 @@ def submit(client, text):
 
 
 @pytest.mark.parametrize('identifier', ['tradepro.vip@gmail.com', 'foo.tradepro.vip@ybl.com',
-                                      'tradepro.vip@x', 'tradepro.vip@ybl.'])
+                                      'tradepro.vip@x', 'tradepro.vip@ybl.', 'TRADEPRO.VIP@EXAMPLE.DE'])
 def test_email_or_upi_name_never_becomes_a_domain(identifier):
     result = regex_extract('Contact ' + identifier)
     assert result.entities.domains == []
@@ -40,6 +40,19 @@ def test_email_or_upi_name_never_becomes_a_domain(identifier):
 def test_real_bare_domains_still_accept_punctuation_and_paths():
     result = regex_extract('Visit example.org. Or example.net/path or sub.example.com/pay.')
     assert result.entities.domains == ['example.net', 'example.org', 'sub.example.com']
+
+
+@pytest.mark.parametrize('email', ['RK@EXAMPLE.DE', 'RK@EXAMPLE.UK', 'RK@EXAMPLE.INFO', 'RK@EXAMPLE.BIZ'])
+def test_uppercase_email_suffixes_are_not_upi_handles(email):
+    assert regex_extract(email).entities.upi_ids == []
+
+
+@pytest.mark.parametrize('explanation', ['This is 100% a scam.', '100 % certain.', 'This is safe.'])
+def test_explanation_certainty_falls_back(client, monkeypatch, explanation):
+    monkeypatch.setattr(llm, 'explain', AsyncMock(return_value=llm.Explanation(explanation=explanation, signals=[])))
+    result = submit(client, 'Investment: pay sample@ybl for an institutional account. 300% guaranteed.')
+    assert result['explanation'] != explanation
+    assert 'explanation' not in result['unchecked']
 
 
 @pytest.mark.parametrize(('url', 'expected'), [
@@ -172,3 +185,21 @@ def test_recovered_media_can_return_regex_verdict_with_unchecked_claims(client, 
     assert result.score == 35
     assert 'claims' in result.unchecked and 'transcription' not in result.unchecked
     assert result.transcript == 'Investment: pay sample@ybl.'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('configured', ['test-flash-lite', 'models/test-flash-lite'])
+async def test_model_names_copied_from_inventory_are_accepted(monkeypatch, configured):
+    class Models:
+        def __aiter__(self):
+            return self.iterate()
+
+        async def iterate(self):
+            yield SimpleNamespace(name='models/test-flash-lite', supported_actions=['generateContent'])
+
+    monkeypatch.setenv('GEMINI_API_KEY', 'test-only-key')
+    monkeypatch.setenv('GEMINI_EXTRACT_MODEL', configured)
+    provider = llm.Providers()
+    provider.google = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(list=AsyncMock(return_value=Models()))))
+    await provider.initialize()
+    assert provider.ready and provider.models['extract'] == 'test-flash-lite'

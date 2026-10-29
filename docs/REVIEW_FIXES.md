@@ -1,14 +1,70 @@
 # Pre-merge review fixes - 29 October 2026
 
 The review referred to the earlier 116-test checkpoint. The current branch has
-202 passing tests. API JSON shapes and risk weights have not changed.
+306 passing tests. API JSON shapes and risk weights have not changed.
+
+## Follow-up audit
+
+The follow-up incorporates Samarth's `s1-wording` commit `1fc751f` with its
+original authorship. Investment context now comes from phrases or verified
+investment claims, not a sender-chosen UPI name or an isolated word such as
+"returns" in a shop return policy. The multilingual positive and ordinary-payment
+regressions are included. No point values changed.
+
+Additional corrections:
+
+- Dotted email names and malformed UPI-like names cannot become public domain
+  entities or RDAP lookups. Uppercase email suffixes are checked against the
+  bundled public suffix list; `.DE` and `.INFO` are not UPI handles.
+- URL canonicalization retains non-default ports, preventing distinct endpoints
+  from sharing an identity.
+- Cached verdicts that lose link points during a database failure now update the
+  share title along with the band and headline.
+- Public ring totals fold copies of the same input hash into one node. Two
+  rechecks alone cannot create a ring. Node and edge reads use one WAL snapshot.
+- The explanation guard rejects `100%` and `100 %` certainty wording correctly;
+  it falls back to the existing localized copy without noisy unchecked notices.
+- Gemini model settings accept the `models/` prefix printed by the inventory
+  command, while still validating names and capabilities against discovery.
+- Media emits the transcript first and omits duplicate identifier lists. The
+  SDK streams the structured response. If extraction fails after a complete
+  transcript arrives, the pipeline can retry claims or return a regex verdict
+  with unchecked claims. Truncated transcript strings are never accepted.
+  Cancellation propagates and the stream is closed. No raw transcript is logged
+  or persisted without the existing consent flow.
+
+Latest local real-key evidence is in `benchmark-followup-streaming.json`:
+
+| Input | N | HTTP 200 | All risk checks completed | p50, all requests | p95, all requests |
+|---|---:|---:|---:|---:|---:|
+| Text, English/Hindi mix | 20 | 20 | 20 | 2.56 s | 3.43 s |
+| Screenshot | 10 | 10 | 10 | 4.16 s | 4.76 s |
+| OGG voice | 10 | 9 | 8 | 8.48 s | 9.33 s |
+
+One voice request still timed out before reading; another returned a verdict
+with links/script similarity unchecked. **Voice reliability is still a deployment
+acceptance issue.** This small synthetic local run does not establish performance
+for noisy, multilingual or two-minute phone recordings. The benchmark ran after
+the streaming change, before integrating the later deterministic S1/guard fixes;
+the final combined code passes all 306 offline tests.
+
+The earlier follow-up without streaming (`benchmark-followup.json`) had only
+3/5 successful voice requests. Isolated streaming diagnostics placed most delay
+before the first token (3.65-6.39 seconds). A discovered, documented
+`gemini-3.1-flash-lite` comparison had one eight-second timeout and two completions
+at 7.01/2.77 seconds, so the configured model was not changed. No extra fallback
+key is configured. Previous measurements below remain historical evidence.
+
+Media API references: [Google SDK async streaming](https://googleapis.github.io/python-genai/),
+[structured output streaming](https://ai.google.dev/gemini-api/docs/generate-content/structured-output),
+[comparison model capabilities](https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite).
 
 ## Findings and changes
 
 | Finding | Resolution |
 |---|---|
-| UPI followed by a full stop | The final punctuation is accepted without permitting an email-domain continuation. The exact `stockpro@ybl.` reproduction extracts the UPI and scores S1 at 35. |
-| Investment vocabulary too narrow | Added crypto, profit, returns, guaranteed, tips, nifty, options, forex and corresponding Hindi/other-language terms. Payment intent and a non-valid UPI remain required. |
+| UPI followed by a full stop | Final punctuation is accepted without permitting an email-domain continuation. `stockpro@ybl.` is extracted; `Stock tips: pay ... to stockpro@ybl.` scores S1 at 35. The UPI name alone is no longer treated as investment evidence. |
+| Investment vocabulary too narrow | Added crypto, forex, options, returns/profit pitches and corresponding Hindi/other-language phrases. Payment intent, investment context and a non-valid UPI remain required. |
 | Dotted UPI becomes a public domain | Bare-domain candidates overlapping an extracted UPI are excluded. An end-to-end regression confirms `tradepro.vip@ybl.` sends no domain to RDAP and persists no domain entity. |
 | Rechecks inflate S4/S5 | Entity and script evidence queries exclude earlier checks with the current input hash. Five forced partial checks retain the same score and have no self-created ring evidence. The required injection-line variant uses the same source hash. Different messages can still link through real identifiers/scripts. |
 | Short pipeline deadlines prevent retries | Removed the 2.8/1.5/3.5-second cutoffs. Each provider attempt has an eight-second local cap; the shared request budget is 9.5 seconds. A regression exercises a first attempt that fails after three seconds and a successful retry. |
@@ -37,14 +93,15 @@ cancellation around each attempt. The failed transport-deadline benchmark is
 retained separately and is explicitly marked invalid for acceptance measurements.
 
 For media, one structured response first transcribes the file and then extracts
-claims/entities. Quotes are still verified against the transcript before scoring.
+claims/app names. Identifiers are extracted independently from the transcript.
+Quotes are still verified against the transcript before scoring.
 This removes a serial model round trip while preserving the existing public
 transcript field and privacy rules. The standalone transcribe/extract wrappers
 and the OpenAI audio fallback remain available.
 
-## Real-key latency measurements
+## Earlier real-key latency measurements
 
-The latest run made 20 text, 5 screenshot and 5 OGG voice requests against the
+The original pre-merge run made 20 text, 5 screenshot and 5 OGG voice requests against the
 configured Gemini key. Every request used a fresh temporary database; there were
 no cache hits or production usage writes. Models were discovered at startup.
 This is local API latency, not Railway or Android acceptance.

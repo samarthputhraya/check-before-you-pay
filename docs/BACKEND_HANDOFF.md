@@ -22,7 +22,7 @@ changes have been merged into this branch.
 | Stats and backup | Stored checks/reports/events, users, languages, share rate, referral factor, p50/p95, sample exclusions, token-protected SQLite online backup |
 | Privacy and outages | No provider keys in browser; no unconsented raw text on disk; owner-bound volatile consent buffer; masked public pages; partial verdicts for failed checks |
 
-`python -m pytest` runs 202 offline tests. Tests stub the provider boundary and
+`python -m pytest` runs 306 offline tests. Tests stub the provider boundary and
 never send real webhooks. `python -m ruff check backend seed --select F` checks
 unused names and imports. The test suite includes the fixed-score determinism
 and prompt-injection cases required by the brief.
@@ -30,9 +30,11 @@ and prompt-injection cases required by the brief.
 ## Live validation
 
 The latest pre-merge evidence supersedes the earlier smoke timings below. See
-`docs/REVIEW_FIXES.md` and `docs/benchmark-review.json`: 20/20 complete text checks,
-5/5 complete screenshot checks, and 3/5 successful voice checks. Voice still has
-a provider-latency limitation and is not claimed ready for phone acceptance.
+`docs/REVIEW_FIXES.md` and `docs/benchmark-followup-streaming.json`: 20/20 complete
+text checks, 10/10 complete screenshot checks, and 9/10 successful voice responses
+(8/10 complete risk checks). Voice still has a provider-latency limitation and is
+not claimed ready for phone acceptance. Samarth's S1 wording refinement is also
+integrated; ordinary shop bills and refunds no longer trigger investment context.
 
 These are local Gemini smoke measurements using explicitly made-up messages and
 a temporary database, not deployed performance or real usage figures.
@@ -105,4 +107,5 @@ the process clears that buffer. The public verdict never includes a transcript.
   buffer; a successful retry can still store the text they agreed to report.
 - K-factor uses first-touch referral attribution. A returning user's later share
   click cannot count as a newly acquired user.
-- The full 202-test suite passes, including regression coverage for these cases.
+- The full 306-test suite passes, including regression coverage for these cases
+  and the additional follow-up corrections documented in `docs/REVIEW_FIXES.md`.

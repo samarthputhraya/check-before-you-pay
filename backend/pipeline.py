@@ -140,7 +140,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     localized = language.localize(signals, body.lang)
     generated = await bounded(llm.explain(signals, band, body.lang, unchecked),
                               min(8, deadline - time.perf_counter() - 0.25))
-    if generated and not re.search(r'\b(safe|genuine|100%|scammer)\b', generated.explanation, re.I):
+    if generated and not re.search(r'\b(?:safe|genuine|scammer)\b|\b100\s*%', generated.explanation, re.I):
         explanation = mask_text(generated.explanation)
         # Lookup translations may change words, never source facts, numbers or quote evidence.
         if [s.id for s in generated.signals] == [s.id for s in signals]:

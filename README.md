@@ -78,10 +78,11 @@ see [seed setup](seed/README.md) for optional phishing-feed configuration.
 Run `python -m pytest` for offline contract, privacy, scoring and outage tests.
 Tests replace provider calls and never spend credits or send webhooks.
 
-Latest real-key benchmark: text p50/p95 2.71/9.31 seconds (20/20 complete);
-screenshots 4.48/7.04 seconds (5/5 complete). Voice succeeded in 3/5 trials and
-still needs phone acceptance work. These are local measurements, not deployment
-latency or usage metrics. All 202 offline tests pass. See the
+Latest real-key benchmark: text p50/p95 2.56/3.43 seconds (20/20 complete);
+screenshots 4.16/4.76 seconds (10/10 complete). Voice returned 9/10 responses,
+with 8/10 completing every risk check, and still needs reliability and phone
+acceptance work. These are local measurements, not deployment latency or usage
+metrics. All 306 offline tests pass. See the
 [review resolutions and benchmark](docs/REVIEW_FIXES.md) for every review finding,
 retry/health behavior, event validation and Railway IP settings.
 See [the role B handoff](docs/BACKEND_HANDOFF.md) for file ownership,

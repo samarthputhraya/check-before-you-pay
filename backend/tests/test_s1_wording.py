@@ -1,5 +1,7 @@
-"""S1 wording: real tip-group payment requests in 8 languages get S1; ordinary bills, fees, shop names and family
-payments don't. Every message here came from one of three independent reviews on 29 Oct."""
+"""S1 wording regressions from three reviews on 29 Oct, across eight languages.
+These are test inputs, not consented housemate seed messages. Investment pitches
+get S1; ordinary bills, fees, shop names and family payments do not.
+"""
 from __future__ import annotations
 
 import pytest

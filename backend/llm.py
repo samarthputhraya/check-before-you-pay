@@ -123,7 +123,7 @@ class Providers:
                                                   ('explain','GEMINI_EXPLAIN_MODEL', lite or generative),
                                                   ('embed','GEMINI_EMBED_MODEL', sorted(n for n,m in available.items() if 'embedContent' in (m.supported_actions or []) and 'preview' not in n)),
                                                   ('tts','GEMINI_TTS_MODEL', sorted(n for n in available if 'tts' in n))]:
-                        chosen = os.getenv(env, '').strip()
+                        chosen = os.getenv(env, '').strip().removeprefix('models/')
                         capability = 'embedContent' if role == 'embed' else 'generateContent'
                         if chosen and (chosen not in available or capability not in (available[chosen].supported_actions or [])):
                             continue

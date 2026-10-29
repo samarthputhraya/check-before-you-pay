@@ -83,7 +83,16 @@ def registered_domain(host: str) -> str:
 def regex_extract(text: str) -> Extraction:
     text = source_text(text)
     urls = set()
-    upis = list(UPI.finditer(text))
+    upis = []
+    for match in UPI.finditer(text):
+        # Capitalized sentence text may follow a UPI's full stop, but a real
+        # email suffix (including .DE/.UK/etc.) must not turn into a UPI.
+        continuation = re.match(r'\.[a-zA-Z0-9.-]+', text[match.end():])
+        if continuation:
+            host = match.group(1).split('@')[-1] + continuation.group().rstrip('.')
+            if PSL(host).suffix:
+                continue
+        upis.append(match)
     explicit_urls = list(URL.finditer(text))
     occupied = [m.span() for m in upis + explicit_urls]
     bare_urls = [m for m in BARE_DOMAIN.finditer(text)
