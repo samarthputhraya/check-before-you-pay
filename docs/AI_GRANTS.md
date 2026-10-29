@@ -9,7 +9,7 @@
 | 01 | WhatsApp | Your number (+91). |
 | 02 | Your name | Yours. |
 | 03 | Email | Yours. |
-| 04 | What you're building | The live URL once it's deployed on Railway. Until then, the GitHub repo is private, so wait for the URL rather than send a dead link. **Featuring the link publicly on AIGI:** say yes once the live URL works. It's free distribution. |
+| 04 | What you're building | https://34-45-129-243.sslip.io **Featuring the link publicly on AIGI:** say yes. It's free distribution. |
 | 05 | You're a… | Student (or Founder, if you'd rather pitch it as a company) |
 | 06 | LinkedIn / X | Your handle |
 | 07 | GitHub | `samarthputhraya`. They need this to give you the GPT-5 key. |
@@ -28,12 +28,12 @@
 > - look-alike broker domains and domain age;
 > - links to earlier reports.
 >
-> The model only reads screenshots and voice notes and explains the result, so it can't talk a scam into a pass.
+> The model only reads screenshots and voice notes and explains the result, so it can't talk a scam into a pass. On 128 held-out messages in 8 languages it flags 60 of 64 scams and none of 64 ordinary payments.
 >
 > We launch on Friday 30 Oct with creators from House of NGMI. Credits keep it free for families while we find out who pays.
 >
 > I also built FraudLens, a bank fraud-investigation agent on TigerGraph that is in their six-team final (picked from 215 teams), and won 1st place in the Promtal track at Tri-City AI-Thon 2026.
 
-That's 172 words. Before you send it:
+That's 194 words. Before you send it:
 - check "launch on Friday" is still true;
 - update the FraudLens line after the Final Round results.
