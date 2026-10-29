@@ -178,7 +178,71 @@ The HTML share page. It includes Open Graph tags (an English title and the band)
 
 **Response:** `204`.
 
-`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`.
+`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`, `pricing_view`.
+
+The server records `check_done`, `report` and `quiz_done` itself, plus `checkout_started` and `checkout_paid`. A client that sends any of these five is ignored.
+
+---
+
+## GET /api/plans
+
+The pricing page reads its plans from here, so the prices on the page always match what Dodo will charge.
+
+```json
+{
+  "test_mode": true,
+  "plans": [
+    { "id": "family", "name": "Family", "price_inr": 49, "interval": "month", "available": true },
+    { "id": "api", "name": "API", "price_inr": 999, "interval": "month", "available": false }
+  ]
+}
+```
+
+- `available` is `false` when that plan's Dodo product isn't configured. The page disables its button and says "Coming soon".
+- `test_mode` is `true` unless the server runs with live Dodo keys. While it's `true`, the page shows "Test mode: no real money is charged".
+
+---
+
+## POST /api/checkout
+
+Starts a Dodo Payments checkout. The browser never sees a Dodo key.
+
+```json
+{ "plan": "family", "anon_id": "u_7f3a9c" }
+```
+
+**Response 200**
+
+```json
+{ "order_id": "ord_01JB9A", "checkout_url": "https://test.checkout.dodopayments.com/…" }
+```
+
+- **The page sends the browser to `checkout_url`.** After paying, Dodo returns the customer to `/pricing?order=<order_id>`.
+- **Errors:**
+  - `invalid_request` (400): an unknown plan.
+  - `rate_limited` (429)
+  - `payments_unavailable` (503): Dodo isn't configured or didn't answer. The page says "Payments are paused, please try again later."
+
+---
+
+## GET /api/orders/{order_id}
+
+The pricing page polls this after Dodo sends the customer back. Only Dodo's signed webhook can mark an order paid; the return URL alone never does.
+
+```json
+{ "order_id": "ord_01JB9A", "plan": "family", "status": "paid" }
+```
+
+- `status` is `pending`, `paid` or `failed`.
+- **Errors:** `not_found` (404).
+
+---
+
+## POST /api/dodo/webhook
+
+Called by Dodo only, never by our pages. The server verifies the Standard Webhooks signature (`webhook-id`, `webhook-timestamp`, `webhook-signature`) with `DODO_WEBHOOK_SECRET` before it records anything.
+- **Response:** `200` when processed. A repeat of the same `webhook-id` returns `200` and changes nothing.
+- **Errors:** `401` for a bad or stale signature.
 
 ---
 
@@ -195,9 +259,13 @@ The HTML share page. It includes Open Graph tags (an English title and the band)
   "k_factor": 0.42,
   "p50_ms": 3100,
   "p95_ms": 7400,
+  "quiz_plays": 380,
+  "orders_paid": 3,
   "updated_at": "2026-10-30T10:00:00+05:30"
 }
 ```
+
+`quiz_plays` and `orders_paid` were added on 29 Oct. Clients that don't know them ignore them.
 
 ---
 
