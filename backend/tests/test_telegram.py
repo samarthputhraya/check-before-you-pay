@@ -107,6 +107,15 @@ def test_rate_limit_is_applied_before_provider_or_media_download(client, monkeyp
     assert db.stats(path).checks == 0
 
 
+def test_commands_do_not_use_up_checks(client, monkeypatch):
+    calls = []
+    monkeypatch.setattr(rate_limit, 'enforce', lambda *args: calls.append(args))
+    c, replies, _ = client
+    for n, text in enumerate(['/start', '/help', '/lang hi'], 1):
+        c.post('/api/telegram/webhook', headers=HEADERS, json=update(n, text=text))
+    assert len(replies) == 3 and not calls
+
+
 def test_language_override_and_group_privacy(client):
     c, replies, path = client
     c.post('/api/telegram/webhook', headers=HEADERS, json=update(text='/lang ta'))

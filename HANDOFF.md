@@ -6,7 +6,7 @@
   - `main` is behind until PR #11 merges.
 - **Health:** `/api/health` returns ok; the LLM and the database are up.
 - **Security headers are live:** CSP, X-Frame-Options, Permissions-Policy and HSTS.
-- **Tests:** 536 pass.
+- **Tests:** 537 pass.
 - **Browser check at 360 px in all 8 languages:**
   - headings, overflow, the ring line and back navigation;
   - focus on a report error;
@@ -99,7 +99,7 @@
 
 ## For Risheeth (from a code review of PR #11, not fixed tonight; Telegram isn't live yet)
 - **Shared rate limit:** Telegram checks use the literal IP `telegram`, so every bot user shares one 3000/hour bucket.
-- **Commands use up quota:** `/start`, `/help` and `/lang` count against the 30-checks-an-hour limit.
-- **Media timeout:** one 2 s limit covers both `getFile` and the download of up to 5 MB, so larger screenshots and voice notes will time out.
+- **Fixed tonight:** `/start`, `/help` and `/lang` no longer count against the 30-checks-an-hour limit.
+- **Partly fixed tonight:** the getFile-plus-download limit is now 3 s, up from 2. Test it with a real 3–5 MB screenshot once the bot is live.
 - **Signal ID reuse:** the "website not registered" evidence reuses the id `S3` with 0 points, so a check can carry two S3 entries.
 - **Duplicated labels:** the band labels exist three times (`telegram.BAND_LABELS`, `share_page.PAGE_TEXT`, web `i18n.js`). Share one table.

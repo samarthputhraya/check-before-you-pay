@@ -159,7 +159,8 @@ async def api(method: str, payload: dict) -> dict | bool:
 async def download(file: File) -> bytes:
     if (file.file_size or 0) > MAX_FILE_BYTES:
         raise ApiError(413, 'input_too_large', 'Files can be at most 5 MB.')
-    async with asyncio.timeout(2):
+    # getFile plus a download of up to 5 MB; 2 s left a large screenshot little room after the getFile round trip.
+    async with asyncio.timeout(3):
         info = await api('getFile', {'file_id': file.file_id})
         if not isinstance(info, dict):
             raise TelegramUnavailable()
@@ -253,7 +254,6 @@ async def process(update: Update, reservation: str) -> None:
         try:
             # Leave time for sendMessage. Cancellation propagates into the pipeline.
             async with asyncio.timeout(8.5):
-                await asyncio.to_thread(rate_limit.enforce, owner, 'telegram')
                 command = (message.text or '').split()
                 verb = command[0].split('@')[0] if command else ''
                 if verb == '/lang':
@@ -267,6 +267,8 @@ async def process(update: Update, reservation: str) -> None:
                              'Use /lang hi to change language. Identifiers in public verdicts are masked. '
                              'Your message is processed by our model provider; we do not store its text in the database.')
                 else:
+                    # Only real checks count against the hourly limit; /start, /help and /lang don't.
+                    await asyncio.to_thread(rate_limit.enforce, owner, 'telegram')
                     inp = await check_input(message)
                     valid = await asyncio.to_thread(validate_check_input, inp)
                     result = await pipeline.run_check(CheckRequest(lang=lang, anon_id=owner, input=inp), valid,
