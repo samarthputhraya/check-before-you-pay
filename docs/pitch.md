@@ -63,10 +63,9 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 1. **How is this different from Truecaller or SEBI Check?**
    - Truecaller screens calls and SMS senders; SEBI Check verifies a broker if you already know to look.
    - We take the message itself (screenshot, voice note or text), check every payment detail in it in one place, in your language, before you pay.
-2. **What's real and what's mocked?** *(fill in at the freeze)*
-   - Every check on the live URL is real.
-   - Sample data is labelled "(sample)".
-   - Payments, if shown, run in Dodo's test mode.
+2. **What's real and what's mocked?**
+   - Every check, ring link, report and quiz score on the live URL is real, and so are the numbers on /stats (sample data is excluded).
+   - Messages labelled "(sample)" and the quiz messages are written by us; payments run in Dodo's test mode, so no real money moves.
 3. **Who pays, and why would they switch?**
    - Families pay ₹49 a month because one stopped scam is worth years of it.
    - Brokers and banks pay per check, because every scam payment that leaves through them becomes a dispute and a complaint.
@@ -83,7 +82,10 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 7. **Isn't this just a ChatGPT wrapper?**
    - The verdict comes from deterministic checks the model can't change: the SEBI @valid rule, look-alike broker domains, domain age, and links to earlier reports.
    - The model only reads screenshots and voice notes and explains the result in eight languages.
-8. **How do you stop people gaming it, or scammers testing against it?**
+8. **How do you know it works?**
+   - On 128 messages we never tuned on, written blind, in eight languages, it flagged 60 of 64 scams and none of 64 ordinary payments, including 33 bills and family requests to personal UPI IDs.
+   - Before this week's changes it caught 39%; the method, the data and the four misses are public in the repo.
+9. **How do you stop people gaming it, or scammers testing against it?**
    - Scammers can change UPI IDs but not the rule that real brokers collect through @valid handles.
    - Every new identifier links back to earlier reports through the same scripts and links.
 
@@ -96,7 +98,10 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | Cases in 2025 | 28.15 lakh | same |
 | SEBI's warning on WhatsApp tip groups | 22 Oct 2026 | Business Today |
 | SEBI-registered brokers collect through | @valid UPI handles (since 1 Oct 2025) | SEBI circular, 11 June 2025 |
-| Our check | under 5 seconds, 8 languages | live measurement (fill in) |
+| Scams flagged, 128 held-out messages in 8 languages | 60 of 64 (94%) | docs/EVAL.md |
+| Ordinary payments flagged (bills, rent, family, real brokers) | 0 of 64 | docs/EVAL.md |
+| Before this week's scoring changes | 25 of 64 (39%) | same set, same day |
+| Time per check | 3.3 s typical, 4.9 s slowest 1 in 20 | same run |
 
 ## Delivery notes
 
