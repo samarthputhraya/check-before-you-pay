@@ -1,0 +1,88 @@
+{
+  "quiz_id": "q_en_v1",
+  "lang": "en",
+  "source_note": "Examples written by us from real scam patterns (SEBI, I4C advisories)",
+  "card_title": "I spotted {score}/{total}. Can you?",
+  "items": [
+    {
+      "id": "q1",
+      "text": "🚀 Welcome to *VIP Stock Tips Club* (invite only) 🚀\nYesterday our members booked ₹1.8 lakh profit in one BANKNIFTY call 📈 see screenshots above 👆\nDaily 3 sure-shot calls, 95% accuracy.\nFree entry closes tonight, join now: chat.whatsapp.com/Hk2PqXr8vTn",
+      "answer": "scam",
+      "why": "Being added to an invite-only 'VIP' group full of profit screenshots is the exact pattern SEBI has warned about; the screenshots and 'members' are often staged. No registered adviser can promise 'sure-shot' calls, and 'closes tonight' is there to rush you.",
+      "pattern": "vip_tip_group",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q2",
+      "text": "Dear Investor, your Institutional Trading Account has been approved ✅\nMinimum activation deposit: ₹50,000.\nKindly pay to our desk UPI ID alphadesk.7731@ybl and share the payment screenshot with your relationship manager on WhatsApp.\n- Institutional Desk",
+      "answer": "scam",
+      "why": "SEBI-registered brokers collect money only through verified UPI IDs ending in @valid (such as @validhdfc), never a personal ID like …@ybl. An 'institutional account' offered to an ordinary investor on WhatsApp is a common hook.",
+      "pattern": "institutional_account",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q3",
+      "text": "Dear Investor, your SIP of Rs.2,000 in Sahyadri Flexi Cap Fund - Direct Growth (Folio XXXXXX4821) is due on 05-Nov-2026. It will be debited from your bank a/c XXXX7712 through your registered auto-debit mandate. Please keep sufficient balance. - Sahyadri Mutual Fund",
+      "answer": "genuine",
+      "why": "This looks like a genuine SIP reminder: it asks for no payment, link, app or OTP, and the money moves through the mandate you already set up. If in doubt, check the SIP in your fund's official app or your account statement.",
+      "pattern": "amc_sip_reminder",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q4",
+      "text": "Hello! Part-time work from home 🏠\nJust like YouTube videos and rate hotels on Google Maps: ₹150 per task, up to ₹3,000 a day.\nFirst 3 tasks are free and paid instantly to your UPI. After that, join our Telegram group for 'prepaid tasks': pay ₹1,000, get ₹1,300 back.\nReply YES to start.",
+      "answer": "scam",
+      "why": "A real job never asks you to pay to get work. The small first payouts are there to win your trust; the 'prepaid task' deposits keep growing until withdrawals stop.",
+      "pattern": "task_job",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q5",
+      "text": "Dear Client, to add funds to your trading account, pay by UPI only to kaveristock.brk@validhdfc (Kaveri Stock Broking Ltd, SEBI Reg. No. INZ000990017). Please verify this UPI ID on SEBI Check before paying. Do not pay to any other UPI ID sent to you on WhatsApp.",
+      "answer": "genuine",
+      "why": "This looks like a genuine broker request: the UPI ID ends in @valid, it gives a SEBI registration number, and it asks you to verify first. Still check the UPI ID on SEBI Check, and add funds from inside your broker's official app when you can.",
+      "pattern": "valid_upi_collect",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q6",
+      "text": "Rs.2,450.00 debited from A/c XX4321 on 28-Oct-26 via UPI to SAI KIRANA STORES. UPI Ref No. 4302XXXX8812. Not you? Call the customer care number on the back of your debit card. Never share your OTP, UPI PIN or password with anyone. - Narmada Bank",
+      "answer": "genuine",
+      "why": "This looks like a normal debit alert: it asks for nothing, has no link, and reminds you never to share an OTP or PIN. If you didn't make this payment, call the number printed on your card, not a number someone sends you.",
+      "pattern": "bank_alert",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q7",
+      "text": "Zerodha Kite Pro is now live for select clients 🎉\nGet IPO pre-allotment and block deals. These features are not in the Play Store app, so download Kite Pro here:\nhttps://kite-zerodha-app.in/download\nKYC takes just 2 minutes.",
+      "answer": "scam",
+      "why": "Zerodha's real website is zerodha.com; kite-zerodha-app.in is a different domain made to look like it. Real brokers never ask you to install an app from a link instead of the Play Store or App Store.",
+      "pattern": "fake_broker_app",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q8",
+      "text": "🎉 Congratulations! Your USDT plan has doubled: $500 → $1,000 in 7 days.\nTo withdraw to your bank, first pay the 20% withdrawal tax ($200) in USDT to the platform wallet. Pay within 24 hours or your profit will be frozen.\n- Support Team",
+      "answer": "scam",
+      "why": "Money doesn't double in 7 days, and a real exchange takes its fees out of your balance; it never asks for fresh money before releasing a withdrawal. Paying this 'tax' usually leads to another demand, not to your money.",
+      "pattern": "withdrawal_fee",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q9",
+      "text": "NSE: Trades executed on 28-Oct-2026 for PAN XXXXX1234X through your broker. Details have been sent to your registered email ID. If you have not done these trades, contact your broker immediately. -NSE",
+      "answer": "genuine",
+      "why": "Exchanges send SMS like this so you can match your broker's trades: there's no link, no payment request and no number to call. Check the details in your registered email or your broker's official app.",
+      "pattern": "exchange_email_notice",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q10",
+      "text": "Dear Client, as per the new SEBI rule, all payments must now go to verified 'valid' UPI IDs only ✅\nPlease send your ₹25,000 margin top-up to our verified ID securetrade.valid@ybl (SEBI Reg. No. INZ000990088).\nPay today or your open positions will be squared off.",
+      "answer": "scam",
+      "why": "Look at what comes after the @: this ID ends in @ybl, so it is not a SEBI @valid handle, even though 'valid' is in the name. A registration number typed into a message proves nothing; check the UPI ID on SEBI Check and the number on SEBI's website.",
+      "pattern": "lookalike_valid_upi",
+      "difficulty": "hard"
+    }
+  ]
+}
