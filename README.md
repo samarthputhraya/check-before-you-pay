@@ -33,15 +33,17 @@ Run the tests with `pytest`.
 | `examples/` | One example JSON per endpoint. Tests check each one against the models |
 | `seed/` | Demo data, loaded with one command (role B) |
 
-## Deploy on Render
+## Deploy
 
-Railway closed new sign-ups on 29 Oct, so the live site runs on Render from [`render.yaml`](render.yaml).
+The live site is **https://34-45-129-243.sslip.io**. It runs on one Google Cloud e2-micro VM in us-central1, with a fixed IP. Caddy sits in front and gets the HTTPS certificate automatically. The SQLite file is in `/opt/cbyp/data` on the VM's disk, so usage data survives restarts and redeploys.
 
-1. In Render, choose **New**, then **Blueprint**, and pick this repo. The Blueprint creates one Docker web service in Singapore, with a 1 GB disk at `/data`. The SQLite file lives there (`SQLITE_PATH=/data/app.db`, already set in the Dockerfile), so usage data survives restarts and deploys.
-2. Render asks for `GEMINI_API_KEY` and `PUBLIC_BASE_URL`. It generates `IDENTIFIER_SALT` and `ADMIN_TOKEN` itself.
-3. Each push to `main` redeploys. A deploy goes live only after `/api/health` returns 200.
-
-The disk needs a paid instance (about $7 a month plus $0.25 per GB). Keep exactly one instance: SQLite on a disk can't be shared between replicas. `railway.json` still works for anyone with an existing Railway account.
+- **To redeploy after merging into `main`,** run `bash deploy/gce/deploy.sh`.
+  - Cloud Build builds the image from committed files only (`git archive`), so `.env` and `data/` are never uploaded.
+  - The VM then reruns [`deploy/gce/startup.sh`](deploy/gce/startup.sh), which pulls the new image and restarts the app.
+- **Secrets:** they live in `/opt/cbyp/app.env` on the VM, readable by root only, and are sent there with `gcloud compute scp`. They are never put in instance metadata or the repo.
+- **Access:** the VM's service account can only pull images. The firewall rule `cbyp-allow-web` opens ports 80 and 443 and nothing else.
+- **Why not Railway or Render:** Railway closed new sign-ups on 29 Oct. Render's persistent disk needs a card, and we don't have one; `render.yaml` is ready if one turns up.
+- **Replicas:** keep exactly one instance. SQLite on a disk can't be shared between replicas.
 
 ## Rules
 
