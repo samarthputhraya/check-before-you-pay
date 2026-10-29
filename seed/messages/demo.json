@@ -1,0 +1,22 @@
+[
+  {
+    "id": "chk_sample01",
+    "label": "Synthetic investment request (sample)",
+    "text": "(sample) Investment: 300% guaranteed. Pay sample@ybl for an institutional account. Install our APK to trade.",
+    "claims": [
+      {"type": "guaranteed_returns", "quote": "300% guaranteed"},
+      {"type": "vip_or_institutional_account", "quote": "institutional account"},
+      {"type": "install_app_or_apk", "quote": "Install our APK"}
+    ]
+  },
+  {
+    "id": "chk_sample02",
+    "label": "Synthetic linked investment request (sample)",
+    "text": "(sample) Stock investment: 300% guaranteed. Pay sample@ybl for an institutional account. Install our APK today.",
+    "claims": [
+      {"type": "guaranteed_returns", "quote": "300% guaranteed"},
+      {"type": "vip_or_institutional_account", "quote": "institutional account"},
+      {"type": "install_app_or_apk", "quote": "Install our APK"}
+    ]
+  }
+]

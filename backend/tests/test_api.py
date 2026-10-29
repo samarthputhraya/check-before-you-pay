@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import base64
 import json
+import io
+
+from PIL import Image
 from pathlib import Path
 
 import pytest
@@ -15,9 +18,15 @@ from backend.schemas import (
     QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, StatsResponse,
 )
 
-PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
-JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 32
-OGG = b"OggS" + b"\x00" * 32
+def image_bytes(format):
+    stream = io.BytesIO()
+    Image.new('RGB', (2, 2), 'white').save(stream, format=format)
+    return stream.getvalue()
+
+
+PNG = image_bytes('PNG')
+JPEG = image_bytes('JPEG')
+OGG = (Path(__file__).parent / 'fixtures/voice.ogg').read_bytes()
 
 
 def b64(data: bytes) -> str:
@@ -33,6 +42,12 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("SQLITE_PATH", str(tmp_path / "test.db"))
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("PUBLIC_BASE_URL", raising=False)
+    # Public-page tests use a persisted, explicitly labelled fixture.
+    from backend import db
+    sample = CheckResponse.model_validate(example('check_response'))
+    sample.headline += ' (sample)'
+    db.save_check(tmp_path / 'test.db', sample, [], None, None, 'fixture',
+                  'u_7f3a9c', 'text', 1.0, sample=True)
     return TestClient(app_module.app)
 
 
@@ -75,8 +90,8 @@ def test_health_reports_db_up_and_llm_down_without_key(client):
     assert resp.json() == {"ok": True, "llm": "down", "db": "up"}
 
 
-def test_health_reports_llm_up_with_key(client, monkeypatch):
-    monkeypatch.setenv("GEMINI_API_KEY", "test-key-not-real")
+def test_health_reports_llm_up_with_ready_provider(client, monkeypatch):
+    monkeypatch.setattr(app_module.llm.providers, "ready", True)
     assert client.get("/api/health").json()["llm"] == "up"
 
 
@@ -99,7 +114,7 @@ def test_head_is_supported(client, path):
 def test_check_example_request(client):
     resp = client.post("/api/check", json=example("check_request"))
     assert resp.status_code == 200, resp.text
-    assert resp.headers["X-Sample"] == "true"
+    assert "X-Sample" not in resp.headers
     body = CheckResponse.model_validate(resp.json())
     assert body.lang == "hi"
     assert body.check_id.startswith("chk_")
@@ -218,11 +233,11 @@ def test_share_page_escapes_everything(client, monkeypatch):
     from backend import samples
     real = samples.sample_view
 
-    def hostile(**kw):
-        view = real(**kw)
+    def hostile(*args, **kw):
+        view = real(base="http://testserver", check_id="chk_01JB8Q")
         return view.model_copy(update={"headline": "<script>alert(1)</script>",
                                        "explanation": '"><img src=x onerror=alert(1)>'})
-    monkeypatch.setattr(app_module, "sample_view", hostile)
+    monkeypatch.setattr(app_module.db, "get_check", hostile)
     html = client.get("/c/chk_01JB8Q").text
     assert "<script>alert(1)</script>" not in html
     assert "<img src=x" not in html

@@ -4,7 +4,11 @@ from __future__ import annotations
 import base64
 import binascii
 import re
+import io
 from dataclasses import dataclass
+
+import mutagen
+from PIL import Image, UnidentifiedImageError
 
 from backend.config import AUDIO_MIMES, IMAGE_MIMES, MAX_FILE_BYTES, MAX_TEXT_CHARS
 from backend.errors import ApiError
@@ -90,12 +94,27 @@ def validate_check_input(inp: CheckInput) -> ValidInput:
         image = _decode("image_b64", inp.image_b64)
         if not _image_matches(inp.image_mime, image):
             raise ApiError(415, "unsupported_media", f"The file is not a valid {inp.image_mime.split('/')[1].upper()} image.")
+        try:
+            with Image.open(io.BytesIO(image)) as screenshot:
+                if screenshot.width * screenshot.height > 25_000_000:
+                    raise ApiError(413, 'input_too_large', 'Screenshots can be at most 25 megapixels.')
+                screenshot.verify()
+        except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError):
+            raise ApiError(415, 'unsupported_media', 'The screenshot could not be read. Send a PNG or JPEG image.') from None
     if inp.audio_b64:
         if inp.audio_mime not in AUDIO_MIMES:
             raise ApiError(415, "unsupported_media", "Voice notes must be OGG, M4A or MP3.")
         audio = _decode("audio_b64", inp.audio_b64)
         if not _audio_matches(inp.audio_mime, audio):
             raise ApiError(415, "unsupported_media", "The file does not look like the audio type it claims to be.")
+        try:
+            parsed = mutagen.File(io.BytesIO(audio))
+            if parsed is None or not parsed.info.length or parsed.info.length < 0:
+                raise ValueError('Unreadable audio')
+            if parsed.info.length > 120:
+                raise ApiError(413, 'input_too_large', 'Voice notes can be at most 2 minutes.')
+        except (mutagen.MutagenError, OSError, ValueError):
+            raise ApiError(415, 'unsupported_media', 'The voice note could not be read. Send an OGG, M4A or MP3 file.') from None
 
     return ValidInput(text=text, image=image, image_mime=inp.image_mime if image else None,
                       audio=audio, audio_mime=inp.audio_mime if audio else None)

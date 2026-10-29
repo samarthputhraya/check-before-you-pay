@@ -45,3 +45,42 @@ Keep exactly one instance: SQLite on a volume can't be shared between replicas.
 ## Rules
 
 Read [`AGENTS.md`](AGENTS.md) first. Secrets go only in `.env`, which is gitignored. Never change a shape in `API_CONTRACT.md` without role A.
+
+## Backend status (role B, 29 October)
+
+The check, public verdict, reports, events and stats now use the real backend.
+The quiz still returns labelled sample responses. API shapes are unchanged.
+
+- Gemini extracts source-verified claims and explains fixed scores; it never
+  chooses points. Model names are discovered from the configured key. Run
+  `python -m backend.model_inventory` to inspect available names. Optional OpenAI
+  fallback models must be explicitly configured and accessible to that key.
+- Deterministic S1–S7 checks, domain lookalikes, RDAP age lookups, hashed entity
+  links, model-specific script embeddings, cache and persistent rate limits run
+  behind `/api/check`. Failed checks score zero and appear in `unchecked`.
+- PNG/JPEG and OGG/M4A/MP3 are validated before processing. Text extraction falls
+  back to regex when the provider fails. Unreadable media returns a plain error.
+- SQLite stores masked verdicts and HMAC identifiers. Source text stays in a
+  bounded 15-minute memory buffer and is persisted only with Report consent from
+  the submitting anonymous ID. A restart clears that buffer.
+- Set a random `IDENTIFIER_SALT` of at least 32 characters before testing links.
+  Without it, checks still return verdicts with links marked unchecked.
+- Configure `VIASOCKET_REPORT_WEBHOOK_URL` for the durable report delivery worker.
+  It sends masked metadata, retries up to three times, and never sends source text.
+  The family-alert and sheet workflow must still be configured in viaSocket.
+- `GET /api/admin/export` downloads an online SQLite backup when supplied
+  `Authorization: Bearer <ADMIN_TOKEN>`. Keep the token in `.env`.
+
+Run `python -m seed.load` for explicitly labelled synthetic ring examples;
+see [seed setup](seed/README.md) for optional phishing-feed configuration.
+Run `python -m pytest` for offline contract, privacy, scoring and outage tests.
+Tests replace provider calls and never spend credits or send webhooks.
+
+Recovery validation: live Gemini text checks returned a 55-point investment
+request verdict in 3.14 seconds (with a localized explanation fallback) and a
+zero-signal lunch message in 2.34 seconds. These are local smoke measurements,
+not deployment latency or usage metrics. A Hindi check linked an earlier report
+through UPI and script in 2.96 seconds; screenshot OCR returned a verdict in
+4.82 seconds. Both used the localized explanation fallback. All 116 offline
+tests pass. Phone/Railway validation, consented real
+seed collection and the external viaSocket workflow remain outstanding.
