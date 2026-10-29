@@ -151,6 +151,10 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
                         'evidence':original.evidence.model_copy(update={'text':mask_text(translated.evidence)})})
     else:
         headline, explanation, steps = language.fallback(band, body.lang, unchecked)
+    # Informational evidence after scoring/explanation; model inputs and scoring rules are unchanged.
+    for domain, (age, url) in sorted(ages.items()):
+        if age == lookups.UNREGISTERED:
+            localized.append(language.unregistered(domain, url, body.lang))
     result = CheckResponse(check_id=check_id, band=band, score=total, lang=body.lang,
         headline=headline, explanation=explanation, signals=localized, entities=display_entities(extracted),
         ring=ring, next_steps=steps, share=Share(url=share_url, card_title=headline), transcript=transcript,

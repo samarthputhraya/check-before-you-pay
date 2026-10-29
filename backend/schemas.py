@@ -15,7 +15,7 @@ EventName = Literal[
     "checkout_started", "checkout_paid",  # server-only; db.record_event drops client copies
 ]
 PlanId = Literal["family", "api"]
-OrderStatus = Literal["pending", "paid", "failed"]
+OrderStatus = Literal["pending", "paid", "failed", "refunded"]
 QuizAnswer = Literal["scam", "genuine"]
 
 AnonId = Annotated[str, StringConstraints(pattern=r"^u_[A-Za-z0-9_-]{1,40}$")]

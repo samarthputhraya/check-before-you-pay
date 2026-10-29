@@ -84,6 +84,25 @@ def fallback(band: Band, lang: Lang, unchecked: list[str]) -> tuple[str, str, li
     return headline, explanation, steps
 
 
+UNREGISTERED = {
+    'en': 'This website is not registered',
+    'hi': 'यह वेबसाइट पंजीकृत नहीं है',
+    'mr': 'या वेबसाइटची नोंदणी झालेली नाही',
+    'ta': 'இந்த இணையதளம் பதிவு செய்யப்படவில்லை',
+    'te': 'ఈ వెబ్‌సైట్ నమోదు కాలేదు',
+    'kn': 'ಈ ವೆಬ್‌ಸೈಟ್ ನೋಂದಣಿಯಾಗಿಲ್ಲ',
+    'bn': 'এই ওয়েবসাইটটি নিবন্ধিত নয়',
+    'hinglish': 'Yeh website registered nahi hai',
+}
+
+
+def unregistered(domain: str, source_url: str, lang: Lang) -> Signal:
+    from backend.schemas import Evidence
+    return Signal(id='S3', label=UNREGISTERED[lang], points=0,
+                  evidence=Evidence(kind='lookup', text=f'{domain}: {UNREGISTERED[lang]} (RDAP 404)',
+                                    source_url=source_url))
+
+
 def localize(signals: list[Signal], lang: Lang) -> list[Signal]:
     if lang == 'en':
         return signals
