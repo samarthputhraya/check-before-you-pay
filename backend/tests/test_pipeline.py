@@ -35,7 +35,7 @@ def test_fixed_formula_is_deterministic_and_ignores_injection():
     assert [score(evaluate(t, extraction(t), {})) for t in texts] == [(55, 'caution')] * 6
 
 
-@pytest.mark.parametrize(('handle', 'points'), [('valid', 0), ('validhdfc', 0), ('ybl', 35), ('invalid', 35)])
+@pytest.mark.parametrize(('handle', 'points'), [('valid', 35), ('validhdfc', 0), ('ybl', 35), ('invalid', 35), ('validupi', 35)])
 def test_valid_handle_prefix(handle, points):
     text = f'Investment: pay sample@{handle}'
     assert score(evaluate(text, regex_extract(text), {}))[0] == points
@@ -126,7 +126,8 @@ def test_report_text_requires_owner_and_explicit_consent(client, tmp_path):
     assert client.post('/api/report', json=request).status_code == 200
     request['anon_id'] = 'u_test'
     owner = client.post('/api/report', json=request).json()
-    assert client.post('/api/report', json=request).json() == owner
+    assert owner['text_saved'] is True
+    assert client.post('/api/report', json=request).json() == owner  # a repeat answers with what was stored
     with db.session(tmp_path / 'checks.db') as con:
         rows = con.execute('SELECT anon_id,text_if_consented FROM reports').fetchall()
     assert dict(rows) == {'u_other': None, 'u_test': MESSAGE}

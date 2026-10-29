@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 import numpy as np
 
-from backend.extraction import Extraction, SHARED_HOSTS
+from backend.extraction import Extraction, SHARED_HOSTS, sebi_valid_handle
 from backend.privacy import mask_phone, mask_upi
 from backend.schemas import Entity
 
@@ -47,7 +47,7 @@ def identifiers(extraction: Extraction) -> list[Identifier]:
             if kind == 'upi':
                 value = value.lower()
                 masked = mask_upi(value)
-                meta = {'psp': value.split('@')[-1], 'is_valid_handle': value.split('@')[-1].startswith('valid')}
+                meta = {'psp': value.split('@')[-1], 'is_valid_handle': sebi_valid_handle(value)}
             elif kind == 'phone':
                 masked = mask_phone(value)
             elif kind == 'group_link':

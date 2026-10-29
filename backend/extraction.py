@@ -11,7 +11,8 @@ from pydantic import BaseModel, Field
 
 ClaimType = Literal['guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment',
                     'urgency_pressure', 'sebi_registered_claim', 'install_app_or_apk',
-                    'withdrawal_fee', 'impersonates_brand', 'other']
+                    'withdrawal_fee', 'insider_tip', 'task_deposit', 'recovery_fee',
+                    'impersonates_brand', 'other']
 
 
 class Claim(BaseModel):
@@ -56,9 +57,20 @@ _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instruct
 _PSP = (r'ybl|ibl|axl|okaxis|okhdfcbank|okicici|oksbi|paytm|ptyes|ptaxis|pthdfc|ptsbi|apl|yapl|rapl|abfspay|axisbank|'
         r'icici|hdfcbank|sbi|kotak|idfcbank|upi|freecharge|jupiteraxis|naviaxis|waaxis|wahdfcbank|waicici|wasbi|airtel|'
         r'jio|valid\w*')
-_SPOKEN_ID = re.compile(r'(?<![\w@.])([A-Za-z0-9_][\w-]*(?:(?:\s*\.\s*|\s+(?:dot|डॉट)\s+)[\w-]+)*)\s+(?:at|एट|ऐट)\s+'
+_SPOKEN_ID = re.compile(r'(?<![\w@.])([A-Za-z0-9_][\w-]{0,40}(?:(?:\.|\s+(?:dot|डॉट)\s+)[\w-]{1,40}){0,4})\s+(?:at|एट|ऐट)\s+'
                         r'(' + _PSP + r')\b', re.I)
 _SPOKEN_DOT = re.compile(r'\s*(?:\.|\bdot\b|डॉट)\s*', re.I)
+
+
+# SEBI's handles are @valid plus the bank's name (@validhdfc, @validicici). Scammers imitate the word itself, so
+# a bare "@valid", or "valid" plus a generic word ("@validupi", "@valid-upi" read as "@valid"), is not one.
+_NOT_A_BANK = frozenset(('', 'upi', 'pay', 'payment', 'payments', 'sebi', 'broker', 'trade', 'trading', 'india',
+                         'in', 'official', 'secure', 'invest', 'money', 'bank', 'id', 'verified'))
+
+
+def sebi_valid_handle(upi_id: str) -> bool:
+    handle = upi_id.rsplit('@', 1)[-1].lower()
+    return handle.startswith('valid') and handle[5:].isalpha() and handle[5:] not in _NOT_A_BANK
 
 
 def written_ids(transcript: str) -> str:
