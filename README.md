@@ -112,3 +112,13 @@ retry/health behavior, event validation and Railway IP settings.
 See [the role B handoff](docs/BACKEND_HANDOFF.md) for file ownership,
 team setup and the remaining external steps. Phone/Railway validation, consented
 real seed collection and the external viaSocket workflow remain outstanding.
+
+## Web and growth
+
+The mobile-first web app includes a language picker and accepts pasted messages, screenshots, and voice notes. Verdicts show a risk band, score, explanation, evidence, linked checks and reports, and next steps.
+
+Verdict sharing creates an image card and uses the device’s share sheet when available, with a WhatsApp link fallback. Share links support referral tracking.
+
+At `/quiz`, people mark messages Scam or Genuine, review their score and explanations, and share their result. The quiz endpoint currently returns labelled sample responses.
+
+The app records visits, check starts and completions, shares, referral visits, return visits, and quiz completions and shares. Read usage totals from `/api/stats`; don’t hardcode unverified metrics.
