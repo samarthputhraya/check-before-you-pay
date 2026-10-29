@@ -442,6 +442,72 @@ def test_orders_paid_counts_only_the_current_mode(client, dodo, monkeypatch):
     assert client.get('/api/stats').json()['orders_paid'] == 0
 
 
+def refund(payment_id='pay_test_0001', **data):
+    return json.dumps({'type': 'refund.succeeded', 'data': {
+        'payload_type': 'Refund', 'payment_id': payment_id, 'refund_id': 'ref_test',
+        'status': 'succeeded', 'is_partial': False, 'metadata': {}, **data}}).encode()
+
+
+def test_refund_uses_payment_link_and_cannot_be_undone(client, dodo, tmp_path):
+    order_id = start(client)
+    # A subscription reference must not hide the payment reference needed by refunds.
+    assert deliver(client, event(order_id, subscription_id='sub_test'), msg_id='paid').status_code == 200
+    assert client.get('/api/stats').json()['orders_paid'] == 1
+    for _ in range(2):
+        assert deliver(client, refund(), msg_id='refund').status_code == 200
+        assert status(client, order_id) == 'refunded'
+    assert client.get('/api/stats').json()['orders_paid'] == 0
+    deliver(client, event(order_id), msg_id='late-success')
+    deliver(client, event(order_id, 'payment.failed'), msg_id='late-failure')
+    assert status(client, order_id) == 'refunded'
+    assert len(events(tmp_path, 'checkout_paid')) == 1
+
+
+def test_refund_before_payment_is_reconciled(client, dodo):
+    order_id = start(client)
+    deliver(client, refund(), msg_id='early-refund')
+    assert status(client, order_id) == 'pending'
+    deliver(client, event(order_id), msg_id='late-payment')
+    assert status(client, order_id) == 'refunded'
+    assert client.get('/api/stats').json()['orders_paid'] == 0
+
+
+def test_refund_cannot_use_metadata_or_wrong_mode_or_bad_signature(client, dodo, monkeypatch):
+    order_id = start(client)
+    deliver(client, event(order_id), msg_id='paid')
+    forged = refund(metadata={'order_id': order_id, 'plan': 'family'})
+    assert deliver(client, forged, key=b'wrong', msg_id='bad').status_code == 401
+    deliver(client, refund('pay_unrelated', metadata={'order_id': order_id}), msg_id='unrelated')
+    monkeypatch.setenv('DODO_MODE', 'live_mode')
+    deliver(client, refund(), msg_id='wrong-mode')
+    assert status(client, order_id) == 'paid'
+
+
+def test_cancellation_recorded_once_without_erasing_payment(client, dodo, tmp_path):
+    order_id = start(client)
+    deliver(client, event(order_id), msg_id='paid')
+    body = event(order_id, 'subscription.cancelled', subscription_id='sub_test')
+    assert deliver(client, body, msg_id='cancel', key=b'bad').status_code == 401
+    for _ in range(2):
+        assert deliver(client, body, msg_id='cancel').status_code == 200
+    assert status(client, order_id) == 'paid'
+    with db.session(tmp_path / 'test.db') as con:
+        assert con.execute("SELECT COUNT(*) FROM dodo_webhooks WHERE type='subscription.cancelled'").fetchone()[0] == 1
+
+
+def test_verified_replay_backfills_legacy_payment_link(client, dodo, tmp_path):
+    order_id = start(client)
+    body = event(order_id, subscription_id='sub_test')
+    deliver(client, body, msg_id='paid')
+    with db.session(tmp_path / 'test.db') as con:
+        con.execute('DELETE FROM dodo_payment_orders')  # simulate an order paid before this migration
+    deliver(client, refund(), msg_id='refund')
+    assert status(client, order_id) == 'paid'
+    deliver(client, body, msg_id='paid')
+    assert status(client, order_id) == 'refunded'
+    assert len(events(tmp_path, 'checkout_paid')) == 1
+
+
 # ---- events -----------------------------------------------------------------
 
 def test_clients_cannot_forge_checkout_events_but_can_send_pricing_view(client, tmp_path):

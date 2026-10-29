@@ -244,7 +244,7 @@ The pricing page polls this after Dodo sends the customer back. Only Dodo's sign
 { "order_id": "ord_01JB9A", "plan": "family", "status": "paid" }
 ```
 
-- `status` is `pending`, `paid` or `failed`.
+- `status` is `pending`, `paid`, `failed` or `refunded`.
 - **Errors:** `not_found` (404).
 
 ---
@@ -254,6 +254,15 @@ The pricing page polls this after Dodo sends the customer back. Only Dodo's sign
 Called by Dodo only, never by our pages. The server verifies the Standard Webhooks signature (`webhook-id`, `webhook-timestamp`, `webhook-signature`) with `DODO_WEBHOOK_SECRET` before it records anything.
 - **Response:** `200` when processed. A repeat of the same `webhook-id` returns `200` and changes nothing.
 - **Errors:** `401` for a bad or stale signature.
+
+`refund.succeeded` links through the payment ID from a verified payment webhook,
+marks the associated paid order `refunded`, and removes it from `orders_paid`.
+Refund metadata cannot select an order. Refunds arriving before the payment
+event are recorded and applied when that verified payment arrives. Refunded
+orders cannot be made paid again by a late/replayed success event. As specified
+for this MVP, any successful refund (including a partial refund) excludes the
+order from the paid-order count. `subscription.cancelled` is recorded once in
+the webhook ledger; it does not erase the historical payment or mark a refund.
 
 ---
 
