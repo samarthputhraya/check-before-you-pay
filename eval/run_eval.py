@@ -25,6 +25,7 @@ import json
 import math
 import os
 import secrets
+import shutil
 import sys
 import tempfile
 import time
@@ -258,6 +259,7 @@ async def run_live(messages: list[dict], concurrency: int, max_attempts: int) ->
         rows = await asyncio.gather(*(worker(m) for m in messages))
     finally:
         await llm.providers.close()
+        shutil.rmtree(tmp_root, ignore_errors=True)
     meta = {
         'measured_at': datetime.now(timezone.utc).isoformat(),
         'models': models,
