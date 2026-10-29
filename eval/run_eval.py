@@ -1,8 +1,9 @@
 """Run eval/messages.jsonl through the real check pipeline (real Gemini key) and measure it.
 
-    python eval/run_eval.py              # full run, writes eval/results.json and eval/summary.json
+    python eval/run_eval.py              # full run, writes eval/results.json and eval/results.summary.json
     python eval/run_eval.py --limit 5    # smoke run on the first 5 messages
     python eval/run_eval.py --report     # no model calls: recompute the summary and S1 what-ifs from results.json
+    python eval/run_eval.py --out eval/results_run2.json --compare eval/results.json   # second run + stability
 
 How it works
 - GEMINI_API_KEY is parsed from ../../.env.railway (the main checkout) or --env-file, in process. It is never printed.
@@ -423,6 +424,7 @@ def main() -> None:
     parser.add_argument('--out', type=Path, default=HERE / 'results.json')
     parser.add_argument('--merge', action='store_true', help='with --only: replace those rows in --out instead of overwriting it')
     parser.add_argument('--report', action='store_true', help='no model calls: summarize an existing results file')
+    parser.add_argument('--compare', type=Path, help='another results file: print band and score agreement per message')
     args = parser.parse_args()
     if args.concurrency < 1 or args.concurrency > 3:
         parser.error('--concurrency must be 1 to 3')
@@ -445,8 +447,27 @@ def main() -> None:
         args.out.write_text(json.dumps({'meta': meta, 'results': rows}, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
         print(f'wrote {args.out}', flush=True)
     summary = summarize(rows, meta)
-    (args.out.parent / 'summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
+    args.out.with_suffix('.summary.json').write_text(json.dumps(summary, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
     print_report(summary)
+    if args.compare:
+        compare(rows, json.loads(args.compare.read_text(encoding='utf-8'))['results'])
+
+
+def compare(rows: list[dict], other: list[dict]) -> None:
+    """Run-to-run stability: the score is a fixed formula, but its inputs (claims) come from the model."""
+    theirs = {r['id']: r for r in other}
+    pairs = [(r, theirs[r['id']]) for r in rows if r['id'] in theirs]
+    same_band = sum(a['band'] == b['band'] for a, b in pairs)
+    same_score = sum(a['score'] == b['score'] for a, b in pairs)
+    print(f'\nStability vs other run: same band {pct(same_band, len(pairs))}, same score {pct(same_score, len(pairs))}')
+    for label in ('scam', 'ordinary'):
+        group = [(a, b) for a, b in pairs if a['label'] == label]
+        print(f'  {label}: same band {pct(sum(a["band"] == b["band"] for a, b in group), len(group))}, '
+              f'same score {pct(sum(a["score"] == b["score"] for a, b in group), len(group))}')
+    for a, b in pairs:
+        if a['band'] != b['band']:
+            print(f"  band changed {a['id']:7} {b['band']}({b['score']}) -> {a['band']}({a['score']})  "
+                  f"{[(s['id'], s['points']) for s in b['signals']]} -> {[(s['id'], s['points']) for s in a['signals']]}")
 
 
 if __name__ == '__main__':
