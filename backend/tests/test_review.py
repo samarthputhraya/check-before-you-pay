@@ -30,14 +30,18 @@ def submit(client, text, owner='u_review'):
 
 
 def test_upi_with_final_full_stop_is_extracted_and_scored():
-    text = 'Pay ₹10,000 to stockpro@ybl.'
+    # The UPI name ("stockpro") is the sender's choice, so the investment context has to come from the message.
+    text = 'Stock tips: pay ₹10,000 to stockpro@ybl.'
     result = regex_extract(text)
     assert result.entities.upi_ids == ['stockpro@ybl']
     assert score(evaluate(text, result, {}))[0] == 35
 
 
-@pytest.mark.parametrize('word', ['crypto', 'profit', 'returns', 'guaranteed', 'tips', 'nifty',
-    'options', 'forex', 'स्टॉक', 'मुनाफ़ा', 'रिटर्न', 'क्रिप्टो', 'नफा', 'லாபம்', 'లాభం', 'ಲಾಭ', 'লাভ'])
+# Phrases, not single words: "tips", "options", "returns" or "profit" alone also fit shop bills and refunds
+# (see test_s1_wording.py for the ordinary payments that must stay clear).
+@pytest.mark.parametrize('word', ['crypto', '5% daily profit', 'guaranteed returns', 'stock tips', 'nifty options',
+    'options trading', 'forex', 'स्टॉक मार्केट', '5% मुनाफ़ा', 'गारंटीड रिटर्न', 'क्रिप्टो', '5% नफा', '5% லாபம்',
+    '5% లాభం', '5% ಲಾಭ', '5% লাভ'])
 def test_investment_context_fires_s1(word):
     text = f'{word}: Pay ₹10,000 to example@ybl.'
     assert score(evaluate(text, regex_extract(text), {}))[0] == 35
