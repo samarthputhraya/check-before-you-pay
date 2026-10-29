@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock
 import pytest
 from fastapi.testclient import TestClient
 
-from backend import db, llm
+from backend import db, llm, weights
 from backend.app import app
 from backend.extraction import canonical_url, regex_extract
 from backend.cache import input_hash
@@ -73,8 +73,10 @@ def test_different_ports_do_not_share_cached_verdicts():
 
 
 def test_cached_database_failure_updates_share_title(client, monkeypatch):
-    text = 'Investment: pay sample@ybl for an institutional account. 300% guaranteed.'
+    # S1 alone is caution; the report adds an S4 link that lifts the next check to high risk.
+    text = 'Investment: pay sample@ybl today.'
     first = submit(client, text)
+    assert first['band'] == 'caution'
     client.post('/api/report', json={'check_id': first['check_id'], 'anon_id': 'u_followup',
                                     'consent_store_text': False})
     second = submit(client, text + ' Join today.')
@@ -182,7 +184,7 @@ def test_recovered_media_can_return_regex_verdict_with_unchecked_claims(client, 
     monkeypatch.setattr(llm, 'extract', AsyncMock(side_effect=llm.ProviderUnavailable()))
     body = CheckRequest(lang='en', anon_id='u_followup', input={'text': 'Accompanying message'})
     result = asyncio.run(run_check(body, ValidInput(None, None, None, b'test audio', 'audio/ogg'), 'https://example.org'))
-    assert result.score == 35
+    assert result.score == weights.S1
     assert 'claims' in result.unchecked and 'transcription' not in result.unchecked
     assert result.transcript == 'Investment: pay sample@ybl.'
 
