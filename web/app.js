@@ -17,9 +17,17 @@ function Header() {
 }
 
 function Footer() {
+  // Follows the language picked on the check page (saved, then announced with a 'cbyp-lang' event).
+  const [lang, setLang] = useState(defaultLang());
+  useEffect(() => {
+    const update = () => setLang(defaultLang());
+    window.addEventListener('cbyp-lang', update);
+    return () => window.removeEventListener('cbyp-lang', update);
+  }, []);
+  const t = strings(lang);
   return html`<footer class="site-footer">
-    <p>An independent tool. It is not run by SEBI, NPCI or any bank.</p>
-    <p><a href="/stats">Live numbers</a> · <a href="/quiz">Spot the scam quiz</a> · <a href="/pricing">Plans</a></p>
+    <p>${t.footer}</p>
+    <p><a href="/stats">${t.liveNumbers}</a> · <a href="/quiz">${t.quizLink}</a> · <a href="/pricing">${t.plans}</a></p>
   </footer>`;
 }
 
@@ -36,6 +44,7 @@ function CheckPage() {
   function chooseLang(code) {
     setLang(code);
     saveLang(code);
+    window.dispatchEvent(new Event('cbyp-lang'));
   }
 
   async function submit(input, inputType) {

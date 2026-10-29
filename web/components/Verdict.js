@@ -15,11 +15,11 @@ const BAND_ICON = {
     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>`,
 };
 
-function Evidence({ evidence }) {
+function Evidence({ evidence, t }) {
   if (evidence.kind === 'quote') return html`<blockquote>“${evidence.text}”</blockquote>`;
   return html`<p class="lookup">
     ${evidence.text}
-    ${evidence.source_url && html` <a href=${evidence.source_url} target="_blank" rel="noopener">Source</a>`}
+    ${evidence.source_url && html` <a href=${evidence.source_url} target="_blank" rel="noopener">${t.source}</a>`}
   </p>`;
 }
 
@@ -113,7 +113,7 @@ export function Verdict({ result, sample, t, onReset }) {
           ${result.signals.map(
             (s) => html`<li key=${s.id}>
               <span class="pts">+${s.points}</span>
-              <div><strong>${s.label}</strong><${Evidence} evidence=${s.evidence} /></div>
+              <div><strong>${s.label}</strong><${Evidence} evidence=${s.evidence} t=${t} /></div>
             </li>`,
           )}
         </ul>`}
