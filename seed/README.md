@@ -47,8 +47,9 @@ IANA bootstrap snapshot. The quiz remains a sample endpoint owned by role C.
 ## Optional phishing feed
 
 S7 accepts a local, decompressed PhishTank verified-online JSON snapshot via
-`PHISHTANK_FEED_PATH`. Missing or older-than-24-hour snapshots yield zero points
-and `unchecked: ["phishing_feed"]` for URL inputs. No submitted URL is visited.
+`PHISHTANK_FEED_PATH`. Leaving it unset turns S7 off. A configured snapshot that is
+missing or older than 24 hours yields zero points and `unchecked: ["phishing_feed"]`
+for URL inputs. No submitted URL is visited.
 
 Follow [PhishTank's developer instructions](https://phishtank.org/developer_info.php):
 identify downloads with a descriptive User-Agent and register an application key

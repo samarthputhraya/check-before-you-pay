@@ -63,9 +63,19 @@ class Providers:
         self.last_success = 0.0
         self._lock = asyncio.Lock()
         self._attempted = False
+        self._retry_at = 0.0
+        self._retry_task: asyncio.Task | None = None
 
     async def initialize(self) -> None:
         get_settings()  # loads .env for the CLI as well as the web app
+        if self._attempted:
+            # Discovery that failed at boot (slow network, a 429) is retried in the background, at most every 30 s,
+            # so one bad minute at deploy time can't leave the model off until the next restart.
+            if (self.google and 'extract' not in self.models and time.monotonic() >= self._retry_at
+                    and not self._lock.locked()):
+                self._retry_at = time.monotonic() + 30
+                self._retry_task = asyncio.get_running_loop().create_task(self._discover())
+            return
         async with self._lock:
             if self._attempted:
                 return
@@ -73,25 +83,7 @@ class Providers:
             if os.getenv('GEMINI_API_KEY', '').strip():
                 self.google = genai.Client(api_key=os.environ['GEMINI_API_KEY'], http_options=types.HttpOptions(
                     timeout=10000, retry_options=types.HttpRetryOptions(attempts=1)))
-                try:
-                    async with asyncio.timeout(8):
-                        available = {m.name.removeprefix('models/'): m async for m in await self.google.aio.models.list()}
-                    generative = sorted(n for n, m in available.items() if 'generateContent' in (m.supported_actions or [])
-                                        and 'flash' in n and not any(s in n for s in ('preview','image','tts','live','native','omni')))
-                    lite = [n for n in generative if 'lite' in n]
-                    for role, env, candidates in [('extract','GEMINI_EXTRACT_MODEL', lite or generative),
-                                                  ('explain','GEMINI_EXPLAIN_MODEL', lite or generative),
-                                                  ('embed','GEMINI_EMBED_MODEL', sorted(n for n,m in available.items() if 'embedContent' in (m.supported_actions or []) and 'preview' not in n)),
-                                                  ('tts','GEMINI_TTS_MODEL', sorted(n for n in available if 'tts' in n))]:
-                        chosen = os.getenv(env, '').strip()
-                        capability = 'embedContent' if role == 'embed' else 'generateContent'
-                        if chosen and (chosen not in available or capability not in (available[chosen].supported_actions or [])):
-                            continue
-                        if chosen or candidates:
-                            self.models[role] = chosen or candidates[-1]
-                    self.ready = 'extract' in self.models
-                except Exception:
-                    self.ready = False
+                await self._discover_models()
             if os.getenv('OPENAI_API_KEY', '').strip():
                 self.openai = AsyncOpenAI(api_key=os.environ['OPENAI_API_KEY'], timeout=8, max_retries=0)
                 try:
@@ -101,7 +93,36 @@ class Providers:
                     self.openai_models = set()
                 self.ready = self.ready or os.getenv('OPENAI_MODEL', '').strip() in self.openai_models
 
+    async def _discover(self) -> None:
+        async with self._lock:
+            if 'extract' not in self.models:
+                await self._discover_models()
+
+    async def _discover_models(self) -> None:
+        self._retry_at = time.monotonic() + 30
+        try:
+            async with asyncio.timeout(8):
+                available = {m.name.removeprefix('models/'): m async for m in await self.google.aio.models.list()}
+            generative = sorted(n for n, m in available.items() if 'generateContent' in (m.supported_actions or [])
+                                and 'flash' in n and not any(s in n for s in ('preview','image','tts','live','native','omni')))
+            lite = [n for n in generative if 'lite' in n]
+            for role, env, candidates in [('extract','GEMINI_EXTRACT_MODEL', lite or generative),
+                                          ('explain','GEMINI_EXPLAIN_MODEL', lite or generative),
+                                          ('embed','GEMINI_EMBED_MODEL', sorted(n for n,m in available.items() if 'embedContent' in (m.supported_actions or []) and 'preview' not in n)),
+                                          ('tts','GEMINI_TTS_MODEL', sorted(n for n in available if 'tts' in n))]:
+                chosen = os.getenv(env, '').strip().removeprefix('models/')
+                capability = 'embedContent' if role == 'embed' else 'generateContent'
+                if chosen and (chosen not in available or capability not in (available[chosen].supported_actions or [])):
+                    continue
+                if chosen or candidates:
+                    self.models[role] = chosen or candidates[-1]
+        except Exception:
+            pass
+        self.ready = 'extract' in self.models or os.getenv('OPENAI_MODEL', '').strip() in self.openai_models
+
     async def close(self) -> None:
+        if self._retry_task and not self._retry_task.done():
+            self._retry_task.cancel()
         if self.google:
             await self.google.aio.aclose()
             self.google.close()

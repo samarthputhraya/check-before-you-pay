@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 import numpy as np
 
-from backend.extraction import Extraction, GROUP_HOSTS
+from backend.extraction import Extraction, GROUP_HOSTS, link_host
 from backend.privacy import mask_phone, mask_upi
 from backend.schemas import Entity
 
@@ -58,7 +58,9 @@ def identifiers(extraction: Extraction) -> list[Identifier]:
                     value = value.lower()
                 masked = f'{value[:4]}…{value[-4:]}'
             elif kind == 'domain':
-                value = value.lower()
+                value = link_host(value)
+                if value is None:
+                    continue
                 masked = value
             else:
                 masked = 'App mentioned'  # arbitrary model text is never persisted

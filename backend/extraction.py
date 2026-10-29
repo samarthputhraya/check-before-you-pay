@@ -40,11 +40,16 @@ UPI = re.compile(r'(?<![\w@])([\w][\w.\-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,30})(?![\
 PHONE = re.compile(r'(?<!\w)(?:\+?91[\s-]?)?([6-9](?:[\s-]?\d){9})(?!\w)')
 WALLET = re.compile(r'\b(?:0x[0-9a-fA-F]{40}|T[1-9A-HJ-NP-Za-km-z]{33}|bc1[ac-hj-np-z02-9]{25,62}|[13][1-9A-HJ-NP-Za-km-z]{25,34})\b')
 URL = re.compile(r'https?://[^\s<>"\[\]{}]+', re.I)
-BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?:/[^\s<>"\[\]{}]*)?')
+BARE_DOMAIN = re.compile(r'(?<![\w@./-])(?:[a-zA-Z0-9\u0080-\uffff][a-zA-Z0-9\u0080-\uffff-]*\.)+[a-zA-Z]{2,63}(?![\w@-])(?:/[^\s<>"\[\]{}]*)?')
 SEBI = re.compile(r'\bIN[A-Z]{1,3}\d{8,12}\b', re.I)
 GROUP_HOSTS = frozenset(('t.me', 'telegram.me', 'chat.whatsapp.com'))
 # Bundled PSL only: no network or disk writes on a request.
 PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
+# Hosts shared by millions of unrelated pages. A link to one is not a link between two checks.
+SHARED_HOSTS = frozenset({'t.me', 'telegram.me', 'telegram.org', 'wa.me', 'whatsapp.com', 'google.com', 'youtube.com',
+                          'youtu.be', 'forms.gle', 'goo.gl', 'bit.ly', 'tinyurl.com', 'instagram.com', 'facebook.com',
+                          'fb.me', 'x.com', 'twitter.com', 'linkedin.com', 'apple.com', 'amzn.to', 'cutt.ly', 'rb.gy',
+                          'is.gd'})
 _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instructions?[^\n.!?]*(?:[.!?]|$)', re.I)
 
 
@@ -74,6 +79,12 @@ def canonical_url(value: str) -> str | None:
 
 def registered_domain(host: str) -> str:
     return PSL(host).top_domain_under_public_suffix or host
+
+
+def link_host(host: str) -> str | None:
+    """The host a domain link is keyed on: no www., and None for shared platforms such as t.me or drive.google.com."""
+    host = host.lower().rstrip('.').removeprefix('www.')
+    return None if host in SHARED_HOSTS or registered_domain(host) in SHARED_HOSTS else host
 
 
 def regex_extract(text: str) -> Extraction:

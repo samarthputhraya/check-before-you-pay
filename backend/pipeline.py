@@ -12,7 +12,7 @@ from backend import db, language, llm, lookups, weights
 from backend.cache import consent_buffer, input_hash
 from backend.config import get_settings
 from backend.errors import ApiError
-from backend.extraction import regex_extract, source_text
+from backend.extraction import link_host, regex_extract, source_text
 from backend.ids import new_id
 from backend.inputs import ValidInput
 from backend.links import display_entities, identifiers
@@ -22,6 +22,8 @@ from backend.signals import evaluate, score, signal
 
 T = TypeVar('T')
 DB_ERRORS = (sqlite3.Error, OSError, ValueError)
+LINK_NAMES = {'same_upi': 'UPI ID', 'same_phone': 'phone number', 'same_domain': 'website',
+              'same_group_link': 'group link', 'same_wallet': 'wallet'}
 
 
 async def bounded(task: Awaitable[T], seconds: float) -> T | None:
@@ -86,7 +88,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     extract_task = bounded(llm.extract(clean), min(2.8, deadline - time.perf_counter() - 1.2))
     embed_task = bounded(llm.embed(clean), 2.0) if has_script else asyncio.sleep(0, result=False)
     extracted, embedding, ages_result = await asyncio.gather(
-        extract_task, embed_task, lookups.domain_ages(regex.entities.domains))
+        extract_task, embed_task, lookups.domain_ages([d for d in regex.entities.domains if link_host(d)]))
     if extracted is None:
         extracted = regex
         unchecked.append('claims')
@@ -109,7 +111,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         records = identifiers(extracted)
         if 'links' not in unchecked:
             context = await bounded(asyncio.to_thread(db.link_context, path, records,
-                                                     embedding or None, created),
+                                                     embedding or None, created, key),
                                     min(2, deadline - time.perf_counter() - 0.8))
             if context is None:
                 unchecked.append('links')
@@ -122,7 +124,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
         kinds = [v for v in ring.via if v != 'same_script']
         if kinds:
             signals.append(signal('S4', min(weights.S4_CAP, len(kinds) * weights.S4_PER_TYPE),
-                'Linked to earlier reports', f'{ring.linked_checks} earlier high-risk checks or reported checks; links: {", ".join(kinds)}'))
+                'Linked to earlier reports', f'{ring.linked_checks} earlier high-risk or reported checks share the same '
+                + ', '.join(LINK_NAMES.get(k, k) for k in kinds)))
         if script_count:
             signals.append(signal('S5', weights.S5, 'Matching message script',
                                    f'{script_count} earlier high-risk or reported checks match this script'))
@@ -142,9 +145,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
                 if original.evidence.kind == 'lookup' and all(f in translated.evidence for f in facts):
                     localized[i] = original.model_copy(update={'label':mask_text(translated.label),
                         'evidence':original.evidence.model_copy(update={'text':mask_text(translated.evidence)})})
-    else:
-        unchecked = sorted(set(unchecked + ['explanation']))
-        headline, explanation, steps = language.fallback(band, body.lang, unchecked)
+    # Otherwise the fixed, localized fallback text stands. It is not a signal, so it never goes in `unchecked`.
     result = CheckResponse(check_id=check_id, band=band, score=total, lang=body.lang,
         headline=headline, explanation=explanation, signals=localized, entities=display_entities(extracted),
         ring=ring, next_steps=steps, share=Share(url=share_url, card_title=headline), transcript=transcript,

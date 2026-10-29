@@ -94,7 +94,9 @@ def test_model_outage_returns_regex_verdict(client, monkeypatch):
     assert response.status_code == 200
     verdict = response.json()
     assert verdict['score'] == 35
-    assert {'claims', 'script_similarity', 'explanation'} <= set(verdict['unchecked'])
+    assert {'claims', 'script_similarity'} <= set(verdict['unchecked'])
+    # The fallback explanation is fixed text, not a missing signal (API_CONTRACT: `unchecked` lists signals).
+    assert 'explanation' not in verdict['unchecked']
     assert 'sample@ybl' not in response.text
 
 

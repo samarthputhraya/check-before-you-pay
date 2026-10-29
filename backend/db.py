@@ -94,21 +94,26 @@ def cached_check(path: Path, key: str, lang: str, now: float | None = None) -> C
         return CheckView.model_validate_json(row[0]) if row else None
 
 
-def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None) -> Ring:
+# Earlier checks of the identical message are the same forward, not a second sighting: they only count once reported.
+_NOT_SAME_INPUT = "(c.input_hash!=? OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))"
+
+
+def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None,
+          same_input: str = '') -> Ring:
     linked: dict[str, set[str]] = {}
     if ids:
         placeholders = ','.join('?' for _ in ids)
         rows = con.execute(f'''SELECT c.id,e.type FROM checks c JOIN check_entities ce ON ce.check_id=c.id
              JOIN entities e ON e.id=ce.entity_id WHERE e.id IN ({placeholders}) AND c.created_at<? AND c.id!=?
-             AND (c.band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                           (*ids, before, exclude)).fetchall()
+             AND (c.band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id)) AND {_NOT_SAME_INPUT}''',
+                           (*ids, before, exclude, same_input)).fetchall()
         for row in rows:
             if row['type'] in ('upi', 'phone', 'domain', 'group_link', 'wallet'):
                 linked.setdefault(row['id'], set()).add('same_' + row['type'])
     if script_id:
-        rows = con.execute('''SELECT id FROM checks c WHERE script_id=? AND created_at<? AND id!=?
-            AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                           (script_id, before, exclude)).fetchall()
+        rows = con.execute(f'''SELECT id FROM checks c WHERE script_id=? AND created_at<? AND id!=?
+            AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id)) AND {_NOT_SAME_INPUT}''',
+                           (script_id, before, exclude, same_input)).fetchall()
         for row in rows:
             linked.setdefault(row['id'], set()).add('same_script')
     reports = 0
@@ -121,15 +126,15 @@ def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str =
 
 def ring_for_check(path: Path, check_id: str) -> Ring:
     with session(path) as con:
-        row = con.execute('SELECT created_at,script_id FROM checks WHERE id=?', (check_id,)).fetchone()
+        row = con.execute('SELECT created_at,script_id,input_hash FROM checks WHERE id=?', (check_id,)).fetchone()
         if not row:
             return Ring(linked_checks=0, linked_reports=0, via=[])
         ids = [r[0] for r in con.execute('SELECT entity_id FROM check_entities WHERE check_id=?', (check_id,))]
-        return _ring(con, ids, row['created_at'], check_id, row['script_id'])
+        return _ring(con, ids, row['created_at'], check_id, row['script_id'], row['input_hash'])
 
 
 def link_context(path: Path, identifiers: list[Identifier], embedding: Embedding | None,
-                 before: float) -> tuple[Ring, str | None, int]:
+                 before: float, same_input: str = '') -> tuple[Ring, str | None, int]:
     with session(path) as con:
         script_id = None
         count = 0
@@ -140,10 +145,11 @@ def link_context(path: Path, identifiers: list[Identifier], embedding: Embedding
                 if similarity >= best:
                     best, script_id = similarity, row['id']
             if script_id:
-                count = con.execute('''SELECT COUNT(*) FROM checks c WHERE script_id=? AND created_at<?
-                    AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id))''',
-                                    (script_id, before)).fetchone()[0]
-        return _ring(con, [i.id for i in identifiers], before, script_id=script_id), script_id, count
+                count = con.execute(f'''SELECT COUNT(*) FROM checks c WHERE script_id=? AND created_at<?
+                    AND (band='high_risk' OR EXISTS(SELECT 1 FROM reports r WHERE r.check_id=c.id)) AND {_NOT_SAME_INPUT}''',
+                                    (script_id, before, same_input)).fetchone()[0]
+        return (_ring(con, [i.id for i in identifiers], before, script_id=script_id, same_input=same_input),
+                script_id, count)
 
 
 def save_check(path: Path, result: CheckResponse, identifiers: list[Identifier], embedding: Embedding | None,

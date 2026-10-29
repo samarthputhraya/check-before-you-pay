@@ -67,7 +67,7 @@ def phishing_hits(urls: list[str]) -> tuple[list[str], bool]:
         return [], False
     path = os.getenv('PHISHTANK_FEED_PATH', '').strip()
     if not path:
-        return [], True
+        return [], False  # S7 is off until a feed is configured; only a missing or stale feed is a failed check
     try:
         file = Path(path)
         modified = file.stat().st_mtime

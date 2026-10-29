@@ -76,7 +76,7 @@ def health(response: Response) -> HealthResponse:
 @app.post("/api/check", response_model=CheckResponse)
 async def check(body: CheckRequest, request: Request, response: Response) -> CheckResponse:
     inp = await asyncio.to_thread(validate_check_input, body.input)
-    await asyncio.to_thread(rate_limit.enforce, body.anon_id, request.client.host if request.client else 'unknown')
+    await asyncio.to_thread(rate_limit.enforce, body.anon_id, rate_limit.client_ip(request))
     response.headers['Cache-Control'] = 'no-store'
     return await pipeline.run_check(body, inp, base_url(request))
 
