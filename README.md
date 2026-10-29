@@ -29,6 +29,7 @@ Run the tests with `pytest`.
 | `backend/samples.py` | Stub responses from `examples/`. Replaced endpoint by endpoint |
 | `backend/share_page.py` | Server-rendered share page with Open Graph tags for WhatsApp previews |
 | `backend/db.py` | SQLite connection (WAL). Role B adds the link tables here |
+| `backend/payments.py` | Dodo Payments: plan prices, checkout and the signed webhook ([setup](docs/DODO.md)) |
 | `web/` | Preact + htm as ES modules, no build step. Preact and htm are vendored in `web/vendor/` |
 | `examples/` | One example JSON per endpoint. Tests check each one against the models |
 | `seed/` | Demo data, loaded with one command (role B) |
@@ -44,6 +45,23 @@ The live site is **https://34-45-129-243.sslip.io**. It runs on one Google Cloud
 - **Access:** the VM's service account can only pull images. The firewall rule `cbyp-allow-web` opens ports 80 and 443 and nothing else.
 - **Why not Railway or Render:** Railway closed new sign-ups on 29 Oct. Render's persistent disk needs a card, and we don't have one; `render.yaml` is ready if one turns up.
 - **Replicas:** keep exactly one instance. SQLite on a disk can't be shared between replicas.
+
+## Payments (Dodo)
+
+The `/pricing` page sells a Family plan (₹49 a month) and an API plan through Dodo Payments' hosted checkout, in
+test mode unless live mode is approved. No payment is ever faked: only Dodo's signed webhook can mark an order paid.
+
+- `GET /api/plans` shows each plan's price as Dodo will charge it. The price is read from the Dodo product and
+  cached for 10 minutes. A plan is unavailable until its product, the API key and the webhook secret are all set.
+- `POST /api/checkout` creates an order and one Dodo checkout session, then returns its URL. `GET /api/orders/{id}`
+  is polled after the customer comes back.
+- `POST /api/dodo/webhook` checks the Standard Webhooks signature and processes each `webhook-id` once. It marks the
+  order paid only if the event matches that order's checkout or product.
+- No key reaches the browser or the logs. We store no email or payment details, and `orders_paid` in `/api/stats`
+  counts paid orders.
+
+Setup, test cards and the pricing-page flow are in [docs/DODO.md](docs/DODO.md). Read its first section before
+creating products: Dodo's subscription minimum is about US$1.00, so a ₹49-a-month plan may be refused.
 
 ## Rules
 
