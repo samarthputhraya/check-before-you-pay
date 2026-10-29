@@ -48,7 +48,9 @@ a { color: var(--accent); }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 17px; }
 .page { padding-top: 8px; padding-bottom: 24px; }
 .site-footer { padding-bottom: 32px; color: var(--muted); font-size: 13px; }
-.tagline { margin: 4px 0 16px; font-size: 18px; color: var(--ink); }
+.tagline { margin: 4px 0 16px; font-size: 18px; font-weight: 400; line-height: 1.5; color: var(--ink); }
+/* Small links get a 44 px tall tap area without changing how the text looks. */
+.site-footer a, .quiz-prompt a { display: inline-flex; align-items: center; min-height: 44px; }
 .muted { color: var(--muted); }
 .small, .fine { font-size: 13px; }
 .fine { color: var(--muted); margin: 12px 0 0; text-align: center; }
@@ -152,6 +154,7 @@ textarea[aria-invalid="true"] { border-color: var(--high); }
 .button.small { min-height: 36px; padding: 6px 10px; font-size: 14px; }
 .button.block { width: 100%; margin-top: 16px; font-size: 17px; min-height: 52px; }
 .button:disabled, .button.disabled { opacity: 0.6; cursor: not-allowed; }
+.button.primary:disabled { opacity: 1; background: #4f7d63; }
 label.button { position: relative; }
 label.button:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
 
@@ -180,6 +183,8 @@ label.button:focus-within { outline: 3px solid var(--focus); outline-offset: 2px
 .band-high_risk .score { color: var(--high); }
 .band-caution .score { color: var(--caution); }
 .verdict h1, .verdict h2 { font-size: 22px; line-height: 1.3; margin: 16px 0 8px; }
+.verdict h1, .explanation, .signals p, .signals blockquote, .transcript p, .ring, .note, .steps li { overflow-wrap: anywhere; }
+.note { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--caution); background: var(--caution-bg); font-size: 15px; }
 .verdict h2:focus { outline: none; }
 .verdict h3, .verdict .verdict-section { font-size: 15px; text-transform: none; margin: 20px 0 8px; color: var(--muted); }
 .explanation { margin: 0; }

@@ -41,6 +41,15 @@ function CheckPage() {
     document.documentElement.lang = uiLang(lang);
   }, [lang]);
 
+  // The phone's back button goes from a verdict to the form instead of leaving the site.
+  useEffect(() => {
+    if (history.state && history.state.verdict) history.replaceState(null, '');
+    const onPop = () => setState({ status: 'idle' });
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  const showingVerdict = () => history.state && history.state.verdict;
+
   function chooseLang(code) {
     setLang(code);
     saveLang(code);
@@ -62,6 +71,7 @@ function CheckPage() {
         props: { latency_ms: Math.round(performance.now() - started), band: data.band, lang, input_type: inputType },
       });
       setState({ status: 'done', result: data, sample });
+      if (!showingVerdict()) history.pushState({ verdict: true }, '');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
       setState({ status: 'error', error: e });
@@ -70,10 +80,10 @@ function CheckPage() {
 
   return html`
     <main class="page">
-      <p class="tagline">${t.tagline}</p>
+      ${state.status === 'done' ? html`<p class="tagline">${t.tagline}</p>` : html`<h1 class="tagline">${t.tagline}</h1>`}
       <p class="quiz-prompt"><a href="/quiz">${quizLink}</a></p>
       ${state.status === 'done'
-        ? html`<${Verdict} result=${state.result} sample=${state.sample} t=${t} onReset=${() => setState({ status: 'idle' })} />`
+        ? html`<${Verdict} result=${state.result} sample=${state.sample} t=${t} onReset=${() => (showingVerdict() ? history.back() : setState({ status: 'idle' }))} />`
         : html`<${CheckForm}
             lang=${lang}
             onLang=${chooseLang}

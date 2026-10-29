@@ -27,19 +27,19 @@ async function shareResult(result, bandLabel, t) {
   const { url, card_title: title } = result.share;
   if (navigator.share && navigator.canShare) {
     try {
-      const file = await createShareCard(result, bandLabel, t.noProof);
+      const file = await createShareCard(result, bandLabel, { riskScore: t.cardScore, footer: t.cardFooter });
       const payload = { title, text: title, url, files: [file] };
       if (navigator.canShare({ files: [file] })) {
-        track('share_clicked', { checkId: result.check_id, props: { method: 'image' } });
         await navigator.share(payload);
+        track('share_clicked', { checkId: result.check_id, props: { method: 'image' } });
         return;
       }
     } catch (e) {
       if (e && e.name === 'AbortError') return; // the user closed the share sheet
     }
   }
-  track('share_clicked', { checkId: result.check_id, props: { method: 'wa_link' } });
   window.open(`https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`, '_blank', 'noopener');
+  track('share_clicked', { checkId: result.check_id, props: { method: 'wa_link' } });
 }
 
 // A report links this check's identifiers to future checks (S4) and fires the viaSocket alert. Text is kept only with
@@ -50,12 +50,14 @@ function ReportBox({ checkId, t }) {
   const trigger = useRef(null);
   const consentBox = useRef(null);
   const doneMsg = useRef(null);
+  const errorMsg = useRef(null);
   const opened = useRef(false);
   const r = t.report;
   // Keep keyboard and screen-reader focus with the flow: into the form, onto the result, back to the button.
   useEffect(() => {
     if (state.status === 'open') { opened.current = true; consentBox.current && consentBox.current.focus(); }
     if (state.status === 'done' && doneMsg.current) doneMsg.current.focus();
+    if (state.status === 'error' && errorMsg.current) errorMsg.current.focus();
     if (state.status === 'closed' && opened.current && trigger.current) trigger.current.focus();
   }, [state.status]);
   if (state.status === 'closed') {
@@ -79,7 +81,7 @@ function ReportBox({ checkId, t }) {
     <p class="small" id="report-why">${r.why}</p>
     <label class="report-consent"><input type="checkbox" ref=${consentBox} checked=${consent} disabled=${busy}
       aria-describedby="report-why" onChange=${(e) => setConsent(e.currentTarget.checked)} /> ${r.consent}</label>
-    ${state.status === 'error' && html`<p class="error" role="alert">${errorText(t, state.error)}</p>`}
+    ${state.status === 'error' && html`<p class="error" role="alert" tabindex="-1" ref=${errorMsg}>${errorText(t, state.error)}</p>`}
     <div class="actions">
       <button type="button" class="button primary" disabled=${busy} onClick=${send}>${busy ? r.sending : r.send}</button>
       <button type="button" class="button secondary" disabled=${busy} onClick=${() => setState({ status: 'closed' })}>${r.cancel}</button>
@@ -95,20 +97,24 @@ export function Verdict({ result, sample, t, onReset }) {
 
   const { ring } = result;
   const linked = ring.linked_checks + ring.linked_reports > 0;
+  const total = result.signals.reduce((sum, s) => sum + s.points, 0);
+  // S1 only scores a non-@valid UPI ID when the message is about investing. Otherwise say what that ID does and
+  // doesn't tell you, so "no signals" is never read as "this UPI ID is fine for a trading account".
+  const plainHandle = !result.signals.some((s) => s.id === 'S1') &&
+    result.entities.some((e) => e.type === 'upi' && !/@valid[a-z]*$/i.test(e.masked));
 
   return html`
     <section class=${`card verdict band-${result.band}`} aria-labelledby="verdict-headline" lang=${contentLang(result.lang)}>
       ${sample && html`<p class="sample-note">${t.sample}</p>`}
       <div class="verdict-head">
         <span class="band-pill">${BAND_ICON[result.band]}${t.band[result.band]}</span>
-        <span class="score" aria-label=${`Risk score ${result.score} out of 100`}>${result.score}<small>/100</small></span>
+        <span class="score" aria-label=${`${t.cardScore}: ${result.score} / 100`}>${result.score}<small>/100</small></span>
       </div>
       <h1 id="verdict-headline" tabindex="-1" ref=${heading}>${result.headline}</h1>
-      ${result.band === 'no_known_signals' && html`<p class="muted">${t.noProof}</p>`}
       <p class="explanation">${result.explanation}</p>
 
       ${result.signals.length > 0 &&
-      html`<h3>${t.signals}</h3>
+      html`<h2 class="verdict-section">${t.signals}</h2>
         <ul class="signals">
           ${result.signals.map(
             (s) => html`<li key=${s.id}>
@@ -117,6 +123,8 @@ export function Verdict({ result, sample, t, onReset }) {
             </li>`,
           )}
         </ul>`}
+      ${total > 100 && html`<p class="muted small">${t.capped.replace('{sum}', total)}</p>`}
+      ${plainHandle && html`<p class="note">${t.handleNote}</p>`}
 
       ${linked &&
       html`<p class="ring">
@@ -129,7 +137,7 @@ export function Verdict({ result, sample, t, onReset }) {
       ${result.transcript &&
       html`<details class="transcript"><summary>${t.transcript}</summary><p>${result.transcript}</p></details>`}
 
-      <h3>${t.nextSteps}</h3>
+      <h2 class="verdict-section">${t.nextSteps}</h2>
       <ol class="steps">
         ${result.next_steps.map(
           (st) => html`<li>${st.url ? html`<a href=${st.url} target="_blank" rel="noopener">${st.text}</a>` : st.text}</li>`,
