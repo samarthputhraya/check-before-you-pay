@@ -75,6 +75,20 @@ a { color: var(--accent); }
 .quiz-review .incorrect { border-left: 4px solid var(--caution); }
 .quiz-back { margin: 16px 0 0; text-align: center; }
 .quiz-page .spinner { border-color: var(--line); border-top-color: var(--accent); }
+.stats-page h1 { margin: 8px 0 4px; font-size: 24px; line-height: 1.3; }
+.stats-page > .muted { margin: 0 0 16px; }
+.stats-page .spinner { border-color: var(--line); border-top-color: var(--accent); }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 14px; }
+.stat-value { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-label { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.stat-langs { margin-top: 12px; }
+.stat-langs h2 { margin: 0 0 12px; font-size: 16px; }
+.stat-langs ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.stat-langs li { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 10px; font-size: 14px; }
+.stat-bar { height: 8px; border-radius: 4px; background: var(--none-bg); overflow: hidden; }
+.stat-bar span { display: block; height: 100%; background: var(--accent); }
+.stat-lang-count { font-variant-numeric: tabular-nums; color: var(--muted); }
 
 /* ---- form ------------------------------------------------------------------ */
 .label { display: block; font-weight: 600; margin-bottom: 6px; }
@@ -172,6 +186,12 @@ label.button:focus-within { outline: 3px solid var(--focus); outline-offset: 2px
 .transcript { margin-top: 16px; }
 .transcript summary { cursor: pointer; font-weight: 600; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.report-open { margin-top: 8px; font-size: 15px; min-height: 44px; text-decoration: underline; }
+.report-box { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.report-box .small { margin: 0 0 12px; color: var(--muted); }
+.report-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.report-consent input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--accent); }
+.report-done { margin: 16px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); }
 
 .share-page .eyebrow { margin: 16px 0 12px; font-weight: 700; color: var(--accent); }
 .share-page > .button { margin-top: 16px; width: 100%; }

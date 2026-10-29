@@ -51,7 +51,7 @@
 {
   "check_id": "chk_01JB8Q",
   "band": "high_risk",
-  "score": 80,
+  "score": 100,
   "lang": "hi",
   "headline": "पैसे न भेजें: इसमें धोखाधड़ी के कई संकेत हैं",
   "explanation": "…",
@@ -59,13 +59,13 @@
     {
       "id": "S1",
       "label": "…",
-      "points": 35,
+      "points": 50,
       "evidence": { "kind": "lookup", "text": "This UPI ID (tr…@ybl) ends in @ybl, not @valid. SEBI-registered brokers collect through @valid handles.", "source_url": "https://www.sebi.gov.in" }
     },
     {
       "id": "S6",
       "label": "…",
-      "points": 20,
+      "points": 40,
       "evidence": { "kind": "quote", "text": "300% guaranteed", "source_url": null }
     },
     {
@@ -73,16 +73,10 @@
       "label": "…",
       "points": 10,
       "evidence": { "kind": "lookup", "text": "Same UPI ID as 3 earlier reports", "source_url": null }
-    },
-    {
-      "id": "S5",
-      "label": "…",
-      "points": 15,
-      "evidence": { "kind": "lookup", "text": "Matches a script seen in 6 earlier checks", "source_url": null }
     }
   ],
   "entities": [ { "type": "upi", "masked": "tr…@ybl" } ],
-  "ring": { "linked_checks": 6, "linked_reports": 3, "via": ["same_upi", "same_script"] },
+  "ring": { "linked_checks": 6, "linked_reports": 3, "via": ["same_upi"] },
   "next_steps": [
     { "text": "…", "url": null },
     { "text": "…", "url": "https://www.sebi.gov.in" },
@@ -125,7 +119,9 @@ The user reports a check. If `consent_store_text` is true, we store the message 
 { "check_id": "chk_01JB8Q", "anon_id": "u_7f3a9c", "consent_store_text": true, "note": null }
 ```
 
-**Response 200:** `{ "report_id": "rep_01JB9A", "ok": true }`
+**Response 200:** `{ "report_id": "rep_01JB9A", "ok": true, "text_saved": true }`
+
+`text_saved` is `false` when the user didn't consent, or when the server no longer had the text (it keeps unsent text in memory for 15 minutes). A repeat report of the same check answers with what the first one stored.
 
 This also fires the viaSocket webhook.
 

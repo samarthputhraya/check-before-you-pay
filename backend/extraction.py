@@ -11,7 +11,8 @@ from pydantic import BaseModel, Field
 
 ClaimType = Literal['guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment',
                     'urgency_pressure', 'sebi_registered_claim', 'install_app_or_apk',
-                    'withdrawal_fee', 'impersonates_brand', 'other']
+                    'withdrawal_fee', 'insider_tip', 'task_deposit', 'recovery_fee',
+                    'impersonates_brand', 'other']
 
 
 class Claim(BaseModel):
@@ -49,6 +50,41 @@ SHARED_HOSTS = GROUP_HOSTS | frozenset(('drive.google.com', 'docs.google.com', '
 # Bundled PSL only: no network or disk writes on a request.
 PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
 _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instructions?[^\n.!?]*(?:[.!?]|$)', re.I)
+
+
+# Voice notes dictate payment IDs ("stockpro dot desk at ybl"). Only a known UPI handle after "at", and a name that
+# was spelled with a dot or is a 10-digit number, is rewritten, so "pay at paytm" or "meet at sbi" stay as said.
+_PSP = (r'ybl|ibl|axl|okaxis|okhdfcbank|okicici|oksbi|paytm|ptyes|ptaxis|pthdfc|ptsbi|apl|yapl|rapl|abfspay|axisbank|'
+        r'icici|hdfcbank|sbi|kotak|idfcbank|upi|freecharge|jupiteraxis|naviaxis|waaxis|wahdfcbank|waicici|wasbi|airtel|'
+        r'jio|valid\w*')
+_SPOKEN_ID = re.compile(r'(?<![\w@.])([A-Za-z0-9_][\w-]{0,40}(?:(?:\.|\s+(?:dot|डॉट)\s+)[\w-]{1,40}){0,4})\s+(?:at|एट|ऐट)\s+'
+                        r'(' + _PSP + r')\b', re.I)
+_SPOKEN_DOT = re.compile(r'\s*(?:\.|\bdot\b|डॉट)\s*', re.I)
+
+
+# SEBI's handles are @valid plus the bank's name (@validhdfc, @validicici). Scammers imitate the word itself, so
+# a bare "@valid", or "valid" plus a generic word ("@validupi", "@valid-upi" read as "@valid"), is not one.
+# Banks that issue @valid handles to SEBI-registered intermediaries (circular of 11 June 2025, section 2.1, and the
+# NPCI list). A bank we've missed shows S1 with "verify on SEBI Check", never a false "it's fine".
+_VALID_BANKS = frozenset(('hdfc', 'icici', 'sbi', 'axis', 'kotak', 'yes', 'yesbank', 'idfc', 'idfcfirst', 'indus',
+                          'indusind', 'bob', 'pnb', 'canara', 'union', 'ubi', 'boi', 'idbi', 'federal', 'rbl', 'au',
+                          'aubank', 'hsbc', 'sc', 'scb', 'citi', 'dbs', 'kvb', 'tmb', 'csb', 'dcb', 'iob', 'indian',
+                          'bandhan', 'equitas', 'ujjivan', 'jkb', 'sib', 'karnataka', 'cub', 'uco', 'centralbank'))
+
+
+def sebi_valid_handle(upi_id: str) -> bool:
+    handle = upi_id.rsplit('@', 1)[-1].lower()
+    return handle.startswith('valid') and handle[5:] in _VALID_BANKS
+
+
+def written_ids(transcript: str) -> str:
+    def rewrite(m: re.Match) -> str:
+        name = m.group(1)
+        spelled = re.search(r'[A-Za-z]', name) and _SPOKEN_DOT.search(name)
+        if not spelled and not re.fullmatch(r'\d{10}', name):
+            return m.group(0)
+        return _SPOKEN_DOT.sub('.', name) + '@' + m.group(2).lower()
+    return _SPOKEN_ID.sub(rewrite, transcript)
 
 
 def normalize(text: str) -> str:

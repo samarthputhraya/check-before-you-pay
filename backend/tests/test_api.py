@@ -14,8 +14,9 @@ from fastapi.testclient import TestClient
 from backend import app as app_module
 from backend.config import EXAMPLES_DIR, MAX_FILE_BYTES
 from backend.schemas import (
-    CheckRequest, CheckResponse, CheckView, EventRequest, HealthResponse, QuizAnswerRequest,
-    QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, StatsResponse,
+    CheckoutRequest, CheckoutResponse, CheckRequest, CheckResponse, CheckView, EventRequest, HealthResponse,
+    OrderResponse, PlansResponse, QuizAnswerRequest, QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse,
+    StatsResponse,
 )
 
 def image_bytes(format):
@@ -72,6 +73,8 @@ def assert_error(resp, status: int, code: str) -> None:
     ("report_response", ReportResponse), ("quiz_response", QuizResponse),
     ("quiz_answer_request", QuizAnswerRequest), ("quiz_answer_response", QuizAnswerResponse),
     ("event_request", EventRequest), ("stats_response", StatsResponse), ("health_response", HealthResponse),
+    ("plans_response", PlansResponse), ("checkout_request", CheckoutRequest), ("checkout_response", CheckoutResponse),
+    ("order_response", OrderResponse),
 ])
 def test_example_matches_model(name, model):
     model.model_validate(example(name))
@@ -227,6 +230,10 @@ def test_share_page_has_open_graph_tags(client):
     assert '<meta property="og:title" content="Check Before You Pay: High risk">' in html
     assert '<meta property="og:url" content="http://testserver/c/chk_01JB8Q">' in html
     assert "og:description" in html
+    # WhatsApp shows a picture preview; the image for the band must actually be served.
+    assert '<meta property="og:image" content="http://testserver/og/high_risk.png">' in html
+    image = client.get("/og/high_risk.png")
+    assert image.status_code == 200 and image.headers["content-type"] == "image/png"
 
 
 def test_share_page_escapes_everything(client, monkeypatch):

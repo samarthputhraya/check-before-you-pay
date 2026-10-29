@@ -7,6 +7,7 @@ import { defaultLang, errorText, strings, uiLang } from './components/i18n.js';
 import { anonId, isReturning, ref, saveLang, track } from './components/session.js';
 import { Verdict } from './components/Verdict.js';
 import { QuizPage } from './components/Quiz.js';
+import { StatsPage } from './components/Stats.js';
 
 function Header() {
   return html`<header class="site-header">
@@ -17,6 +18,7 @@ function Header() {
 function Footer() {
   return html`<footer class="site-footer">
     <p>An independent tool. It is not run by SEBI, NPCI or any bank.</p>
+    <p><a href="/stats">Live numbers</a> · <a href="/quiz">Spot the scam quiz</a></p>
   </footer>`;
 }
 
@@ -24,7 +26,7 @@ function CheckPage() {
   const [lang, setLang] = useState(defaultLang());
   const [state, setState] = useState({ status: 'idle' });
   const t = strings(lang);
-  const quizLink = ({ en: 'Try the Spot the scam quiz', hi: 'धोखाधड़ी पहचानने की क्विज़ खेलें', mr: 'फसवणूक ओळखण्याची क्विझ खेळा' })[lang] || 'Try the Spot the scam quiz';
+  const quizLink = ({ en: 'Try the Spot the scam quiz', hi: 'धोखाधड़ी पहचानने की क्विज़ खेलें', mr: 'फसवणूक ओळखण्याची क्विझ खेळा', hinglish: 'Spot the scam quiz khelo' })[lang] || 'Try the Spot the scam quiz';
 
   useEffect(() => {
     document.documentElement.lang = uiLang(lang);
@@ -85,8 +87,9 @@ function SoonPage() {
 
 function App() {
   const home = location.pathname === '/' || location.pathname === '/index.html';
-  const quiz = location.pathname === '/quiz';
-  const page = home ? html`<${CheckPage} />` : quiz ? html`<${QuizPage} />` : html`<${SoonPage} />`;
+  const routes = { '/quiz': QuizPage, '/stats': StatsPage };
+  const Page = home ? CheckPage : routes[location.pathname] || SoonPage;
+  const page = html`<${Page} />`;
   return html`<${Header} />${page}<${Footer} />`;
 }
 

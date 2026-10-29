@@ -11,13 +11,17 @@ EntityType = Literal["upi", "phone", "domain", "url", "group_link", "wallet", "a
 RingVia = Literal["same_upi", "same_phone", "same_domain", "same_group_link", "same_wallet", "same_script"]
 EventName = Literal[
     "visit", "check_started", "check_done", "share_clicked", "ref_visit",
-    "report", "quiz_done", "quiz_shared", "return_visit",
+    "report", "quiz_done", "quiz_shared", "return_visit", "pricing_view",
+    "checkout_started", "checkout_paid",  # server-only; db.record_event drops client copies
 ]
+PlanId = Literal["family", "api"]
+OrderStatus = Literal["pending", "paid", "failed"]
 QuizAnswer = Literal["scam", "genuine"]
 
 AnonId = Annotated[str, StringConstraints(pattern=r"^u_[A-Za-z0-9_-]{1,40}$")]
 CheckId = Annotated[str, StringConstraints(pattern=r"^chk_[A-Za-z0-9_-]{1,40}$")]
 QuizId = Annotated[str, StringConstraints(pattern=r"^q_[a-z]+_v[0-9]+$")]
+OrderId = Annotated[str, StringConstraints(pattern=r"^ord_[A-Za-z0-9_-]{1,40}$")]
 HttpsUrl = Annotated[str, StringConstraints(pattern=r"^https://", max_length=2000)]  # never javascript: in an href
 HttpUrl = Annotated[str, StringConstraints(pattern=r"^https?://", max_length=2000)]
 ShortKey = Annotated[str, StringConstraints(min_length=1, max_length=40)]
@@ -109,6 +113,7 @@ class ReportRequest(BaseModel):
 
 class ReportResponse(BaseModel):
     report_id: str
+    text_saved: bool = False  # consent alone isn't enough: the server forgets unsent text after 15 minutes
     ok: bool
 
 
@@ -165,7 +170,40 @@ class StatsResponse(BaseModel):
     k_factor: float
     p50_ms: int
     p95_ms: int
+    quiz_plays: int  # quiz_results rows: finished quizzes, not unique players
+    orders_paid: int
     updated_at: str
+
+
+# ---- Payments (Dodo) -------------------------------------------------------
+
+class Plan(BaseModel):
+    id: PlanId
+    name: str
+    price_inr: int | float = Field(gt=0)
+    interval: Literal["month"]
+    available: bool
+
+
+class PlansResponse(BaseModel):
+    test_mode: bool
+    plans: list[Plan]
+
+
+class CheckoutRequest(BaseModel):
+    plan: PlanId
+    anon_id: AnonId
+
+
+class CheckoutResponse(BaseModel):
+    order_id: OrderId
+    checkout_url: HttpsUrl
+
+
+class OrderResponse(BaseModel):
+    order_id: OrderId
+    plan: PlanId
+    status: OrderStatus
 
 
 class HealthResponse(BaseModel):

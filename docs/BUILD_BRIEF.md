@@ -159,25 +159,24 @@ The input can be a message, screenshot, voice note, trading-app link, UPI ID or 
 
 | ID | Signal | Points | Evidence shown |
 |---|---|---|---|
-| S1 | The message asks for payment to a UPI ID that isn't a SEBI **@valid** handle, and it's about investing, trading or a brokerage | +35 | "SEBI-registered brokers and mutual funds collect through UPI IDs ending in @valid. This one ends in @ybl." |
+| S1 | The message asks for payment to a UPI ID that isn't a SEBI **@valid** handle, and it's about investing, trading or a brokerage | +50 | "SEBI-registered brokers and mutual funds collect through UPI IDs ending in @valid. This one ends in @ybl." |
 | S2 | A link looks like a real broker or exchange but isn't its official domain: the brand name on a different domain, a small spelling change, or look-alike characters | +30 | "kite-zerodha-app.in is not zerodha.com" |
 | S3 | A new domain: registered less than 30 days ago (+25), or less than 180 days ago (+10). Use an RDAP lookup; if it fails, give 0 points and say "couldn't check" | +10 / +25 | "Registered 12 days ago" |
 | S4 | Linked in our link tables to earlier high-risk checks or reports. +10 for each distinct link type (same UPI ID, phone, domain, group link or wallet), capped at +30. Script matches count under S5 only | up to +30 | "Same Telegram link as 6 earlier reports" |
 | S5 | The message script is a near-copy of a known scam script (embedding cosine similarity of 0.90 or more) | +15 | "Matches a script seen in 14 earlier checks" |
-| S6 | Claims found with verified quotes. Capped at +30 in total. See the point values below this table | up to +30 | the exact quote |
+| S6 | Claims found with verified quotes. Capped at +40 in total, so claims alone never reach high risk. See the point values below this table | up to +40 | the exact quote |
 | S7 | A URL appears on a public phishing feed (check the feed's terms before using it) | +40 | the feed's name |
 
-**S6 point values:**
-- guaranteed or fixed returns: +10
+**S6 point values** (v2, 29 Oct, measured in `docs/EVAL.md`; v1 had every claim at +10 and S1 at +35):
+- each of these is a sign of fraud on its own, so +30 each: guaranteed or fixed returns; a fee or tax to withdraw; pay or deposit to unlock tasks; a sure-shot or insider tip; a fee to recover lost money
 - VIP, institutional or IPO-allotment account: +10
 - install an app or APK from a link: +10
-- pay a fee to withdraw: +10
 - urgency or pressure: +5
 - "SEBI registered" with no number we can check: +5
 
 **Notes**
 
-- **The @valid rule** comes from SEBI's circular of 11 June 2025, in effect since 1 Oct 2025. Before shipping, verify the exact handle format against the circular, because sources disagree on the suffix spelling. Implement it as: the part after `@` starts with `valid`.
+- **The @valid rule** comes from SEBI's circular of 11 June 2025, in effect since 1 Oct 2025. Before shipping, verify the exact handle format against the circular, because sources disagree on the suffix spelling. Implemented as `@valid` followed by a known bank's name (`@validhdfc`, `@validicici`, …), so imitations like `@validupi` or a bare `@valid` don't pass.
 - **Official domains.** Keep a hand-curated list of at least 25 brokers, exchanges, mutual fund houses and popular Indian crypto exchanges in `seed/brokers.json`.
 - **Weights** live in one config file. Changing them needs team agreement and updated tests.
 - **Required tests:**

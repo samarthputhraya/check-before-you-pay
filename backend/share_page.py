@@ -22,6 +22,8 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
     n = len(view.signals)
     og_title = f"Check Before You Pay: {band_title}"
     og_desc = f"{band_line} {n} risk signal{'s' if n != 1 else ''} found. Check any investment tip before you pay."
+    # A picture preview in WhatsApp (bilingual card per band in web/og/); same origin as the page.
+    og_image = f"{page_url.rsplit('/c/', 1)[0]}/og/{view.band}.png"
     signals = "\n".join(
         f'<li><span class="pts">+{s.points}</span><div><strong>{escape(s.label)}</strong>'
         f'<p>{escape(s.evidence.text)}</p></div></li>'
@@ -44,7 +46,11 @@ def render_share_page(view: CheckView, page_url: str, ref: str | None = None) ->
 <meta property="og:title" content="{escape(og_title)}">
 <meta property="og:description" content="{escape(og_desc)}">
 <meta property="og:url" content="{escape(page_url)}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="{escape(og_image)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{escape(band_title)}: {escape(band_line)}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="/styles.css">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <script type="module" src="/share.js"></script>

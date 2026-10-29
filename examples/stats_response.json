@@ -8,5 +8,7 @@
   "k_factor": 0.42,
   "p50_ms": 3100,
   "p95_ms": 7400,
+  "quiz_plays": 380,
+  "orders_paid": 3,
   "updated_at": "2026-10-30T10:00:00+05:30"
 }

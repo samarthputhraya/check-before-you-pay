@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from backend import llm, lookups
+from backend import llm, lookups, payments
 from backend.extraction import Claim, Extraction, verified_extraction
 from backend.links import Embedding
 
@@ -13,10 +13,12 @@ def offline_providers(monkeypatch):
     for name in ('GEMINI_API_KEY', 'OPENAI_API_KEY', 'VIASOCKET_REPORT_WEBHOOK_URL',
                  'PHISHTANK_FEED_PATH', 'ADMIN_TOKEN', 'GEMINI_EXTRACT_MODEL', 'GEMINI_EXPLAIN_MODEL',
                  'GEMINI_EMBED_MODEL', 'GEMINI_TTS_MODEL', 'OPENAI_MODEL', 'OPENAI_EMBED_MODEL',
-                 'OPENAI_TRANSCRIBE_MODEL'):
+                 'OPENAI_TRANSCRIBE_MODEL', 'DODO_API_KEY', 'DODO_WEBHOOK_SECRET', 'DODO_MODE',
+                 'DODO_PRODUCT_FAMILY', 'DODO_PRODUCT_API', 'DODO_PRICE_FAMILY_INR', 'DODO_PRICE_API_INR'):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv('IDENTIFIER_SALT', 'test-only-identifier-salt-32-characters')
     monkeypatch.setattr(llm.providers, 'ready', False)
+    payments._prices.clear()
 
     async def extract(text):
         claims = [Claim(type=kind, quote=quote) for kind, quote in (

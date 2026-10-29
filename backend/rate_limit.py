@@ -28,6 +28,14 @@ def client_ip(request: Request) -> str:
     Uvicorn proxy rewriting is disabled. Local/direct requests always use the
     socket peer; arbitrary X-Forwarded-For values are never used.
     """
+    peer = request.client.host if request.client else 'unknown'
+    if os.getenv('TRUST_PROXY') == 'caddy' and _private(peer):
+        forwarded = [part.strip() for part in request.headers.get('x-forwarded-for', '').split(',') if part.strip()]
+        if forwarded:
+            try:
+                return str(ipaddress.ip_address(forwarded[-1]))
+            except ValueError:
+                pass
     if os.getenv('TRUST_RAILWAY_EDGE') == 'true' and os.getenv('RAILWAY_ENVIRONMENT_ID'):
         values = request.headers.getlist('x-real-ip')
         if len(values) == 1:
@@ -35,7 +43,14 @@ def client_ip(request: Request) -> str:
                 return str(ipaddress.ip_address(values[0]))
             except ValueError:
                 pass
-    return request.client.host if request.client else 'unknown'
+    return peer
+
+
+def _private(ip: str) -> bool:
+    try:
+        return ipaddress.ip_address(ip).is_private
+    except ValueError:
+        return False
 
 
 def _ip_key(ip: str) -> str:
@@ -53,7 +68,20 @@ def enforce_events(anon_id: str, ip: str) -> None:
     _enforce_buckets([('events:user:' + anon_id, 300), ('events:ip:' + _ip_key(ip), 10000)])
 
 
-def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
+def enforce_quiz(anon_id: str, ip: str) -> None:
+    # Each answer writes a quiz_results row, which unlocks quiz_shared; cap it so plays can't be farmed.
+    _enforce_buckets([('quiz:user:' + anon_id, 30),
+                      ('quiz:ip:' + _ip_key(ip), int(os.getenv('IP_QUIZ_PER_HOUR', '3000')))],
+                     'Too many quiz answers. Please try again in an hour.')
+
+
+def enforce_checkout(anon_id: str, ip: str) -> None:
+    # A buyer opens checkout once or twice; the IP budget still lets a whole house on one Wi-Fi buy.
+    _enforce_buckets([('checkout:user:' + anon_id, 10), ('checkout:ip:' + _ip_key(ip), 100)],
+                     'Too many checkout attempts. Please try again in an hour.')
+
+
+def _enforce_buckets(buckets: list[tuple[str, int]], message: str = 'Too many checks. Please try again in an hour.') -> None:
     try:
         allowed = db.allow_request(get_settings().sqlite_path, buckets)
     except (sqlite3.Error, OSError):
@@ -70,4 +98,4 @@ def _enforce_buckets(buckets: list[tuple[str, int]]) -> None:
                 for bucket, _ in buckets:
                     _recent.setdefault(bucket, deque()).append(now)
     if not allowed:
-        raise ApiError(429, 'rate_limited', 'Too many checks. Please try again in an hour.')
+        raise ApiError(429, 'rate_limited', message)

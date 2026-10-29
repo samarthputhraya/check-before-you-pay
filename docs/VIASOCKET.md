@@ -35,7 +35,7 @@ language, masked entities and the public URL vary with the actual report.
   "score": 65,
   "lang": "hi",
   "entities": [{"type": "upi", "masked": "sa…@ybl"}],
-  "url": "https://your-app.up.railway.app/c/chk_example"
+  "url": "https://34-45-129-243.sslip.io/c/chk_example"
 }
 ```
 
@@ -62,7 +62,7 @@ The machine-readable example is `examples/viasocket_report.json`.
 
 ## Use the check API in another workflow
 
-Configure an HTTP POST action to `https://<deployed-host>/api/check`, with JSON:
+Configure an HTTP POST action to `https://34-45-129-243.sslip.io/api/check`, with JSON:
 
 ```json
 {

@@ -8,7 +8,7 @@ from functools import lru_cache
 
 from backend import weights
 from backend.config import ROOT
-from backend.extraction import Extraction, normalize, source_text
+from backend.extraction import Extraction, normalize, sebi_valid_handle, source_text
 from backend.privacy import mask_text
 from backend.schemas import Band, Evidence, Signal
 
@@ -49,8 +49,11 @@ INVESTMENT = re.compile(
     r'|ట్రేడింగ్(?!\s*కంపెనీ)|ಹೂಡಿಕೆ|(?:ಷೇರು|ಶೇರ್)\s*(?:ಮಾರುಕಟ್ಟೆ|ಮಾರ್ಕೆಟ್)|ಸ್ಟಾಕ್\s*ಮಾರ್ಕೆಟ್|ಟ್ರೇಡಿಂಗ್(?!\s*ಕಂಪನಿ)'
     r'|বিনিয়োগ|(?:শেয়ার|স্টক)\s*(?:বাজার|মার্কেট)|ট্রেডিং(?!\s*কোম্পানি)', re.I)
 # A verified quote for one of these claims puts the payment request in an investment context on its own.
-INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment', 'withdrawal_fee'}
-PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|bhej\w*|jama|bharo)\b|भेज|भुगतान|जमा|पाठवा|भरा|செலுத்த|அனுப்பு|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ|জমা|পাঠান|পেমেন্ট', re.I)
+INVESTMENT_CLAIMS = {'guaranteed_returns', 'vip_or_institutional_account', 'ipo_allotment', 'withdrawal_fee',
+                     'insider_tip'}
+PAYMENT = re.compile(r'\b(pay\w*|send|deposit|transfer|remit|recharge|top[\s-]?up|bhej\w*|jama|bharo|daal\s*do|dalo'
+                     r'|de\s*do|dena|deni)\b|भेज|भुगतान|जमा|डाल\s*दो|पाठवा|भरा|செலுத்த|அனுப்ப|చెల్లించ|పంప|ಪಾವತಿ|ಕಳುಹಿ'
+                     r'|জমা|পাঠা|পেমেন্ট', re.I)
 _BRAND_AFFIXES = frozenset(('app', 'apps', 'apk', 'trade', 'trading', 'broker', 'stocks',
     'invest', 'investment', 'pay', 'payment', 'login', 'secure', 'support', 'vip', 'pro', 'official', 'download'))
 _LOOKALIKE = str.maketrans({'а':'a','е':'e','о':'o','р':'p','с':'c','х':'x','і':'i','у':'y','ѕ':'s','ӏ':'l','ο':'o','ι':'i','0':'o','1':'l'})
@@ -124,16 +127,17 @@ def evaluate(text: str, extracted: Extraction, domain_ages: dict[str, tuple[int,
              phishing_hits: list[str] | None = None) -> list[Signal]:
     result = []
     clean = normalize(source_text(text))
-    invalid = [u for u in extracted.entities.upi_ids if not u.split('@')[-1].startswith('valid')]
+    invalid = [u for u in extracted.entities.upi_ids if not sebi_valid_handle(u)]
     # The sender picks the UPI name, and "mahalaxmi.trading@okicici" is a shop: only the message says it's investing.
     context = clean
     for upi in extracted.entities.upi_ids:
         context = context.replace(upi, ' ')
     investment = INVESTMENT.search(context) or any(
         c.type in INVESTMENT_CLAIMS and normalize(c.quote) in clean for c in extracted.claims)
-    if invalid and investment and PAYMENT.search(clean):
+    if invalid and investment and PAYMENT.search(context):
         result.append(signal('S1', weights.S1, 'Investment payment handle',
-                             f"{', '.join(invalid)} does not use a SEBI @valid handle. Verify the payment destination on SEBI Check.", SEBI_SOURCE))
+                             f"{', '.join(invalid)} does not use a SEBI @valid handle (registered brokers use @valid plus their bank's name, "
+                             "like @validhdfc). Verify the payment destination on SEBI Check.", SEBI_SOURCE))
     matches = [(d, lookalike(d)) for d in extracted.entities.domains]
     matches = [(d, official) for d, official in matches if official]
     if matches:

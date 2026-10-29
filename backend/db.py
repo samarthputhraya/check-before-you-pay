@@ -46,6 +46,10 @@ CREATE TABLE IF NOT EXISTS quiz_results (
 CREATE TABLE IF NOT EXISTS rate_limits (bucket TEXT NOT NULL, created_at REAL NOT NULL);
 CREATE INDEX IF NOT EXISTS rate_bucket ON rate_limits(bucket, created_at);
 CREATE TABLE IF NOT EXISTS app_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS orders (
+ id TEXT PRIMARY KEY, plan TEXT NOT NULL, anon_id TEXT NOT NULL, session_id TEXT, status TEXT NOT NULL,
+ mode TEXT NOT NULL, created_at REAL NOT NULL, paid_at REAL, dodo_ref TEXT);
+CREATE TABLE IF NOT EXISTS dodo_webhooks (id TEXT PRIMARY KEY, type TEXT NOT NULL, created_at REAL NOT NULL);
 '''
 
 CACHE_REVISION = '2026-10-29-review-2'
@@ -210,31 +214,44 @@ def entity_history(path: Path, entity_id: str) -> list[dict]:
 
 
 def add_report(path: Path, check_id: str, anon_id: str, text: str | None, note: str | None,
-               webhook_enabled: bool = True) -> tuple[str, bool]:
+               webhook_enabled: bool = True) -> tuple[str, bool, bool]:
+    """Returns (report_id, created, text_saved); a repeat report answers with what the first one stored."""
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
         if not con.execute('SELECT 1 FROM checks WHERE id=?', (check_id,)).fetchone():
             raise KeyError(check_id)
-        existing = con.execute('SELECT id FROM reports WHERE check_id=? AND anon_id=?', (check_id, anon_id)).fetchone()
+        existing = con.execute('SELECT id, text_if_consented IS NOT NULL FROM reports WHERE check_id=? AND anon_id=?',
+                               (check_id, anon_id)).fetchone()
         if existing:
-            return existing[0], False
+            return existing[0], False, bool(existing[1])
         report_id = new_id('rep')
         con.execute('''INSERT INTO reports(id,check_id,created_at,text_if_consented,anon_id,note,webhook_status)
                        VALUES (?,?,?,?,?,?,?)''',
                     (report_id, check_id, time.time(), text, anon_id, note, 'pending' if webhook_enabled else 'skipped'))
         con.execute('DELETE FROM cache')  # New reports change the available evidence.
         _event(con, EventRequest(anon_id=anon_id, event='report', check_id=check_id), time.time())
-        return report_id, True
+        return report_id, True, text is not None
+
+
+def save_quiz_result(path: Path, anon_id: str, quiz_id: str, lang: str, score: int) -> str:
+    """One row per finished quiz plus the authoritative quiz_done; a later quiz_shared counts only after this."""
+    now = time.time()
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        result_id = new_id('qzr')
+        con.execute('INSERT INTO quiz_results VALUES (?,?,?,?,?)', (result_id, anon_id, quiz_id, score, now))
+        _event(con, EventRequest(anon_id=anon_id, event='quiz_done', props={'score': score, 'lang': lang}), now)
+        return result_id
 
 
 def _event(con: sqlite3.Connection, body: EventRequest, now: float) -> None:
-    props = {k: v for k, v in body.props.items() if k in ('latency_ms', 'band', 'lang', 'input_type', 'score')}
+    props = {k: v for k, v in body.props.items() if k in ('latency_ms', 'band', 'lang', 'input_type', 'score', 'plan')}
     con.execute('INSERT INTO events VALUES (?,?,?,?,?,?,?)',
                 (new_id('evt'), body.anon_id, body.event, body.check_id, body.ref, json.dumps(props), now))
 
 
 def record_event(path: Path, body: EventRequest) -> None:
-    if body.event in ('check_done', 'report', 'quiz_done'):
+    if body.event in ('check_done', 'report', 'quiz_done', 'checkout_started', 'checkout_paid'):
         return  # These are authoritative server events; ignore client copies.
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
@@ -248,7 +265,7 @@ def record_event(path: Path, body: EventRequest) -> None:
         if body.event == 'quiz_shared' and not con.execute(
                 'SELECT 1 FROM quiz_results WHERE anon_id=?', (body.anon_id,)).fetchone():
             return
-        if body.event in ('visit', 'ref_visit', 'return_visit') and con.execute(
+        if body.event in ('visit', 'ref_visit', 'return_visit', 'pricing_view') and con.execute(
                 'SELECT 1 FROM events WHERE anon_id=? AND event=? AND created_at>? LIMIT 1',
                 (body.anon_id, body.event, time.time() - 3600)).fetchone():
             return
@@ -285,8 +302,10 @@ def top_rings(path: Path, k: int | None = 10, include_samples: bool = False) -> 
         return connected_groups([(nodes[r[0]], r[1]) for r in [*rows, *scripts]], k)
 
 
-def stats(path: Path) -> StatsResponse:
+def stats(path: Path, dodo_mode: str = 'test_mode') -> StatsResponse:
     with session(path) as con:
+        # Only the current Dodo mode: once live, test-mode payments never count as paid orders.
+        orders_paid = con.execute("SELECT COUNT(*) FROM orders WHERE status='paid' AND mode=?", (dodo_mode,)).fetchone()[0]
         checks = con.execute('SELECT id,anon_id,lang,response_json FROM checks WHERE is_sample=0').fetchall()
         users = {r['anon_id'] for r in checks}
         users.update(r[0] for r in con.execute('SELECT DISTINCT anon_id FROM events'))
@@ -304,11 +323,13 @@ def stats(path: Path) -> StatsResponse:
             SELECT anon_id,ref,ROW_NUMBER() OVER (PARTITION BY anon_id ORDER BY created_at,rowid) AS position
             FROM events) WHERE position=1''')
         referred = {r[0] for r in first_touches if r[1] in sharers and r[0] != r[1]}
+        quiz_plays = con.execute('SELECT COUNT(*) FROM quiz_results').fetchone()[0]
     return StatsResponse(users=len(users), checks=len(checks), reports=reports, languages=languages,
                          rings=len(top_rings(path, None)), share_rate=shared / len(checks) if checks else 0,
                          k_factor=len(referred) / len(sharers) if sharers else 0,
                          p50_ms=int(np.percentile(latencies, 50)) if latencies else 0,
                          p95_ms=int(np.percentile(latencies, 95)) if latencies else 0,
+                         quiz_plays=quiz_plays, orders_paid=orders_paid,
                          updated_at=datetime.now(timezone.utc).isoformat())
 
 
@@ -323,6 +344,52 @@ def webhook_result(path: Path, report_id: str, delivered: bool) -> None:
         con.execute('''UPDATE reports SET webhook_attempts=webhook_attempts+1,
             webhook_status=CASE WHEN ? THEN 'delivered' WHEN webhook_attempts>=2 THEN 'failed' ELSE 'pending' END,
             webhook_after=? WHERE id=?''', (delivered, time.time() + 60, report_id))
+
+
+def create_order(path: Path, plan: str, anon_id: str, mode: str) -> str:
+    order_id = new_id('ord')
+    with session(path) as con:
+        con.execute("INSERT INTO orders(id,plan,anon_id,status,mode,created_at) VALUES (?,?,?,'pending',?,?)",
+                    (order_id, plan, anon_id, mode, time.time()))
+    return order_id
+
+
+def start_order(path: Path, order_id: str, session_id: str, anon_id: str, plan: str) -> None:
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        con.execute('UPDATE orders SET session_id=? WHERE id=?', (session_id, order_id))
+        _event(con, EventRequest(anon_id=anon_id, event='checkout_started', props={'plan': plan}), time.time())
+
+
+def fail_order(path: Path, order_id: str) -> None:
+    with session(path) as con:
+        con.execute("UPDATE orders SET status='failed' WHERE id=? AND status='pending'", (order_id,))
+
+
+def get_order(path: Path, order_id: str) -> dict | None:
+    with session(path) as con:
+        row = con.execute('SELECT * FROM orders WHERE id=?', (order_id,)).fetchone()
+        return dict(row) if row else None
+
+
+def apply_dodo_event(path: Path, webhook_id: str, kind: str, order_id: str | None, status: str | None,
+                     dodo_ref: str | None) -> str:
+    """Record a verified Dodo webhook exactly once and move its order. Paid is final; failed only replaces pending,
+    so a late payment.failed from a declined first card can't undo the retry that succeeded."""
+    now = time.time()
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        if not con.execute('INSERT OR IGNORE INTO dodo_webhooks VALUES (?,?,?)', (webhook_id, kind, now)).rowcount:
+            return 'duplicate'
+        if status == 'paid' and con.execute('''UPDATE orders SET status='paid',paid_at=?,dodo_ref=COALESCE(?,dodo_ref)
+                WHERE id=? AND status!='paid' ''', (now, dodo_ref, order_id)).rowcount:
+            row = con.execute('SELECT anon_id,plan FROM orders WHERE id=?', (order_id,)).fetchone()
+            _event(con, EventRequest(anon_id=row['anon_id'], event='checkout_paid', props={'plan': row['plan']}), now)
+            return 'paid'
+        if status == 'failed' and con.execute('''UPDATE orders SET status='failed',dodo_ref=COALESCE(?,dodo_ref)
+                WHERE id=? AND status='pending' ''', (dodo_ref, order_id)).rowcount:
+            return 'failed'
+        return 'unchanged'
 
 
 def export_database(path: Path) -> bytes:

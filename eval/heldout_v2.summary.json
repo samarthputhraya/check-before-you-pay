@@ -1,0 +1,1003 @@
+{
+ "n": 128,
+ "n_scam": 64,
+ "n_ordinary": 64,
+ "code_settings": {
+  "S1": 50,
+  "high_risk_at": 60,
+  "caution_at": 30
+ },
+ "scam": {
+  "n": 64,
+  "high_risk": 22,
+  "caution": 38,
+  "no_known_signals": 4,
+  "flagged": 60,
+  "flagged_ci95": [
+   0.85,
+   0.975
+  ],
+  "high_risk_ci95": [
+   0.239,
+   0.466
+  ]
+ },
+ "ordinary": {
+  "n": 64,
+  "high_risk": 0,
+  "caution": 0,
+  "no_known_signals": 64,
+  "flagged": 0,
+  "flagged_ci95": [
+   0.0,
+   0.057
+  ],
+  "high_risk_ci95": [
+   0.0,
+   0.057
+  ]
+ },
+ "scam_by_lang": {
+  "en": {
+   "n": 10,
+   "high_risk": 3,
+   "caution": 6,
+   "no_known_signals": 1,
+   "flagged": 9,
+   "flagged_ci95": [
+    0.596,
+    0.982
+   ],
+   "high_risk_ci95": [
+    0.108,
+    0.603
+   ]
+  },
+  "hi": {
+   "n": 10,
+   "high_risk": 5,
+   "caution": 3,
+   "no_known_signals": 2,
+   "flagged": 8,
+   "flagged_ci95": [
+    0.49,
+    0.943
+   ],
+   "high_risk_ci95": [
+    0.237,
+    0.763
+   ]
+  },
+  "hinglish": {
+   "n": 10,
+   "high_risk": 3,
+   "caution": 7,
+   "no_known_signals": 0,
+   "flagged": 10,
+   "flagged_ci95": [
+    0.722,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.108,
+    0.603
+   ]
+  },
+  "mr": {
+   "n": 7,
+   "high_risk": 3,
+   "caution": 3,
+   "no_known_signals": 1,
+   "flagged": 6,
+   "flagged_ci95": [
+    0.487,
+    0.974
+   ],
+   "high_risk_ci95": [
+    0.158,
+    0.75
+   ]
+  },
+  "ta": {
+   "n": 7,
+   "high_risk": 4,
+   "caution": 3,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.25,
+    0.842
+   ]
+  },
+  "te": {
+   "n": 7,
+   "high_risk": 2,
+   "caution": 5,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.082,
+    0.641
+   ]
+  },
+  "kn": {
+   "n": 7,
+   "high_risk": 1,
+   "caution": 6,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.026,
+    0.513
+   ]
+  },
+  "bn": {
+   "n": 6,
+   "high_risk": 1,
+   "caution": 5,
+   "no_known_signals": 0,
+   "flagged": 6,
+   "flagged_ci95": [
+    0.61,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.03,
+    0.564
+   ]
+  }
+ },
+ "ordinary_by_lang": {
+  "en": {
+   "n": 10,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 10,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.278
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.278
+   ]
+  },
+  "hi": {
+   "n": 10,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 10,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.278
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.278
+   ]
+  },
+  "hinglish": {
+   "n": 10,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 10,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.278
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.278
+   ]
+  },
+  "mr": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "ta": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "te": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "kn": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 7,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.354
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "bn": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 6,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.39
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  }
+ },
+ "scam_by_category": {
+  "crypto": {
+   "n": 6,
+   "high_risk": 3,
+   "caution": 3,
+   "no_known_signals": 0,
+   "flagged": 6,
+   "flagged_ci95": [
+    0.61,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.188,
+    0.812
+   ]
+  },
+  "fake_app": {
+   "n": 7,
+   "high_risk": 0,
+   "caution": 7,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.354
+   ]
+  },
+  "fake_sebi": {
+   "n": 6,
+   "high_risk": 3,
+   "caution": 3,
+   "no_known_signals": 0,
+   "flagged": 6,
+   "flagged_ci95": [
+    0.61,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.188,
+    0.812
+   ]
+  },
+  "forex": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 5,
+   "no_known_signals": 0,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.566,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "ipo_institutional": {
+   "n": 7,
+   "high_risk": 3,
+   "caution": 4,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.158,
+    0.75
+   ]
+  },
+  "pump": {
+   "n": 6,
+   "high_risk": 0,
+   "caution": 5,
+   "no_known_signals": 1,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.436,
+    0.97
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.39
+   ]
+  },
+  "recovery": {
+   "n": 5,
+   "high_risk": 2,
+   "caution": 3,
+   "no_known_signals": 0,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.566,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.118,
+    0.769
+   ]
+  },
+  "task_job": {
+   "n": 7,
+   "high_risk": 4,
+   "caution": 3,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.25,
+    0.842
+   ]
+  },
+  "vip_group": {
+   "n": 8,
+   "high_risk": 1,
+   "caution": 4,
+   "no_known_signals": 3,
+   "flagged": 5,
+   "flagged_ci95": [
+    0.306,
+    0.863
+   ],
+   "high_risk_ci95": [
+    0.022,
+    0.471
+   ]
+  },
+  "withdrawal_fee": {
+   "n": 7,
+   "high_risk": 6,
+   "caution": 1,
+   "no_known_signals": 0,
+   "flagged": 7,
+   "flagged_ci95": [
+    0.646,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.487,
+    0.974
+   ]
+  }
+ },
+ "scam_by_ident": {
+  "fake_valid": {
+   "n": 4,
+   "high_risk": 3,
+   "caution": 1,
+   "no_known_signals": 0,
+   "flagged": 4,
+   "flagged_ci95": [
+    0.51,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.301,
+    0.954
+   ]
+  },
+  "link": {
+   "n": 13,
+   "high_risk": 0,
+   "caution": 12,
+   "no_known_signals": 1,
+   "flagged": 12,
+   "flagged_ci95": [
+    0.667,
+    0.986
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.228
+   ]
+  },
+  "none": {
+   "n": 14,
+   "high_risk": 0,
+   "caution": 11,
+   "no_known_signals": 3,
+   "flagged": 11,
+   "flagged_ci95": [
+    0.524,
+    0.924
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.215
+   ]
+  },
+  "phone": {
+   "n": 10,
+   "high_risk": 0,
+   "caution": 10,
+   "no_known_signals": 0,
+   "flagged": 10,
+   "flagged_ci95": [
+    0.722,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.278
+   ]
+  },
+  "upi": {
+   "n": 23,
+   "high_risk": 19,
+   "caution": 4,
+   "no_known_signals": 0,
+   "flagged": 23,
+   "flagged_ci95": [
+    0.857,
+    1.0
+   ],
+   "high_risk_ci95": [
+    0.629,
+    0.93
+   ]
+  }
+ },
+ "ordinary_by_category": {
+  "broker_valid_upi": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "chit_fund": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "donation": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "education_fee": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "family_request": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "farm_inputs": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "forward_share": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "friend_index_fund": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "gold_scheme": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "insurance": {
+   "n": 2,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 2,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.658
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.658
+   ]
+  },
+  "medical_fee": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "profit_share": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "refund": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "rent_deposit": {
+   "n": 5,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 5,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.434
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.434
+   ]
+  },
+  "salary_advance": {
+   "n": 2,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 2,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.658
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.658
+   ]
+  },
+  "shop_bill": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "sip_reminder": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  },
+  "utility_maintenance": {
+   "n": 4,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 4,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.49
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.49
+   ]
+  },
+  "wedding_gift": {
+   "n": 3,
+   "high_risk": 0,
+   "caution": 0,
+   "no_known_signals": 3,
+   "flagged": 0,
+   "flagged_ci95": [
+    0.0,
+    0.562
+   ],
+   "high_risk_ci95": [
+    0.0,
+    0.562
+   ]
+  }
+ },
+ "latency_ms": {
+  "p50": 3280,
+  "p95": 4880,
+  "max": 6382,
+  "n": 128
+ },
+ "unchecked_final": {
+  "domain_age": 12
+ },
+ "unchecked_first_attempt": {
+  "domain_age": 12
+ },
+ "rows_with_domains": 14,
+ "retried_rows": 0,
+ "signal_fire_counts": {
+  "S1": {
+   "scam": 25,
+   "ordinary": 0
+  },
+  "S2": {
+   "scam": 5,
+   "ordinary": 0
+  },
+  "S3": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S4": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S5": {
+   "scam": 0,
+   "ordinary": 0
+  },
+  "S6": {
+   "scam": 61,
+   "ordinary": 0
+  },
+  "S7": {
+   "scam": 0,
+   "ordinary": 0
+  }
+ },
+ "what_if_s1": {
+  "35": {
+   "scam_high_risk": 20,
+   "scam_caution": 40,
+   "scam_missed": 4,
+   "scam_flagged": 60,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 64,
+   "n_ord": 64,
+   "scam_high_risk_ids_gained": [],
+   "ord_high_risk_ids": []
+  },
+  "40": {
+   "scam_high_risk": 20,
+   "scam_caution": 40,
+   "scam_missed": 4,
+   "scam_flagged": 60,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 64,
+   "n_ord": 64,
+   "scam_high_risk_ids_gained": [],
+   "ord_high_risk_ids": []
+  },
+  "45": {
+   "scam_high_risk": 21,
+   "scam_caution": 39,
+   "scam_missed": 4,
+   "scam_flagged": 60,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 64,
+   "n_ord": 64,
+   "scam_high_risk_ids_gained": [],
+   "ord_high_risk_ids": []
+  },
+  "50": {
+   "scam_high_risk": 22,
+   "scam_caution": 38,
+   "scam_missed": 4,
+   "scam_flagged": 60,
+   "ord_caution": 0,
+   "ord_high_risk": 0,
+   "ord_flagged": 0,
+   "n_scam": 64,
+   "n_ord": 64,
+   "scam_high_risk_ids_gained": [],
+   "ord_high_risk_ids": []
+  }
+ },
+ "missed_scams": [
+  {
+   "id": "h_hi_s01",
+   "score": 5,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 5,
+     "kind": "quote",
+     "evidence": "सीटें सीमित हैं।"
+    }
+   ],
+   "category": "vip_group",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": false,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "h_hi_s08",
+   "score": 10,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 10,
+     "kind": "quote",
+     "evidence": "सिर्फ़ भरोसे वालों को बता रहे हैं।"
+    }
+   ],
+   "category": "pump",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": null,
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "h_en_s01",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "Welcome to Alpha Wealth Circle (Invite Only) | Only 50 seats left this month"
+    }
+   ],
+   "category": "vip_group",
+   "ident": "link",
+   "unchecked": [
+    "domain_age"
+   ],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "banknifty",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  },
+  {
+   "id": "h_mr_s01",
+   "score": 15,
+   "signals": [
+    {
+     "id": "S6",
+     "points": 15,
+     "kind": "quote",
+     "evidence": "आमच्या खास VIP शेअर मार्केट ग्रुपमध्ये फक्त निवडक लोकांनाच प्रवेश मिळतो | जागा मर्यादित आहेत"
+    }
+   ],
+   "category": "vip_group",
+   "ident": "none",
+   "unchecked": [],
+   "s1_diag": {
+    "upi_ids": [],
+    "non_valid_upi": [],
+    "investment_regex": "शेअर मार्केट",
+    "investment_claim": true,
+    "payment_verb": false
+   }
+  }
+ ],
+ "flagged_ordinary": [],
+ "meta": {
+  "measured_at": "2026-10-29T15:32:29.599062+00:00",
+  "models": {
+   "extract": "gemini-flash-lite-latest",
+   "explain": "gemini-flash-lite-latest",
+   "embed": "gemini-embedding-2",
+   "tts": "gemini-3.8-flash-tts"
+  },
+  "model_calls_total": 384,
+  "model_errors": {},
+  "concurrency": 3
+ }
+}

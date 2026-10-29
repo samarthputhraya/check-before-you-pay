@@ -42,7 +42,8 @@ infer consent or automatically identify victims' names; review anonymization
 before committing a real example.
 
 The broker list is consumed directly by the signal engine; RDAP uses the bundled
-IANA bootstrap snapshot. The quiz remains a sample endpoint owned by role C.
+IANA bootstrap snapshot. The quiz API reads `seed/quiz/*.json` directly and
+validates every file when it loads, so the quiz needs no seeding step.
 
 ## Optional phishing feed
 

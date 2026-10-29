@@ -37,3 +37,21 @@ docker run -d --name app --network cbyp --restart always --env-file /opt/cbyp/ap
 docker run -d --name caddy --network cbyp --restart always -p 80:80 -p 443:443 \
   -v /opt/cbyp/Caddyfile:/etc/caddy/Caddyfile:ro -v caddy_data:/data -v caddy_config:/config caddy:2.8
 docker image prune -f >/dev/null
+
+# Hourly online backup of the SQLite file (SQLite's backup API, so it's consistent while the app writes). Keeps 48.
+command -v cron >/dev/null || { apt-get update -q; apt-get install -y -q cron; }
+cat > /etc/cron.hourly/cbyp-backup <<'EOF'
+#!/bin/sh
+docker exec app python -c "
+import os, pathlib, sqlite3, time
+src = pathlib.Path(os.environ.get('SQLITE_PATH', '/data/app.db'))
+out = pathlib.Path('/data/backups'); out.mkdir(exist_ok=True)
+final = out / time.strftime('app-%Y%m%d-%H%M.db'); tmp = final.with_suffix('.tmp')
+s = sqlite3.connect(f'file:{src}?mode=ro', uri=True); t = sqlite3.connect(tmp)
+s.backup(t); t.close(); s.close(); os.replace(tmp, final)
+" || logger -t cbyp-backup "backup failed"
+rm -f /opt/cbyp/data/backups/*.tmp
+ls -1t /opt/cbyp/data/backups/app-*.db 2>/dev/null | tail -n +49 | xargs -r rm -f
+EOF
+chmod 755 /etc/cron.hourly/cbyp-backup
+systemctl enable --now cron

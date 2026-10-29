@@ -1,0 +1,88 @@
+{
+  "quiz_id": "q_hinglish_v1",
+  "lang": "hinglish",
+  "source_note": "Examples written by us from real scam patterns (SEBI, I4C advisories)",
+  "card_title": "Maine {score}/{total} sahi pehchaane. Kya aap kar paoge?",
+  "items": [
+    {
+      "id": "q1",
+      "text": "Bhai log 🔥 USDT me paisa DOUBLE sirf 7 din me, 100% guaranteed!!\n₹10,000 daalo, next week ₹20,000 pakka. Mera AI bot kabhi loss nahi karta 💯\nOffer sirf aaj raat tak, jaldi YES bhejo, Telegram link milega",
+      "answer": "scam",
+      "why": "7 din me paisa double ki 'guarantee' koi asli investment nahi de sakta, aur kabhi loss na karne wala bot hota hi nahi. Kisi anjaan wallet me bheja crypto aam taur pe wapas nahi aata.",
+      "pattern": "crypto_doubling",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q2",
+      "text": "*VIP Jackpot Calls* group me aapka swagat hai 🙏\nKal BANKNIFTY call me members ne ₹2.3 lakh kamaye, upar screenshots dekho 👆\nDaily 3 sure shot calls, 95% accuracy. Seekhna bilkul free hai, Sir ki assistant se WhatsApp pe baat karo: 98XXXXXX21",
+      "answer": "scam",
+      "why": "Bina pooche 'VIP' group me add karna aur profit ke screenshots dikhana wahi tareeka hai jiske baare me SEBI ne warning di hai; aise screenshots aur 'members' aksar nakli hote hain. 'Sure shot' calls aur 95% accuracy ka waada koi registered adviser nahi kar sakta.",
+      "pattern": "vip_tip_group",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q3",
+      "text": "Kaveri Stock Broking: Aapke 28-Oct-2026 ke trades ka contract note aapke registered email pe bhej diya gaya hai. PDF ka password aapka PAN hai (capital letters me). Kuch galat lage toh app ke Help section se humse baat karein.",
+      "answer": "genuine",
+      "why": "Ye asli contract note ki notification jaisa lagta hai: na koi link, na payment, na OTP maanga gaya, sirf email check karne ko bola hai. Phir bhi apne trades broker ke official app me match kar lo.",
+      "pattern": "broker_contract_note",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q4",
+      "text": "Hello ji! Ghar baithe kamai ka mauka 💸\nGoogle Maps pe hotels ko 5-star rating do, har task ₹150, roz ₹3,000 tak.\nPehle 3 task free aur payment turant UPI pe. Uske baad Telegram group me 'merchant task' milega: ₹2,000 deposit karo, ₹2,800 wapas.\nInterested ho toh YES bhejo.",
+      "answer": "scam",
+      "why": "Koi asli job kaam dene ke badle aapse paise nahi maangti. Shuru ke chhote payments sirf bharosa jeetne ke liye hote hain; 'merchant task' ke deposit badhte jaate hain aur phir withdrawal ruk jaata hai.",
+      "pattern": "task_job",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q5",
+      "text": "Kaveri Stock Broking: Trading account me funds add karne ke liye sirf is UPI ID pe pay karein: kaveristock.brk@validhdfc (SEBI Reg. No. INZ000990017). Pay karne se pehle ye UPI ID 'SEBI Check' pe verify kar lein. WhatsApp pe aayi kisi aur UPI ID pe paise na bhejein.",
+      "answer": "genuine",
+      "why": "Ye asli broker ki request lagti hai: UPI ID me SEBI wala @valid handle (@validhdfc) hai, SEBI registration number diya hai, aur pehle verify karne ko kaha hai. Phir bhi pay karne se pehle SEBI Check pe UPI ID match karo, aur ho sake toh funds broker ke official app se hi add karo.",
+      "pattern": "valid_upi_collect",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q6",
+      "text": "Dear client, SEBI ke naye rule ke hisaab se ab saare payments sirf verified 'valid' UPI ID pe honge ✅\nApna ₹25,000 margin top-up hamari verified ID pe bhejo: securetrade.valid@ybl (SEBI Reg. No. INZ000990088)\nAaj hi bhejo warna open positions square-off ho jayengi.",
+      "answer": "scam",
+      "why": "@ ke baad wala hissa dekho: ye ID @ybl pe khatam hoti hai, isliye ye SEBI ka @valid handle nahi hai, chahe naam me 'valid' likha ho. Message me likha registration number kuch saabit nahi karta; UPI ID SEBI Check pe aur number SEBI ki website pe milao.",
+      "pattern": "lookalike_valid_upi",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q7",
+      "text": "Congratulations sir 🎉 Aapke account me ₹2,71,500 ka profit ho gaya hai.\nWithdrawal se pehle 18% TDS + GST (₹48,870) bharna padega, warna account freeze ho jayega.\nTax yahan bhejo: tds.clearance@ibl",
+      "answer": "scam",
+      "why": "TDS aapke paise me se hi katta hai, kabhi alag se UPI pe nahi maanga jaata, aur share ke profit ka tax aap apne ITR me bharte ho. 'Pehle tax bharo, tabhi paisa niklega' ye shart hi sabse badi red flag hai.",
+      "pattern": "withdrawal_fee",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q8",
+      "text": "482913 is your OTP for a payment of Rs 3,999 at BAZAARKART using card XX4321. Valid for 5 minutes. Do NOT share this OTP with anyone. Narmada Bank never asks for your OTP.",
+      "answer": "genuine",
+      "why": "Ye normal bank OTP message hai: koi link nahi hai aur khud likha hai ki OTP kisi ko mat batao. Agar ye payment aapne shuru nahi kiya, toh OTP kisi ko mat do, chahe call karne wala khud ko bank ka bataye, aur card ke peeche likhe number pe bank ko call karo.",
+      "pattern": "bank_alert",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q9",
+      "text": "NSE: Trades executed on 28-Oct-2026 for PAN XXXXX1234X through your broker. Details have been sent to your registered email ID. If you have not done these trades, contact your broker immediately. -NSE",
+      "answer": "genuine",
+      "why": "Exchange aise SMS bhejta hai taaki aap broker ke trades match kar sako: isme na link hai, na payment ki maang, na call karne ka number. Details apne registered email ya broker ke official app me dekho.",
+      "pattern": "exchange_email_notice",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q10",
+      "text": "🚨 IPO JACKPOT 🚨 Next week ke IPO me hamare institutional quota se 100% allotment pakka, listing pe 80% gain expected!\nYe quota sirf hamare VIP app me milta hai, Play Store pe nahi: https://groww-ipo-vip.in/app\nSirf 5 slots bache hain, jaldi karo!",
+      "answer": "scam",
+      "why": "Groww ki asli website groww.in hai; groww-ipo-vip.in alag domain hai, aur asli broker kabhi Play Store ke bahar se app install nahi karwate. Retail IPO me zyada demand hone pe allotment lottery se hota hai, isliye '100% allotment pakka' koi nahi dila sakta.",
+      "pattern": "ipo_allotment_quota",
+      "difficulty": "medium"
+    }
+  ]
+}
