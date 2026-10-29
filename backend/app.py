@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, webhooks
+from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, telegram, webhooks
 from backend.cache import consent_buffer
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
@@ -72,6 +72,19 @@ def base_url(request: Request) -> str:
 
 
 # ---- API --------------------------------------------------------------------
+
+@app.post('/api/telegram/webhook')
+async def telegram_webhook(request: Request, background_tasks: BackgroundTasks) -> dict:
+    telegram.authenticate(request.headers.getlist('x-telegram-bot-api-secret-token'))
+    try:
+        update = telegram.Update.model_validate(await request.json())
+    except (ValueError, ValidationError):
+        raise ApiError(400, 'invalid_request', 'Invalid Telegram update.') from None
+    if update.message is not None:
+        reservation = telegram.reserve(update.update_id)
+        if reservation is not None:
+            background_tasks.add_task(telegram.process, update, reservation)
+    return {'ok': True}
 
 @app.api_route("/api/health", methods=["GET", "HEAD"], response_model=HealthResponse)
 def health(response: Response) -> HealthResponse:
