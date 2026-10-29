@@ -14,6 +14,7 @@ SRC=$(mktemp -d)
 git archive "$REF" | tar -x -C "$SRC"   # committed files only: never .env, .venv or data
 gcloud builds submit "$SRC" --tag "$IMAGE" --project "$P" --quiet
 rm -rf "$SRC"
-gcloud compute instances add-metadata "$VM" --zone "$ZONE" --project "$P" --metadata image="$IMAGE"
+gcloud compute instances add-metadata "$VM" --zone "$ZONE" --project "$P" --metadata image="$IMAGE" \
+  --metadata-from-file startup-script=deploy/gce/startup.sh
 gcloud compute ssh "$VM" --zone "$ZONE" --project "$P" --quiet --command "sudo google_metadata_script_runner startup"
 echo "Deployed $SHA"
