@@ -51,6 +51,26 @@ PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None)
 _DIRECTIVE = re.compile(r'ignore\s+(?:all\s+)?(?:your|previous|prior)\s+instructions?[^\n.!?]*(?:[.!?]|$)', re.I)
 
 
+# Voice notes dictate payment IDs ("stockpro dot desk at ybl"). Only a known UPI handle after "at", and a name that
+# was spelled with a dot or is a 10-digit number, is rewritten, so "pay at paytm" or "meet at sbi" stay as said.
+_PSP = (r'ybl|ibl|axl|okaxis|okhdfcbank|okicici|oksbi|paytm|ptyes|ptaxis|pthdfc|ptsbi|apl|yapl|rapl|abfspay|axisbank|'
+        r'icici|hdfcbank|sbi|kotak|idfcbank|upi|freecharge|jupiteraxis|naviaxis|waaxis|wahdfcbank|waicici|wasbi|airtel|'
+        r'jio|valid\w*')
+_SPOKEN_ID = re.compile(r'(?<![\w@.])([A-Za-z0-9_][\w-]*(?:(?:\s*\.\s*|\s+(?:dot|डॉट)\s+)[\w-]+)*)\s+(?:at|एट|ऐट)\s+'
+                        r'(' + _PSP + r')\b', re.I)
+_SPOKEN_DOT = re.compile(r'\s*(?:\.|\bdot\b|डॉट)\s*', re.I)
+
+
+def written_ids(transcript: str) -> str:
+    def rewrite(m: re.Match) -> str:
+        name = m.group(1)
+        spelled = re.search(r'[A-Za-z]', name) and _SPOKEN_DOT.search(name)
+        if not spelled and not re.fullmatch(r'\d{10}', name):
+            return m.group(0)
+        return _SPOKEN_DOT.sub('.', name) + '@' + m.group(2).lower()
+    return _SPOKEN_ID.sub(rewrite, transcript)
+
+
 def normalize(text: str) -> str:
     return ' '.join(ZERO_WIDTH.sub('', unicodedata.normalize('NFKC', text)).lower().split())
 
