@@ -16,9 +16,10 @@ from backend.config import MAX_BODY_BYTES
 
 log = logging.getLogger("cbyp")
 
-# /api/check carries base64 files; every other endpoint takes a few hundred bytes of JSON.
+# /api/check carries base64 files; every other endpoint takes a few hundred bytes of JSON. Dodo's webhook carries the
+# whole payment or subscription object (customer, cart, refunds, disputes, metadata), so it gets more room.
 SMALL_BODY_BYTES = 64 * 1024
-_BIG_BODY_PATHS = ("/api/check",)
+_BODY_LIMITS = {"/api/check": MAX_BODY_BYTES, "/api/dodo/webhook": 256 * 1024}
 
 
 class BodyTooLarge(StarletteHTTPException):
@@ -30,7 +31,7 @@ class BodyTooLarge(StarletteHTTPException):
 
 
 def _limit_for(path: str) -> int:
-    return MAX_BODY_BYTES if path in _BIG_BODY_PATHS else SMALL_BODY_BYTES
+    return _BODY_LIMITS.get(path, SMALL_BODY_BYTES)
 
 
 def _cache_control(path: str) -> bytes | None:

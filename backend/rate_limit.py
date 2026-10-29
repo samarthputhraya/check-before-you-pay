@@ -60,8 +60,13 @@ def enforce_quiz(anon_id: str, ip: str) -> None:
                      'Too many quiz answers. Please try again in an hour.')
 
 
-def _enforce_buckets(buckets: list[tuple[str, int]],
-                     message: str = 'Too many checks. Please try again in an hour.') -> None:
+def enforce_checkout(anon_id: str, ip: str) -> None:
+    # A buyer opens checkout once or twice; the IP budget still lets a whole house on one Wi-Fi buy.
+    _enforce_buckets([('checkout:user:' + anon_id, 10), ('checkout:ip:' + _ip_key(ip), 100)],
+                     'Too many checkout attempts. Please try again in an hour.')
+
+
+def _enforce_buckets(buckets: list[tuple[str, int]], message: str = 'Too many checks. Please try again in an hour.') -> None:
     try:
         allowed = db.allow_request(get_settings().sqlite_path, buckets)
     except (sqlite3.Error, OSError):

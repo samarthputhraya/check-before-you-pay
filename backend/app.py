@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db, events as event_proof, llm, pipeline, quiz as quizzes, rate_limit, webhooks
+from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, webhooks
 from backend.cache import consent_buffer
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
@@ -25,14 +25,16 @@ from backend.guard import Guard
 from backend.inputs import validate_check_input
 from backend.privacy import public_view
 from backend.schemas import (
-    AnonId, CheckId, CheckRequest, CheckResponse, CheckView, EventRequest, HealthResponse, Lang,
-    QuizAnswerRequest, QuizAnswerResponse, QuizResponse, ReportRequest, ReportResponse, Share, StatsResponse,
+    AnonId, CheckId, CheckoutRequest, CheckoutResponse, CheckRequest, CheckResponse, CheckView, EventRequest,
+    HealthResponse, Lang, OrderId, OrderResponse, PlansResponse, QuizAnswerRequest, QuizAnswerResponse, QuizResponse,
+    ReportRequest, ReportResponse, Share, StatsResponse,
 )
 from backend.share_page import render_share_page
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logging.getLogger("httpx").setLevel(logging.WARNING)  # it logs full outgoing URLs, and webhook URLs carry secrets
 logging.getLogger("httpx2").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.access").addFilter(payments.RedactReturnQuery())
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -166,9 +168,43 @@ def stats(response: Response) -> StatsResponse:
     if _stats_cache and _stats_cache[1] == path and time.monotonic() - _stats_cache[0] < 15:
         return _stats_cache[2]
     started = time.monotonic()
-    result = db.stats(get_settings().sqlite_path)
+    result = db.stats(get_settings().sqlite_path, payments.config().mode)
     _stats_cache = (time.monotonic(), path, result) if time.monotonic() - started > 0.25 else None
     return result
+
+
+@app.get("/api/plans", response_model=PlansResponse)
+async def plans() -> PlansResponse:
+    cfg = payments.config()
+    return PlansResponse(test_mode=cfg.mode != 'live_mode', plans=await payments.plans(cfg))
+
+
+@app.post("/api/checkout", response_model=CheckoutResponse)
+async def checkout(body: CheckoutRequest, request: Request, response: Response) -> CheckoutResponse:
+    await asyncio.to_thread(rate_limit.enforce_checkout, body.anon_id, rate_limit.client_ip(request))
+    order_id, url = await payments.start_checkout(get_settings().sqlite_path, payments.config(), body.plan,
+                                                  body.anon_id, base_url(request))
+    response.headers['Cache-Control'] = 'no-store'
+    return CheckoutResponse(order_id=order_id, checkout_url=url)
+
+
+@app.get("/api/orders/{order_id}", response_model=OrderResponse)
+def order_status(order_id: str, response: Response) -> OrderResponse:
+    try:
+        _ORDER_ID.validate_python(order_id)
+    except ValidationError:
+        raise ApiError(404, 'not_found', 'No order with that ID.') from None
+    order = db.get_order(get_settings().sqlite_path, order_id)
+    if order is None:
+        raise ApiError(404, 'not_found', 'No order with that ID.')
+    response.headers['Cache-Control'] = 'no-store'  # polled until the webhook lands
+    return OrderResponse(order_id=order['id'], plan=order['plan'], status=order['status'])
+
+
+@app.post("/api/dodo/webhook", include_in_schema=False)
+async def dodo_webhook(request: Request) -> Response:
+    await payments.webhook(get_settings().sqlite_path, request.headers, await request.body())
+    return Response(status_code=200)
 
 
 @app.get('/api/admin/export', include_in_schema=False)
@@ -189,6 +225,7 @@ def api_not_found(path: str) -> Response:
 # ---- Pages ------------------------------------------------------------------
 
 _CHECK_ID = TypeAdapter(CheckId)
+_ORDER_ID = TypeAdapter(OrderId)
 
 
 def _require_check_id(check_id: str) -> None:
