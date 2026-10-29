@@ -1,12 +1,12 @@
 # Handoff: Fri 30 Oct, about 02:00 IST (end of the overnight session)
 
 ## What's live
-- **Site:** https://34-45-129-243.sslip.io runs branch `feat/pricing` (latest deploy: 3cd8c14).
+- **Site:** https://34-45-129-243.sslip.io runs branch `feat/pricing` (latest deploy: 4349060).
   - It was deployed from the branch because merging my own PR into `main` was blocked as "merge without review".
   - `main` is behind until PR #11 merges.
 - **Health:** `/api/health` returns ok; the LLM and the database are up.
 - **Security headers are live:** CSP, X-Frame-Options, Permissions-Policy and HSTS.
-- **Tests:** 523 pass.
+- **Tests:** 536 pass.
 - **Browser check at 360 px in all 8 languages:**
   - headings, overflow, the ring line and back navigation;
   - focus on a report error;
@@ -88,7 +88,7 @@
   - the second message linking to the first by its UPI ID;
   - the share page, the quiz, and a closing slide with the held-out numbers.
 - **How it was recorded:**
-  - On a fresh local database, running the same commit that's live (4422bfb), with the real Gemini key.
+  - On a fresh local database, at commit 4422bfb, with the real Gemini key. The Hindi screens it shows haven't changed since.
   - The live database already holds tonight's test checks. Those would link Sunita's *first* message to earlier ones and spoil the story.
 - **To re-record on the live site** after the stats reset (LAUNCH.md, step 1): `python tools/demo_video.py https://34-45-129-243.sslip.io out_dir`.
 
