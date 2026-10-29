@@ -1,0 +1,7 @@
+{
+  "test_mode": true,
+  "plans": [
+    { "id": "family", "name": "Family", "price_inr": 49, "interval": "month", "available": true },
+    { "id": "api", "name": "API", "price_inr": 999, "interval": "month", "available": false }
+  ]
+}
