@@ -1,12 +1,14 @@
 # Telegram bot
 
-Code is ready for offline review. **Bot creation, a deployed webhook and a real
-test-chat reply are still pending.** No token has been obtained in this session.
+Code is ready for offline review. Risheeth confirmed the public username
+**[CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot)**. The local token,
+deployed webhook and real test-chat reply are still pending. No token has been
+obtained in this session.
 
 ## Setup
 
-1. Risheeth opens the official `@BotFather` in Telegram and creates a bot with
-   `/newbot`. Choose an available public username and retain its token privately.
+1. Risheeth retains the token for `@CheckBeforeYouPayBot` privately from the
+   official `@BotFather` chat. The bot username has already been confirmed.
 2. Set `TELEGRAM_BOT_TOKEN` and a separate random `TELEGRAM_WEBHOOK_SECRET` in
    `.env`. The webhook secret must be 32–256 characters using letters, digits,
    `_` or `-`. Set the existing random `IDENTIFIER_SALT` (32+ characters) and
@@ -17,7 +19,8 @@ test-chat reply are still pending.** No token has been obtained in this session.
    Bot API URLs should appear in logs.
 4. After deployment, run `python -m backend.telegram_setup`. It calls Telegram's
    `setWebhook` with `secret_token`, only `message` updates and four connections.
-   It checks `getWebhookInfo` without printing the token or webhook URL. It does
+   It verifies `getMe` matches `CheckBeforeYouPayBot` before changing anything,
+   then checks `getWebhookInfo` without printing the token or webhook URL. It does
    not discard pending updates. Missing configuration fails closed.
 5. Keep the bot in private chats for this demo. Group messages and other update
    types are acknowledged and ignored, so the bot does not process bystanders'

@@ -11,6 +11,10 @@ from backend.config import get_settings
 async def setup() -> None:
     secret = os.getenv('TELEGRAM_WEBHOOK_SECRET', '')
     telegram.authenticate([secret])
+    identity = await telegram.api('getMe', {})
+    if (not isinstance(identity, dict) or identity.get('is_bot') is not True
+            or str(identity.get('username', '')).casefold() != 'checkbeforeyoupaybot'):
+        raise telegram.TelegramUnavailable()
     result = await telegram.api('setWebhook', {
         'url': get_settings().public_base_url + '/api/telegram/webhook',
         'secret_token': secret, 'allowed_updates': ['message'], 'max_connections': 4,
