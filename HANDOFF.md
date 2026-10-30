@@ -94,18 +94,24 @@
   - **No effect on the numbers above:** the eval runs every message on a fresh database, so S4 and S5 never fire there.
 
 ## Demo video
-- **File:** [`docs/demo.mp4`](docs/demo.mp4): 88 s, phone-sized, narrated in English.
-- **What it shows:**
-  - Sunita's Hindi check, then the evidence;
-  - Listen, with the verdict's real Hindi audio;
-  - the second message linking to the first by its UPI ID;
-  - the share page, the quiz, and a closing slide with the held-out numbers.
-- **How it was recorded:**
-  - On a fresh local database, at commit 4422bfb, with the real Gemini key. The Hindi screens it shows haven't changed since.
-  - The live database already holds tonight's test checks. Those would link Sunita's *first* message to earlier ones and spoil the story.
-- **To re-record:** run `python tools/demo_video.py http://127.0.0.1:8000 out_dir` against a fresh local server.
-  - It uses a `u_test` ID now, so a recording never counts in `/stats`.
-  - Don't record on the live site before the pitch: it runs message 2, and the demo needs message 2 to be new.
+- **File:** [`docs/demo.mp4`](docs/demo.mp4): 3 min 35 s, 1920x1080 at 60 fps. The 2560x1440 master for YouTube is
+  `C:\Users\samar\Videos\CheckBeforeYouPay_demo_1440p60.mp4` (96 MB, too big for GitHub). English narration over a soft
+  instrumental bed (made with Lyria 3.5) that dips under the voice; -14 LUFS. Rebuilt 31 Oct, 01:05.
+- **What it shows**, with English and Hindi phones side by side throughout (Arjun and Sunita):
+  1. the ₹22,495 crore problem, and how the scam works (VIP group, look-alike broker app, personal UPI ID);
+  2. both paste the same scam and get high risk in under 4 seconds (real check times), then the evidence;
+  3. Listen: the app's own Hindi and English audio;
+  4. **a real iPhone voice note** (Risheeth reading a sample scam script, 30 Oct): the spoken UPI ID is caught,
+     high risk 90 in both apps;
+  5. the next message linked by its UPI ID, the share page and the quiz;
+  6. the four real Telegram checks with server times, how it stays trustworthy, and the held-out numbers;
+  7. the 40-second build timelapse from the hotel room, narrated day by day, then the QR code.
+- **How it was made:** every phone screen is a real capture from fresh local servers at the PR #19 code with the real
+  Gemini key; nothing is mocked. `tools/demo_bilingual/` rebuilds it (capture.py, capture_voice.py, build.py). The voice
+  note and the timelapse stay outside Git.
+- **Fixed on the way:** the TTS model returns a whole WAV file with a provenance chunk at the end, and the first video's
+  code played those bytes as sound. That was the click and noise at the end of every narration line.
+- **Not in it:** a screen recording of the Telegram chat itself.
 
 ## Known limits
 - The model's reading of a message varies a little between runs, even at temperature 0. Same message, different run: the band can move between caution and high risk.

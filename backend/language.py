@@ -91,12 +91,15 @@ _LATIN_TOKENS = re.compile(r'\S*[.@…/]\S*|\b[A-Z]{2,}\b')
 # or reports is a made-up fact (live, 30 Oct: "पुरानी शिकायतों से जुड़ा है", "linked to old complaints"). Advice to
 # report ("report it on 1930", "1930 पर रिपोर्ट करें") is fine, so only complaint words and "reported"/plural forms count.
 _COMPLAINT = re.compile(r'complain|\breported\b|\breports\b|\breport\s+ho\b|shikayat|शिकायत|तक्रार|रिपोर्टों|रिपोर्टें'
-                        r'|रिपोर्ट\s+(?:हो|की\s+गई|किया\s+गया|झाल)|புகார்|ఫిర్యాదు|రిపోర్ట్‌లు|ದೂರು|ರಿಪೋರ್ಟ್‌ಗಳ|অভিযোগ', re.I)
+                        r'|रिपोर्ट\s+(?:हो|हुआ|हुई|हुए|की\s+गई|किया\s+गया|झाल)|புகார்|ఫిర్యాదు|రిపోర్ట్‌లు|ದೂರು|ರಿಪೋರ್ಟ್‌ಗಳ|অভিযোগ', re.I)
 # People check a message, screenshot or voice note, so "this site" is wrong unless it has a link, and saying a check
 # didn't run when every check ran is a made-up fact (live, 30 Oct: "No risk signals were found for this site." for a
 # voice note, and "some checks could not be completed" with nothing skipped). English only; the prompt covers the rest.
 _THIS_SITE = re.compile(r'\bthis (?:web)?site\b', re.I)
 _SKIPPED = re.compile(r"\b(?:could|were|was|did)(?:n't| not) (?:be )?(?:completed|run|finished|done)\b", re.I)
+# Everyday English words in Latin letters inside a Hindi or Tamil sentence read as broken text (live, 30 Oct: "इस message
+# में दिए गए payment handle"). Masked IDs, links, acronyms and capitalised names (Zerodha, Bank Nifty) are fine.
+_LATIN_WORD = re.compile(r'\b[a-z]{3,}\b')
 
 
 # The danda (।, ॥) sits in the Devanagari block but ends sentences in Bengali too: punctuation, not a script mix.
@@ -125,6 +128,8 @@ def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0, skipped:
     # Hinglish option, not Hindi, and the speech for it sounds wrong. Most letters must be in the language's script.
     latin = sum(ch.isascii() and ch.isalpha() for ch in _LATIN_TOKENS.sub(' ', text))
     if own and native <= latin:
+        return False
+    if own and _LATIN_WORD.search(_LATIN_TOKENS.sub(' ', text)):
         return False
     if not reports and _COMPLAINT.search(text):
         return False

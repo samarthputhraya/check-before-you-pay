@@ -8,6 +8,23 @@
 
 **Main checked:** `95fafa9`, including merged PR #17.
 
+## Update, Fri 30 Oct evening (Samarth, with Claude; Risheeth's session hit its usage limit)
+
+- **Merged and tested together:** #9, #10, #13, #14 and #16, in PR #18 with 562 passing tests. PR #18 needs a person to
+  merge it; the live site then gets deployed from main.
+- **New fixes from the phone tests:** verdict explanations no longer call a forwarded message "this site" or say checks
+  were skipped when none were; Hindi and Marathi explanations are written in Devanagari ("मैसेज", not "message"), with a
+  guard that falls back to the fixed text; "रिपोर्ट हुआ" counts as claiming reports.
+- **Replay tool:** `python tools/replay_check.py <file>` prints the transcript of a saved voice note or screenshot on a
+  fresh database. The original failed iPhone M4A is still on Risheeth's phone; send it and the cause takes one command.
+- **Emulated Android Chrome passed** (screenshot, voice note, Listen). See PHONE_ACCEPTANCE.md. A physical Android
+  phone is still untested.
+- **Secret scan** rerun on the public repo: 184 commits, clean.
+- **Still needs a person:** fluent Hindi/Hinglish approval of the 20 quiz items (the six fixes are applied), the
+  viaSocket clip, relabelling `u_97a8807e646cf425` in the live database, and the original M4A.
+- **Dropped for this deadline:** the ten-voice-note gate, real-message collection and the real-data evaluation, and the
+  reusable viaSocket template. No real-data result is claimed anywhere.
+
 ## Overall position
 
 Most implementation work is delivered, and several integrations are live.

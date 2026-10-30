@@ -65,6 +65,15 @@ def test_explanation_matches_what_was_checked(text, skipped, link, ok):
     assert language.explanation_ok(text, 'en', 'caution', skipped=skipped, link=link) is ok
 
 
+@pytest.mark.parametrize(('text', 'ok'), [
+    ('इस message में दिए गए payment handle और kite-zerodha-pro.in लिंक पर भरोसा न करें।', False),  # seen live
+    ('इस मैसेज का पेमेंट हैंडल tr…@ybl SEBI का @valid हैंडल नहीं है, और kite-zerodha-pro.in असली Zerodha नहीं है।', True),
+    ('यह मैसेज पहले भी रिपोर्ट हुआ है।', False),  # seen live; nobody had reported it
+])
+def test_hindi_explanations_stay_in_devanagari(text, ok):
+    assert language.explanation_ok(text, 'hi', 'high_risk') is ok
+
+
 def signal(id, text, kind='lookup'):
     return Signal(id=id, points=10, label='x', evidence=Evidence(kind=kind, text=text, source_url=None))
 

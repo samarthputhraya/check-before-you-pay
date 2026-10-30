@@ -8,3 +8,7 @@ node_modules/
 data/
 .playwright-mcp/
 .claude/worktrees/
+
+tools/demo_bilingual/cap/
+tools/demo_bilingual/work/
+tools/demo_bilingual/*.mp4
