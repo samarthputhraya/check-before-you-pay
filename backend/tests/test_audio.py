@@ -25,6 +25,13 @@ def wav(seconds=1):
     return output.getvalue()
 
 
+@pytest.fixture(autouse=True)
+def no_recent_failures():
+    audio._failed.clear()
+    yield
+    audio._failed.clear()
+
+
 @pytest.fixture
 def saved(tmp_path, monkeypatch):
     path = tmp_path / 'audio.db'
@@ -59,6 +66,7 @@ def test_audio_masked_and_persistently_cached(saved, monkeypatch, lang):
     spoken = tts.call_args.args[0]
     assert view.headline in spoken and view.next_steps[0].text in spoken
     assert 'sample@ybl' not in spoken and 'not spoken' not in spoken
+    assert '…' not in spoken and audio.SPOKEN_UPI[lang] in spoken  # the masked ID is named, not spelled out
     with db.session(path) as con:
         assert con.execute('SELECT COUNT(*) FROM verdict_audio').fetchone()[0] == 1
 
@@ -74,7 +82,10 @@ def test_failure_clean_and_retryable(saved, monkeypatch, failure):
         assert response.status_code == 503
         assert response.json()['error']['code'] == 'audio_unavailable'
         assert 'private detail' not in response.text
-    assert tts.await_count == 2
+    assert tts.await_count == 1  # a retry within a minute doesn't spend the TTS quota again
+    monkeypatch.setattr(audio, 'RETRY_AFTER', 0.0)
+    assert TestClient(app).get(f'/api/check/{view.check_id}/audio').status_code == 503
+    assert tts.await_count == 2  # after the backoff it does try again
 
 
 def test_missing_check_does_not_synthesize(saved, monkeypatch):

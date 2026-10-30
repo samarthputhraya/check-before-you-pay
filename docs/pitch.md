@@ -31,7 +31,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 - Open https://34-45-129-243.sslip.io on the demo phone. Set the language to **हिन्दी**.
 - Copy both messages below into the phone's notes app.
 - Keep WhatsApp logged in.
-- Have the backup video open in another tab.
+- Have the backup video open in another tab: [`docs/demo.mp4`](demo.mp4) (88 s, narrated, the same two messages; re-record with `tools/demo_video.py` after the stats reset).
 
 **Message 1, Sunita's** (sample; every ID is made up):
 
@@ -83,8 +83,8 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
    - The verdict comes from deterministic checks the model can't change: the SEBI @valid rule, look-alike broker domains, domain age, and links to earlier reports.
    - The model only reads screenshots and voice notes and explains the result in eight languages.
 8. **How do you know it works?**
-   - On 128 messages we never tuned on, written blind, in eight languages, it flagged 60 of 64 scams and none of 64 ordinary payments, including 33 bills and family requests to personal UPI IDs.
-   - Before this week's changes it caught 39%; the method, the data and the four misses are public in the repo.
+   - On 128 messages we never tuned on, written blind, in eight languages, it flagged 61 of 64 scams and none of 64 ordinary payments, including 33 bills and family requests to personal UPI IDs.
+   - Before this week's changes it caught 39%; the method, the data and the three misses are public in the repo.
 9. **How do you stop people gaming it, or scammers testing against it?**
    - Scammers can change UPI IDs but not the rule that real brokers collect through @valid handles.
    - Every new identifier links back to earlier reports through the same scripts and links.
@@ -98,10 +98,10 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | Cases in 2025 | 28.15 lakh | same |
 | SEBI's warning on WhatsApp tip groups | 22 Oct 2026 | Business Today |
 | SEBI-registered brokers collect through | @valid UPI handles (since 1 Oct 2025) | SEBI circular, 11 June 2025 |
-| Scams flagged, 128 held-out messages in 8 languages | 60 of 64 (94%) | docs/EVAL.md |
+| Scams flagged, 128 held-out messages in 8 languages | 61 of 64 (95%) | docs/EVAL.md |
 | Ordinary payments flagged (bills, rent, family, real brokers) | 0 of 64 | docs/EVAL.md |
 | Before this week's scoring changes | 25 of 64 (39%) | same set, same day |
-| Time per check | 3.3 s typical, 4.9 s slowest 1 in 20 | same run |
+| Time per check | 2.3 s typical, 2.8 s slowest 1 in 20 | same run |
 
 ## Delivery notes
 

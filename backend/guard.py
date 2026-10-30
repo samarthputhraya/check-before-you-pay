@@ -6,13 +6,16 @@ exception before uvicorn would log a traceback that could contain a user's messa
 """
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import logging
+import re
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from backend.config import MAX_BODY_BYTES
+from backend.config import MAX_BODY_BYTES, WEB_DIR
 
 log = logging.getLogger("cbyp")
 
@@ -28,6 +31,24 @@ class BodyTooLarge(StarletteHTTPException):
     def __init__(self, limit: int) -> None:
         msg = "Files can be at most 5 MB." if limit == MAX_BODY_BYTES else "The request body is too large."
         super().__init__(status_code=413, detail=msg)
+
+
+def _content_security_policy() -> bytes:
+    """Only our own scripts run. The one inline script, index.html's import map, is allowed by its hash, computed
+    here so an edit to it can't silently break the page. Inline style attributes stay allowed (the stats bars)."""
+    try:
+        inline = re.search(r'<script type="importmap">(.*?)</script>', (WEB_DIR / 'index.html').read_text(encoding='utf-8'),
+                           re.S).group(1)
+        script = "'self' 'sha256-" + base64.b64encode(hashlib.sha256(inline.encode()).digest()).decode() + "'"
+    except (OSError, AttributeError):
+        script = "'self'"
+    return ("default-src 'self'; script-src " + script + "; style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; manifest-src 'self'; object-src 'none'; "
+            "base-uri 'none'; form-action 'self'; frame-ancestors 'none'").encode()
+
+
+_SECURITY_HEADERS = [(b"content-security-policy", _content_security_policy()), (b"x-frame-options", b"DENY"),
+                     (b"permissions-policy", b"camera=(), microphone=(), geolocation=(), payment=()")]
 
 
 def _limit_for(path: str) -> int:
@@ -94,6 +115,7 @@ class Guard:
                     hdrs.append((b"x-content-type-options", b"nosniff"))
                 if b"referrer-policy" not in names:
                     hdrs.append((b"referrer-policy", b"strict-origin-when-cross-origin"))
+                hdrs += [(k, v) for k, v in _SECURITY_HEADERS if k not in names]
                 if cache and b"cache-control" not in names:
                     hdrs.append((b"cache-control", cache))
                 message = {**message, "headers": hdrs}

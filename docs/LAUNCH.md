@@ -31,6 +31,10 @@ On the demo phone, run the pitch's message 1 once (`docs/pitch.md`, section 3), 
 
 ## 4. Watch it during the day
 - **Live numbers:** `/stats`, which refreshes every 30 s.
+- **Downtime alert:** Google Cloud checks `/api/health` every 5 minutes from Asia, the US and Europe. If it fails from 2 or more regions for 10 minutes, Samarth gets an email. That's uptime check `cbyp-health` and alert policy "Check Before You Pay is down".
+- **Measured headroom (29 Oct, 23:20):**
+  - 30 simultaneous cached checks: all succeeded, at 1.3 s typical.
+  - 12 simultaneous fresh checks in 5 languages: all complete, at 3.2 s typical and 3.5 s at worst.
 - **Health:** `/api/health`. If `llm` says `down`, the Gemini quota or key is the first suspect.
 - **Logs:** `gcloud compute ssh cbyp-web --zone us-central1-a --command "sudo docker logs --tail 100 app"`. They never contain message text.
 - **Backups** run every hour to `/opt/cbyp/data/backups/`, which keeps the latest 48. For an off-machine copy:

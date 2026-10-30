@@ -33,6 +33,10 @@ async def bounded(task: Awaitable[T], seconds: float) -> T | None:
         return None
 
 
+# Plain names for the shared identifiers behind S4, in its English evidence (which the explanation model also reads).
+VIA_NAMES = {'same_upi': 'UPI ID', 'same_phone': 'phone number', 'same_domain': 'website', 'same_group_link': 'group link',
+             'same_wallet': 'wallet address'}
+
 async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResponse:
     started = time.perf_counter()
     created = time.time()
@@ -81,7 +85,7 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
             else:
                 unchecked.append('transcription')
     if not text.strip():
-        raise ApiError(503, 'check_unavailable', 'We could not read this file. Paste the message text or send a clearer file.')
+        raise ApiError(422, 'unreadable_file', 'We could not read this file. Paste the message text or send a clearer file.')
     text = text[:20000]
     clean = source_text(text)
     regex = regex_extract(clean)
@@ -128,11 +132,15 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     if 'links' not in unchecked:
         kinds = [v for v in ring.via if v != 'same_script']
         if kinds:
+            n = ring.linked_checks
+            wording = ' or the same wording' if 'same_script' in ring.via else ''
             signals.append(signal('S4', min(weights.S4_CAP, len(kinds) * weights.S4_PER_TYPE),
-                'Linked to earlier reports', f'{ring.linked_checks} earlier high-risk checks or reported checks; links: {", ".join(kinds)}'))
+                'Linked to earlier flagged checks', f'Linked to {n} earlier check{"" if n == 1 else "s"} on this site that '
+                f'{"was" if n == 1 else "were"} high risk or reported, through the same '
+                f'{", ".join(VIA_NAMES[k] for k in kinds)}{wording}'))
         if script_count:
-            signals.append(signal('S5', weights.S5, 'Matching message script',
-                                   f'{script_count} earlier high-risk or reported checks match this script'))
+            signals.append(signal('S5', weights.S5, 'Matching message script', f'{script_count} earlier '
+                                  f'check{" on this site that was high risk or reported matches" if script_count == 1 else "s on this site that were high risk or reported match"} this wording'))
     signals.sort(key=lambda s: s.id)
     total, band = score(signals)
     unchecked = sorted(set(unchecked))
@@ -140,7 +148,8 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
     localized = language.localize(signals, body.lang)
     generated = await bounded(llm.explain(signals, band, body.lang, unchecked),
                               min(8, deadline - time.perf_counter() - 0.25))
-    if generated and not re.search(r'\b(?:safe|genuine|scammer)\b|\b100\s*%', generated.explanation, re.I):
+    if (generated and not re.search(r'\b(?:safe|genuine|scammer)\b|\b100\s*%', generated.explanation, re.I)
+            and language.explanation_ok(generated.explanation, body.lang, band, ring.linked_reports)):
         explanation = mask_text(generated.explanation)
         # Lookup translations may change words, never source facts, numbers or quote evidence.
         if [s.id for s in generated.signals] == [s.id for s in signals]:
@@ -151,6 +160,10 @@ async def run_check(body: CheckRequest, inp: ValidInput, base: str) -> CheckResp
                         'evidence':original.evidence.model_copy(update={'text':mask_text(translated.evidence)})})
     else:
         headline, explanation, steps = language.fallback(band, body.lang, unchecked)
+    # Informational evidence after scoring/explanation; model inputs and scoring rules are unchanged.
+    for domain, (age, url) in sorted(ages.items()):
+        if age == lookups.UNREGISTERED:
+            localized.append(language.unregistered(domain, url, body.lang))
     result = CheckResponse(check_id=check_id, band=band, score=total, lang=body.lang,
         headline=headline, explanation=explanation, signals=localized, entities=display_entities(extracted),
         ring=ring, next_steps=steps, share=Share(url=share_url, card_title=headline), transcript=transcript,
