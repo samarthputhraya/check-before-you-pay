@@ -41,3 +41,12 @@ review; never paste a candidate value into a PR or chat.
 
 Sources: [Standard Webhooks public tests](https://github.com/standard-webhooks/standard-webhooks/blob/main/libraries/python/tests/test_webhooks.py),
 [MIT license text](https://opensource.org/license/mit).
+
+## Follow-up scan, 30 October
+
+After fetching main `f5b4267` and Samarth's deployed `ops/launch` branch,
+the local integration at `df2c3ef` passed the same scan over **178 reachable
+commits**. No `.env` or `.env.railway` path was committed. The only candidates
+remain the two exact public test vectors described above. This snapshot includes
+the pending Role B branches and PR #17; rerun after later commits before making
+the repository public. No repository visibility change was made.
