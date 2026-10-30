@@ -11,7 +11,7 @@ docs/EVAL.md. If a number changes there, change it here too.
 | Live numbers | https://34-45-129-243.sslip.io/stats (reset to zero at 08:13 on Fri 30 Oct; our own testing never counts) |
 | Quiz | https://34-45-129-243.sslip.io/quiz |
 | Code | https://github.com/samarthputhraya/check-before-you-pay |
-| Demo video (3 min 35 s, English and Hindi side by side, with the build timelapse) | https://github.com/samarthputhraya/check-before-you-pay/blob/main/docs/demo.mp4 (upload it to YouTube as unlisted if the form wants a video link) |
+| Demo video (3 min 46 s film: motion graphics, English and Hindi side by side, the build timelapse) | https://github.com/samarthputhraya/check-before-you-pay/blob/main/docs/demo.mp4 (upload it to YouTube as unlisted if the form wants a video link) |
 | Telegram bot | https://telegram.me/CheckBeforeYouPayBot |
 | QR code for posters and slides | [`docs/qr-live.png`](qr-live.png), which opens the site with `?ref=u_qr_poster` |
 | A4 poster with the QR, ready to print | [`docs/poster.pdf`](poster.pdf) (preview: [`docs/poster.png`](poster.png)); rebuild with `python tools/poster.py` |

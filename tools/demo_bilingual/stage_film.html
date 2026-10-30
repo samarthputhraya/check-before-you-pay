@@ -1,0 +1,531 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Devanagari:wght@500;600;700&display=block" rel="stylesheet">
+<style>
+:root { --bg: #07090a; --ink: #f2f5f3; --soft: #9aa6a0; --faint: #5d6862; --line: rgba(255,255,255,.09);
+  --green: #2bd47f; --green-d: #0b6839; --red: #ff5d5d; --red-bg: rgba(255,93,93,.12); --amber: #ffb547; --blue: #7aa7ff; --tg: #2aabee; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink);
+  font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; -webkit-font-smoothing: antialiased; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.hi { font-family: 'Noto Sans Devanagari', 'Inter', sans-serif; }
+#bg { position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1.2px); background-size: 28px 28px; }
+#vignette { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(0,0,0,.65) 100%); z-index: 50; }
+.layer { position: absolute; inset: 0; opacity: 0; }
+/* chapter + captions */
+#chapter { position: absolute; left: 64px; top: 46px; z-index: 60; display: flex; align-items: center; gap: 14px; opacity: 0;
+  font: 700 17px 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+#chapter i { display: block; width: 36px; height: 2px; background: var(--green); }
+#caption { position: absolute; left: 0; right: 0; bottom: 34px; z-index: 60; text-align: center; }
+#caption span { display: inline-block; max-width: 1500px; padding: 10px 22px; border-radius: 14px; background: rgba(5,7,6,.72);
+  border: 1px solid var(--line); font-size: 29px; font-weight: 500; line-height: 1.35; color: #fff; opacity: 0; }
+#brand { position: absolute; right: 56px; top: 42px; z-index: 60; display: flex; align-items: center; gap: 10px; opacity: 0;
+  font-size: 18px; font-weight: 700; color: var(--soft); }
+#brand img { width: 28px; height: 28px; border-radius: 7px; }
+/* phones rig */
+#rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.phone { position: absolute; top: 108px; width: 412px; height: 864px; border-radius: 60px; background: #0d0f10;
+  box-shadow: 0 0 0 1.5px #2c3134, inset 0 0 0 2px #1b1f21, 0 50px 120px -30px rgba(0,0,0,.9), 0 0 80px -20px rgba(43,212,127,.10); }
+.phone .screen { position: absolute; left: 12px; top: 12px; width: 388px; height: 840px; border-radius: 48px; overflow: hidden; background: #fff; }
+.phone .screen img { position: absolute; left: 0; top: 46px; width: 388px; opacity: 0; will-change: transform, opacity; }
+.phone .status { position: absolute; left: 0; top: 0; width: 388px; height: 46px; background: #f6f7f5; z-index: 4;
+  display: flex; justify-content: space-between; align-items: center; padding: 6px 30px 0 34px; color: #111; font: 600 16px 'Inter'; }
+.phone .status svg { display: block; }
+.phone .island { position: absolute; left: 50%; top: 22px; width: 112px; height: 32px; margin-left: -56px; border-radius: 20px; background: #000; z-index: 5; }
+.phone .glow { position: absolute; inset: -12px; border-radius: 70px; box-shadow: 0 0 0 3px var(--green), 0 0 70px rgba(43,212,127,.45); opacity: 0; }
+#pen { left: 508px; } #phi { left: 1000px; }
+.plabel { position: absolute; top: 58px; width: 412px; text-align: center; font-size: 21px; font-weight: 600; color: var(--soft); }
+.plabel span { display: inline-block; padding: 7px 18px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); }
+.plabel b { color: var(--ink); }
+#len { left: 508px; } #lhi { left: 1000px; }
+.tap { position: absolute; width: 62px; height: 62px; margin: -31px 0 0 -31px; border-radius: 50%; z-index: 6; opacity: 0;
+  background: rgba(20,30,25,.2); border: 3px solid rgba(255,255,255,.95); box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+.chip { position: absolute; top: 18px; width: 412px; text-align: center; font-size: 21px; font-weight: 700; opacity: 0; }
+.chip span { padding: 7px 16px; border-radius: 999px; background: var(--red-bg); color: #ffb0b0; border: 1px solid rgba(255,93,93,.4); }
+#cen { left: 508px; } #chi { left: 1000px; }
+/* audio visualiser */
+#viz { position: absolute; left: 0; right: 0; bottom: 104px; z-index: 55; display: flex; justify-content: center; opacity: 0; }
+#viz .box { display: flex; align-items: center; gap: 18px; padding: 14px 24px; border-radius: 18px; background: rgba(5,7,6,.8);
+  border: 1px solid rgba(43,212,127,.35); }
+#viz .lab { font-size: 22px; font-weight: 700; color: var(--green); min-width: 250px; }
+#viz .bars { display: flex; align-items: center; gap: 4px; height: 56px; }
+#viz .bars i { display: block; width: 6px; border-radius: 3px; background: var(--green); }
+/* generic */
+.k { font: 700 18px 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+.h1 { font-size: 76px; font-weight: 800; letter-spacing: -.03em; line-height: 1.04; }
+.h2 { font-size: 58px; font-weight: 800; letter-spacing: -.025em; line-height: 1.08; }
+.soft { color: var(--soft); }
+.red { color: var(--red); } .green { color: var(--green); }
+.card { position: absolute; border-radius: 22px; background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+  border: 1px solid var(--line); box-shadow: 0 30px 70px -30px rgba(0,0,0,.8); }
+/* cold open */
+.col { position: absolute; top: 0; width: 400px; }
+.bub { margin: 0 0 22px; padding: 16px 18px 12px; border-radius: 16px; background: #121614; border: 1px solid rgba(255,255,255,.07);
+  font-size: 19px; line-height: 1.4; color: #c9d2cd; position: relative; transition: none; }
+.bub .g { font: 700 13px 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: #6f7c75; margin-bottom: 6px; }
+.bub .tm { text-align: right; font-size: 13px; color: #5d6862; margin-top: 4px; }
+.bub .flag { position: absolute; top: -12px; right: 12px; padding: 3px 10px; border-radius: 8px; background: var(--red); color: #1a0505;
+  font: 800 13px 'JetBrains Mono', monospace; letter-spacing: .06em; opacity: 0; }
+/* stat */
+.ring { position: absolute; }
+/* decide */
+.hl { border-radius: 6px; padding: 0 3px; transition: none; }
+.row { display: flex; align-items: center; gap: 14px; padding: 16px 18px; margin: 12px 0; border-radius: 16px; background: rgba(255,255,255,.04);
+  border: 1px solid var(--line); font-size: 22px; white-space: nowrap; font-weight: 600; opacity: 0; }
+.row .p { margin-left: auto; font: 800 24px 'JetBrains Mono', monospace; }
+.row .ic { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex: none; }
+/* voice */
+.wv { display: flex; align-items: center; gap: 5px; height: 220px; }
+.wv i { display: block; width: 8px; border-radius: 4px; background: #34403a; }
+.word { display: inline-block; margin-right: 12px; opacity: 0; }
+/* graph */
+.node { position: absolute; transform: translate(-50%, -50%); text-align: center; }
+/* telegram */
+.trow { display: flex; align-items: center; gap: 22px; margin: 18px 0; opacity: 0; }
+.tin { width: 470px; padding: 18px 22px; border-radius: 18px; background: rgba(42,171,238,.10); border: 1px solid rgba(42,171,238,.35); font-size: 24px; font-weight: 600; }
+.tin small { display: block; font-size: 18px; color: var(--soft); font-weight: 500; margin-top: 4px; }
+.tout { padding: 12px 18px; border-radius: 14px; font-size: 23px; font-weight: 800; white-space: nowrap; }
+.tt { font: 800 26px 'JetBrains Mono', monospace; color: var(--green); width: 100px; }
+/* trust / results */
+.tile { position: absolute; padding: 34px; border-radius: 26px; background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid var(--line); opacity: 0; }
+.big { font-size: 96px; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.tlchips { position: absolute; top: 960px; left: 0; right: 0; display: flex; justify-content: center; gap: 14px; }
+.tlchips span { padding: 9px 18px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line); font-size: 21px; font-weight: 700; opacity: 0; }
+.tlchips b { color: var(--green); }
+</style></head>
+<body>
+<div id="bg"></div>
+
+<!-- cold open: a feed of messages -->
+<div class="layer" id="L-cold"><div id="feed" style="position:absolute;inset:0"></div></div>
+
+<!-- the number -->
+<div class="layer" id="L-stat">
+  <div style="position:absolute;left:150px;top:300px">
+    <div class="k s1">Cyber fraud in India · 2025</div>
+    <div class="s2" style="font-size:150px;font-weight:900;letter-spacing:-.05em;margin-top:18px">₹<span id="crore">22,495</span> cr</div>
+    <div class="s3 soft" style="font-size:38px;font-weight:600;margin-top:10px">lost by Indians to cyber fraud</div>
+    <div class="s4 soft" style="font-size:20px;margin-top:120px;color:var(--faint)">MHA data, reported by ThePrint</div>
+  </div>
+  <svg class="ring s5" width="460" height="460" viewBox="0 0 460 460" style="left:1300px;top:250px">
+    <circle cx="230" cy="230" r="190" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="34"/>
+    <circle id="ring76" cx="230" cy="230" r="190" fill="none" stroke="#ff5d5d" stroke-width="34" stroke-linecap="round"
+      transform="rotate(-90 230 230)" stroke-dasharray="1193.8" stroke-dashoffset="1193.8"/>
+    <text x="230" y="240" text-anchor="middle" fill="#fff" style="font:900 96px Inter">76%</text>
+    <text x="230" y="298" text-anchor="middle" fill="#9aa6a0" style="font:600 25px Inter">to fake investment</text>
+    <text x="230" y="330" text-anchor="middle" fill="#9aa6a0" style="font:600 25px Inter">schemes</text>
+  </svg>
+</div>
+
+<!-- how the scam works -->
+<div class="layer" id="L-problem">
+  <div style="position:absolute;left:0;right:0;top:150px;text-align:center"><div class="k">The script rarely changes</div></div>
+  <svg style="position:absolute;left:0;top:0" width="1920" height="1080"><path id="pline" d="M 520 560 L 1400 560" stroke="#ff5d5d" stroke-width="3" stroke-dasharray="10 12" fill="none" opacity=".7"/></svg>
+  <div class="card pc" style="left:150px;top:380px;width:470px;height:360px;padding:34px">
+    <div class="k" style="color:var(--red)">1 · The group</div>
+    <div style="margin-top:22px;padding:18px;border-radius:16px;background:#121614;border:1px solid rgba(255,255,255,.08)">
+      <div class="mono" style="font-size:14px;color:#6f7c75;letter-spacing:.1em">VIP STOCK TIPS 🔥 · INVITE ONLY</div>
+      <div style="font-size:23px;margin-top:8px;line-height:1.4">Yesterday our members made ₹2.5 lakh on one call 👆 95% accuracy.</div></div>
+    <div class="soft" style="font-size:22px;margin-top:20px">Screenshots of “profits”, made-up members.</div>
+  </div>
+  <div class="card pc" style="left:725px;top:380px;width:470px;height:360px;padding:34px">
+    <div class="k" style="color:var(--red)">2 · The app</div>
+    <div class="mono" style="font-size:30px;margin-top:30px;color:var(--soft);text-decoration:line-through">zerodha.com</div>
+    <div class="mono" id="fakedom" style="font-size:34px;margin-top:14px;font-weight:700">kite-zerodha<span class="red">-pro.in</span></div>
+    <div class="soft" style="font-size:22px;margin-top:34px">A look-alike link, outside the Play Store.</div>
+  </div>
+  <div class="card pc" style="left:1300px;top:380px;width:470px;height:360px;padding:34px">
+    <div class="k" style="color:var(--red)">3 · The payment</div>
+    <div style="font-size:22px;margin-top:26px" class="soft">Pay ₹50,000 to</div>
+    <div class="mono red" style="font-size:34px;font-weight:700;margin-top:6px">tradepro.desk@ybl</div>
+    <div style="font-size:21px;margin-top:30px;line-height:1.45" class="soft">Registered brokers collect only through SEBI’s <span class="mono green">@valid</span> handles.</div>
+  </div>
+  <div style="position:absolute;left:0;right:0;top:830px;text-align:center;font-size:21px;color:var(--faint)" class="pc">SEBI warned about invite-only WhatsApp tip groups on 22 Oct 2026</div>
+</div>
+
+<!-- title -->
+<div class="layer" id="L-title">
+  <div style="position:absolute;left:0;right:0;top:250px;text-align:center">
+    <svg width="150" height="150" viewBox="0 0 64 64" style="display:inline-block">
+      <rect id="tsq" width="64" height="64" rx="14" fill="#0b6839" opacity="0"/>
+      <path id="tsh" d="M32 12 L48 18 V31 C48 41 41 48.5 32 52 C23 48.5 16 41 16 31 V18 Z" fill="none" stroke="#2bd47f" stroke-width="3" stroke-linejoin="round" stroke-dasharray="130" stroke-dashoffset="130"/>
+      <path id="tck" d="M24.5 31.5 L30 37 L40 26" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30"/>
+    </svg>
+    <div class="ts" style="font-size:118px;font-weight:900;letter-spacing:-.04em;margin-top:26px">Check Before You Pay</div>
+    <div class="ts soft" style="font-size:36px;margin-top:18px;font-weight:500">Forward the message. See the red flags in seconds, in your own language.</div>
+    <div class="ts" style="margin-top:44px;font-size:27px;font-weight:600;color:var(--green)">English · <span class="hi">हिन्दी</span> · Hinglish · <span class="hi">मराठी</span> · தமிழ் · తెలుగు · ಕನ್ನಡ · বাংলা</div>
+  </div>
+</div>
+
+<!-- phones -->
+<div class="layer" id="L-phones">
+  <div id="rig">
+    <div class="plabel" id="len"><span><b>Arjun</b> · English</span></div>
+    <div class="plabel hi" id="lhi"><span><b>सुनीता</b> · हिन्दी</span></div>
+    <div class="phone" id="pen"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span>STATUSICONS</div></div><div class="island"></div></div>
+    <div class="phone" id="phi"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span>STATUSICONS</div></div><div class="island"></div></div>
+    <div class="chip" id="cen"><span></span></div>
+    <div class="chip hi" id="chi"><span></span></div>
+  </div>
+</div>
+
+<!-- how it decides -->
+<div class="layer" id="L-decide">
+  <div class="card" style="left:90px;top:200px;width:560px;height:560px;padding:32px">
+    <div class="k">The message</div>
+    <div id="dmsg" style="font-size:26px;line-height:1.55;margin-top:20px;color:#d7ded9">
+      🔥 VIP Stock Tips 🔥 <span class="hl" id="hc1">Guaranteed 30% returns every month.</span> Open your institutional account today: send ₹50,000 to <span class="hl mono" id="hupi">wealthpro.desk@ybl</span> and install our app from <span class="hl mono" id="hdom">groww-pro-vip.in</span>. <span class="hl" id="hc2">Only 3 seats left!</span>
+    </div>
+  </div>
+  <div class="card" id="dai" style="left:700px;top:330px;width:290px;height:300px;padding:28px;text-align:center;border-color:rgba(122,167,255,.4)">
+    <div class="mono" style="font-size:15px;letter-spacing:.14em;color:var(--blue)">GEMINI</div>
+    <div style="font-size:30px;font-weight:800;margin-top:14px">Reads &amp;<br>quotes</div>
+    <div class="soft" style="font-size:19px;margin-top:14px;line-height:1.4">screenshots, voice notes,<br>8 languages</div>
+    <div id="dnever" style="margin-top:18px;display:inline-block;padding:6px 12px;border-radius:10px;border:1.5px solid var(--blue);color:var(--blue);font:700 15px 'JetBrains Mono';opacity:0">NEVER SETS THE SCORE</div>
+  </div>
+  <svg style="position:absolute;left:0;top:0" width="1920" height="1080">
+    <path id="dl1" d="M 650 480 L 700 480" stroke="#7aa7ff" stroke-width="3" fill="none" stroke-dasharray="60" stroke-dashoffset="60"/>
+    <path id="dl2" d="M 990 480 L 1040 480" stroke="#2bd47f" stroke-width="3" fill="none" stroke-dasharray="60" stroke-dashoffset="60"/>
+  </svg>
+  <div style="position:absolute;left:1030px;top:200px;width:530px">
+    <div class="k" id="dfx" style="opacity:0">Fixed checks set the score</div>
+    <div class="row" id="r1"><div class="ic" style="background:var(--red-bg)">₹</div>UPI ID isn’t a SEBI <span class="mono green">@valid</span> handle<span class="p red">+50</span></div>
+    <div class="row" id="r2"><div class="ic" style="background:var(--red-bg)">⌘</div>Link copies a real broker<span class="p red">+30</span></div>
+    <div class="row" id="r3"><div class="ic" style="background:var(--red-bg)">“</div>Claims, quoted word for word<span class="p red">+40</span></div>
+    <div class="row" id="r4"><div class="ic" style="background:rgba(255,255,255,.06)">◷</div>Website age: not registered<span class="p soft">+0</span></div>
+    <div class="row" id="r5"><div class="ic" style="background:rgba(255,255,255,.06)">⛓</div>Earlier checks: none yet<span class="p soft">+0</span></div>
+  </div>
+  <svg width="320" height="320" viewBox="0 0 320 320" style="position:absolute;left:1570px;top:320px">
+    <circle cx="160" cy="160" r="130" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="22"/>
+    <circle id="gauge" cx="160" cy="160" r="130" fill="none" stroke="#ffb547" stroke-width="22" stroke-linecap="round"
+      transform="rotate(-90 160 160)" stroke-dasharray="816.8" stroke-dashoffset="816.8"/>
+    <text id="gnum" x="160" y="170" text-anchor="middle" fill="#fff" style="font:900 80px Inter">0</text>
+    <text x="160" y="212" text-anchor="middle" fill="#9aa6a0" style="font:600 20px Inter">/ 100</text>
+  </svg>
+  <div id="gband" style="position:absolute;left:1570px;top:660px;width:320px;text-align:center;opacity:0">
+    <span style="padding:9px 18px;border-radius:12px;background:var(--red-bg);border:1px solid rgba(255,93,93,.45);color:#ffb0b0;font-size:26px;font-weight:800">High risk</span>
+    <div class="soft" style="font-size:18px;margin-top:14px">120 points, capped at 100</div>
+  </div>
+</div>
+
+<!-- voice note -->
+<div class="layer" id="L-voice">
+  <div style="position:absolute;left:0;right:0;top:150px;text-align:center">
+    <div class="k">A real voice note · recorded on an iPhone</div>
+    <div class="soft" style="font-size:22px;margin-top:10px">Our teammate Risheeth, reading a sample scam script · 30 Oct</div>
+  </div>
+  <div id="vwave" class="wv" style="position:absolute;left:260px;top:280px;width:1400px;justify-content:center"></div>
+  <div id="vwords" style="position:absolute;left:200px;right:200px;top:560px;text-align:center;font-size:46px;font-weight:700;line-height:1.35"></div>
+  <div id="vchip" style="position:absolute;left:0;right:0;top:800px;text-align:center;opacity:0">
+    <span class="mono" style="font-size:28px;color:var(--soft)">sample dot desk at Y B L</span>
+    <span style="font-size:30px;margin:0 18px;color:var(--green)">→</span>
+    <span class="mono" style="font-size:34px;font-weight:700;padding:8px 16px;border-radius:12px;background:var(--red-bg);border:1px solid rgba(255,93,93,.45);color:#ffb0b0">sample.desk@ybl</span>
+  </div>
+</div>
+
+<!-- linked checks -->
+<div class="layer" id="L-graph">
+  <div style="position:absolute;left:0;right:0;top:120px;text-align:center">
+    <div class="h2">Scammers change their words.<br><span class="green">Not where the money goes.</span></div>
+  </div>
+  <svg style="position:absolute;left:0;top:0" width="1920" height="1080" id="gsvg">
+    <path id="ge1" d="M 560 640 C 760 640, 820 600, 960 600" stroke="#ff5d5d" stroke-width="4" fill="none" stroke-dasharray="460" stroke-dashoffset="460"/>
+    <path id="ge2" d="M 960 600 C 1100 600, 1160 640, 1360 640" stroke="#ff5d5d" stroke-width="4" fill="none" stroke-dasharray="460" stroke-dashoffset="460"/>
+    <g id="gfut" opacity="0" stroke="rgba(255,255,255,.18)" stroke-width="2" stroke-dasharray="6 8" fill="none">
+      <path d="M 960 600 L 820 860"/><path d="M 960 600 L 1100 870"/><path d="M 960 600 L 960 900"/>
+    </g>
+  </svg>
+  <div class="node" id="gn1" style="left:400px;top:640px;opacity:0"><div class="card" style="position:relative;width:320px;padding:22px;text-align:left">
+    <div class="mono soft" style="font-size:14px;letter-spacing:.1em">CHECK 1 · MONDAY</div>
+    <div style="font-size:22px;margin-top:8px">“VIP Stock Tips: 30% every month…”</div>
+    <div style="margin-top:10px;color:#ffb0b0;font-weight:800">High risk</div></div></div>
+  <div class="node" id="gnu" style="left:960px;top:600px;opacity:0">
+    <div style="width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,93,93,.25),rgba(255,93,93,.05));border:2px solid rgba(255,93,93,.6);display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div class="mono" style="font-size:15px;color:var(--soft);letter-spacing:.1em">SAME UPI ID</div>
+      <div class="mono" style="font-size:26px;font-weight:700;margin-top:6px">tr…@ybl</div>
+      <div style="font-size:15px;color:var(--soft);margin-top:6px">stored as a salted hash</div></div></div>
+  <div class="node" id="gn2" style="left:1520px;top:640px;opacity:0"><div class="card" style="position:relative;width:320px;padding:22px;text-align:left">
+    <div class="mono soft" style="font-size:14px;letter-spacing:.1em">CHECK 2 · TUESDAY</div>
+    <div style="font-size:22px;margin-top:8px">“Bank Nifty jackpot call, 40% up…”</div>
+    <div style="margin-top:10px;color:#ffb0b0;font-weight:800">Linked to 1 earlier check</div></div></div>
+  <div class="node" id="gnf" style="left:960px;top:950px;opacity:0"><div class="mono soft" style="font-size:17px;letter-spacing:.08em">…and every check after it</div></div>
+</div>
+
+<!-- telegram -->
+<div class="layer" id="L-telegram">
+  <div style="position:absolute;left:150px;top:300px;text-align:center">
+    <div id="tgic" style="width:250px;height:250px;border-radius:50%;background:var(--tg);display:flex;align-items:center;justify-content:center;box-shadow:0 0 90px rgba(42,171,238,.45)">
+      <svg width="132" height="132" viewBox="0 0 24 24"><path fill="#fff" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13 1.5 11.5c-1-.3-1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg></div>
+    <div class="mono" style="font-size:24px;font-weight:700;margin-top:28px;color:var(--tg)">@CheckBeforeYouPayBot</div>
+    <div class="soft" style="font-size:20px;margin-top:8px">No app to install</div>
+  </div>
+  <div style="position:absolute;left:560px;top:205px;width:1220px">
+    <div class="k" style="color:var(--tg)">A real private chat · 30 Oct · server time per verdict</div>
+    <div class="trow"><div class="tin">Text: an invite-only stock tip<small>with a personal @ybl UPI ID</small></div><div class="soft" style="font-size:30px">→</div><div class="tout" style="background:var(--red-bg);color:#ffb0b0">High risk · 90</div><div class="tt">2.3 s</div></div>
+    <div class="trow"><div class="tin">A screenshot of the same tip<small>linked to the earlier check by its UPI ID</small></div><div class="soft" style="font-size:30px">→</div><div class="tout" style="background:var(--red-bg);color:#ffb0b0">High risk · 100</div><div class="tt">5.0 s</div></div>
+    <div class="trow"><div class="tin">A voice note<small>“guaranteed returns daily 250%”</small></div><div class="soft" style="font-size:30px">→</div><div class="tout" style="background:rgba(255,181,71,.13);color:#ffd28a">Caution · 30</div><div class="tt">2.3 s</div></div>
+    <div class="trow"><div class="tin">An ordinary rent request<small>to a personal UPI ID</small></div><div class="soft" style="font-size:30px">→</div><div class="tout" style="background:rgba(255,255,255,.07);color:#dfe6e2">No warning · 0</div><div class="tt">1.7 s</div></div>
+  </div>
+</div>
+
+<!-- trust -->
+<div class="layer" id="L-trust">
+  <div style="position:absolute;left:0;right:0;top:150px;text-align:center"><div class="k">Built to be trusted</div><div class="h2" style="margin-top:14px">Evidence, not accusations</div></div>
+  <div class="tile" style="left:330px;top:400px;width:610px"><div style="font-size:32px;font-weight:800">Fixed checks set the score</div><div class="soft" style="font-size:23px;margin-top:10px">The AI reads and explains. It never picks the points.</div></div>
+  <div class="tile" style="left:980px;top:400px;width:610px"><div style="font-size:32px;font-weight:800">Every point shows its source</div><div class="soft" style="font-size:23px;margin-top:10px">Quotes must appear word for word in the message.</div></div>
+  <div class="tile" style="left:330px;top:620px;width:610px"><div style="font-size:32px;font-weight:800">Never calls anyone a fraud</div><div class="soft" style="font-size:23px;margin-top:10px">It shows risk signals, then links to SEBI Check and 1930.</div></div>
+  <div class="tile" style="left:980px;top:620px;width:610px"><div style="font-size:32px;font-weight:800">Private by design</div><div class="soft" style="font-size:23px;margin-top:10px">UPI IDs and numbers are stored only as salted hashes.</div></div>
+</div>
+
+<!-- results -->
+<div class="layer" id="L-results">
+  <div style="position:absolute;left:0;right:0;top:130px;text-align:center"><div class="k">Measured, not claimed · 128 messages it had never seen</div></div>
+  <div class="tile" style="left:200px;top:260px;width:740px;height:300px"><div class="big"><span id="rn1">0</span> / 64</div><div class="soft" style="font-size:28px;margin-top:16px">scam messages flagged</div></div>
+  <div class="tile" style="left:980px;top:260px;width:740px;height:300px"><div class="big green">0 / 64</div><div class="soft" style="font-size:28px;margin-top:16px">false alarms on ordinary payment requests</div></div>
+  <div class="tile" style="left:200px;top:600px;width:740px;height:240px"><div class="big"><span id="rn3">0.0</span> s</div><div class="soft" style="font-size:26px;margin-top:14px">median check time · p95 2.8 s</div></div>
+  <div class="tile" style="left:980px;top:600px;width:740px;height:240px"><div class="big">8</div><div class="soft" style="font-size:26px;margin-top:14px">Indian languages · text, screenshot or voice</div></div>
+  <div id="rdev" style="position:absolute;left:0;right:0;top:880px;text-align:center;font-size:23px;color:var(--soft);opacity:0">Also checked on <b style="color:#fff">iPhone Safari</b> (real phone) · <b style="color:#fff">Telegram</b> (real chat) · <b style="color:#fff">Android Chrome</b> (emulated)</div>
+</div>
+
+<!-- timelapse -->
+<div class="layer" id="L-timelapse">
+  <div style="position:absolute;left:0;right:0;top:62px;text-align:center"><div class="k">Behind the scenes · 40-second timelapse</div>
+    <div style="font-size:50px;font-weight:800;letter-spacing:-.02em;margin-top:10px">Built in three days at Hacker House Goa</div></div>
+  <div style="position:absolute;left:320px;top:214px;width:1280px;height:720px;border-radius:26px;background:#111;box-shadow:0 60px 120px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.08)"></div>
+  <div class="tlchips"><span><b>562</b> tests passing</span><span>Live since <b>29 Oct</b></span><span><b>8</b> languages</span>
+    <span>Telegram bot <b>live</b></span><span>viaSocket alerts <b>live</b></span><span>Open source · <b>MIT</b></span></div>
+</div>
+
+<!-- close -->
+<div class="layer" id="L-close">
+  <div style="position:absolute;left:0;right:0;top:170px;text-align:center">
+    <svg width="120" height="120" viewBox="0 0 64 64" style="display:inline-block">
+      <rect width="64" height="64" rx="14" fill="#0b6839"/>
+      <path id="csh" d="M32 12 L48 18 V31 C48 41 41 48.5 32 52 C23 48.5 16 41 16 31 V18 Z" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" stroke-dasharray="130" stroke-dashoffset="130"/>
+      <path id="cck" d="M24.5 31.5 L30 37 L40 26" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30"/>
+    </svg>
+    <div class="cs" style="font-size:96px;font-weight:900;letter-spacing:-.04em;margin-top:22px">Check Before You Pay</div>
+    <div class="cs" style="display:flex;gap:60px;justify-content:center;align-items:center;margin-top:46px">
+      <img src="qr.png" style="width:240px;height:240px;border-radius:22px;background:#fff;padding:14px">
+      <div style="text-align:left"><div class="k">Live now</div>
+        <div style="font-size:46px;font-weight:800;margin:12px 0">34-45-129-243.sslip.io</div>
+        <div class="soft" style="font-size:27px">Telegram: <b style="color:#fff">@CheckBeforeYouPayBot</b></div>
+        <div class="soft" style="font-size:27px;margin-top:8px">Free · no sign-up · 8 languages</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="viz"><div class="box"><div class="lab" id="vizlab"></div><div class="bars" id="vizbars"></div></div></div>
+<div id="chapter"><i></i><span></span></div>
+<div id="brand"><img src="icon.svg">Check Before You Pay</div>
+<div id="caption"><span></span></div>
+<div id="vignette"></div>
+
+<script>
+/*TIMELINE*/
+const TL = window.TL, K = 388 / 390;
+const $ = (s) => document.querySelector(s);
+const C = (x) => Math.max(0, Math.min(1, x));
+const ease = (x) => { x = C(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const out = (x) => 1 - Math.pow(1 - C(x), 3);
+const lerp = (a, b, p) => a + (b - a) * p;
+const SC = Object.fromEntries(TL.scenes.map((s) => [s.id, s]));
+const scene = (t) => TL.scenes.find((s) => t >= s.t0 && t < s.t1) || TL.scenes[TL.scenes.length - 1];
+const fade = (s, t, a = .5, b = .45) => Math.min(C((t - s.t0) / a), C((s.t1 - t) / b));
+const rise = (els, s, t, start = .15, gap = .12, dur = .7) => els.forEach((el, i) => {
+  const p = out((t - s.t0 - start - i * gap) / dur); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 26}px)`; });
+
+// ---- cold open feed ---------------------------------------------------------------------------------------------
+const FEED = [
+  ['Family', 'Reached home. Dinner at 9?', 0], ['VIP Stock Tips 🔥', 'Guaranteed 30% every month. Send ₹50,000 to tradepro.desk@ybl today, only 3 seats left!', 1],
+  ['Landlord', 'Rent for November is ₹12,000. Please send by the 5th.', 0], ['Office', 'Meeting moved to 4 pm.', 0],
+  ['Jackpot Calls', 'Bank Nifty call tomorrow, 40% up pakka. Premium group ₹4,999 only.', 1], ['Neha', 'Sent you the photos 📷', 0],
+  ['Unknown', 'Your trading account has ₹4,86,200 profit. Pay 20% tax to taxclear.desk@paytm to withdraw.', 1],
+  ['School', 'PTM on Saturday at 10 am.', 0], ['Elite App', 'New Angel One Elite app, not on Play Store: angelone-elite.in', 1],
+  ['Dad', 'Call me when free.', 0], ['Part-time job', 'Like YouTube videos, earn ₹50 per like. Prepaid task: pay ₹1,000, get ₹1,400.', 1],
+  ['Bank', '482913 is your OTP. Do not share it with anyone.', 0], ['Mom', 'Did you eat?', 0],
+  ['IPO Quota', 'Guaranteed IPO allotment from our institutional quota. Pay ₹14,500 to ipoquota.desk@okaxis.', 1],
+  ['Gym', 'Your plan renews next week.', 0], ['Crypto Bot', 'USDT doubles in 7 days. Our AI bot never loses 💯', 1],
+];
+const feed = $('#feed');
+const cols = [];
+for (let c = 0; c < 4; c++) {
+  const col = document.createElement('div'); col.className = 'col'; col.style.left = (90 + c * 450) + 'px'; feed.appendChild(col); cols.push(col);
+  for (let r = 0; r < 12; r++) {
+    const [g, txt, scam] = FEED[(c * 5 + r * 3) % FEED.length];
+    const b = document.createElement('div'); b.className = 'bub'; b.dataset.scam = scam; b.dataset.k = (c * 7 + r * 5) % 11;
+    b.innerHTML = `<div class="flag">HIGH RISK</div><div class="g">${g}</div>${txt}<div class="tm">${(8 + (r * 3 + c) % 12)}:${String((r * 17 + c * 11) % 60).padStart(2, '0')}</div>`;
+    col.appendChild(b);
+  }
+}
+const bubs = [...document.querySelectorAll('.bub')];
+
+// ---- phones -------------------------------------------------------------------------------------------------------
+const imgs = { en: {}, hi: {} }, tapEls = {};
+for (const lang of ['en', 'hi']) {
+  const screen = $(`#p${lang} .screen`);
+  for (const n of [...new Set(TL.tracks[lang].map((s) => s.img))]) { const im = new Image(); im.src = n + '.png'; screen.appendChild(im); imgs[lang][n] = im; }
+  tapEls[lang] = document.createElement('div'); tapEls[lang].className = 'tap'; screen.appendChild(tapEls[lang]);
+}
+for (let i = 0; i < 26; i++) $('#vizbars').appendChild(document.createElement('i'));
+const vw = $('#vwave'); const VB = 110;
+for (let i = 0; i < VB; i++) vw.appendChild(document.createElement('i'));
+const words = $('#vwords');
+TL.words.forEach((w, i) => { const s = document.createElement('span'); s.className = 'word'; s.textContent = w.w;
+  if (i >= TL.words.length - 7 && i < TL.words.length - 1) s.style.color = '#ffd36b'; words.appendChild(s); });
+
+function renderPhone(lang, t) {
+  const tr = TL.tracks[lang];
+  let k = tr.findIndex((g) => t >= g.t0 && t < g.t1);
+  if (k < 0) { k = 0; for (let j = 0; j < tr.length; j++) if (tr[j].t0 <= t) k = j; }
+  const g = tr[k], y = lerp(g.y0, g.y1, ease((t - g.t0) / Math.max(.001, g.t1 - g.t0)));
+  for (const n in imgs[lang]) imgs[lang][n].style.opacity = 0;
+  const cur = imgs[lang][g.img]; cur.style.transform = `translateY(${-y * K}px)`;
+  const prev = k > 0 ? tr[k - 1] : null, f = (t - g.t0) / .3;
+  if (prev && prev.img !== g.img && f < 1) {
+    const pi = imgs[lang][prev.img]; pi.style.opacity = 1; pi.style.transform = `translateY(${-prev.y1 * K}px)`; pi.style.zIndex = 1;
+    cur.style.zIndex = 2; cur.style.opacity = ease(f);
+  } else { cur.style.zIndex = 2; cur.style.opacity = 1; }
+  const el = tapEls[lang]; el.style.opacity = 0;
+  for (const tp of TL.taps) {
+    if (tp.lang !== lang) continue;
+    const d = t - tp.t;
+    if (d > -.35 && d < .55) { el.style.left = tp.x + 'px'; el.style.top = (tp.y + 46) + 'px';
+      if (d < 0) { el.style.opacity = C((d + .35) / .25); el.style.transform = 'scale(1)'; }
+      else { el.style.opacity = 1 - d / .55; el.style.transform = `scale(${.85 + d * 1.6})`; } }
+  }
+}
+function camera(t) {
+  const ks = TL.cam; if (!ks.length) return [960, 540, 1];
+  if (t <= ks[0].t) return [ks[0].cx, ks[0].cy, ks[0].s];
+  for (let i = 0; i < ks.length - 1; i++) {
+    const a = ks[i], b = ks[i + 1];
+    if (t >= a.t && t <= b.t) { const p = ease((t - a.t) / Math.max(.001, b.t - a.t)); return [lerp(a.cx, b.cx, p), lerp(a.cy, b.cy, p), lerp(a.s, b.s, p)]; }
+  }
+  const z = ks[ks.length - 1]; return [z.cx, z.cy, z.s];
+}
+const envAt = (name, t0, t) => { const e = TL.env[name]; const i = Math.floor((t - t0) * 30); return i >= 0 && i < e.length ? e[i] : 0; };
+
+function layerOpacity(id, t) {
+  const s = scene(t);
+  if (id === 'phones') {
+    if (!TL.phoneScenes.includes(s.id)) return 0;
+    const i = TL.scenes.indexOf(s), pv = i > 0 && TL.phoneScenes.includes(TL.scenes[i - 1].id), nx = i < TL.scenes.length - 1 && TL.phoneScenes.includes(TL.scenes[i + 1].id);
+    return Math.min(pv ? 1 : C((t - s.t0) / .6), nx ? 1 : C((s.t1 - t) / .5));
+  }
+  return s.id === id ? fade(s, t, .55, .45) : 0;
+}
+let lastCap = null;
+function render(t) {
+  const s = scene(t), u = t - s.t0, d = s.t1 - s.t0;
+  for (const id of ['cold', 'stat', 'problem', 'title', 'phones', 'decide', 'voice', 'graph', 'telegram', 'trust', 'results', 'timelapse', 'close'])
+    $('#L-' + id).style.opacity = layerOpacity(id === 'phones' ? 'phones' : id, t);
+  // chapter, brand, captions
+  $('#chapter').style.opacity = s.chapter ? fade(s, t, .6, .4) : 0; $('#chapter span').textContent = s.chapter || '';
+  $('#brand').style.opacity = ['cold', 'stat', 'title', 'close'].includes(s.id) ? 0 : .9;
+  const cap = TL.captions.find((c) => t >= c.t0 - .05 && t < c.t1 + .15);
+  const cs = $('#caption span');
+  if (cap) { if (cap !== lastCap) { cs.textContent = cap.text; lastCap = cap; } cs.style.opacity = Math.min(C((t - cap.t0 + .05) / .15), C((cap.t1 + .15 - t) / .15)); }
+  else cs.style.opacity = 0;
+
+  if (s.id === 'cold') {
+    cols.forEach((col, c) => { col.style.transform = `translateY(${-(u * (38 + c * 9)) - c * 120}px)`; });
+    bubs.forEach((b) => { const on = b.dataset.scam === '1' ? out((u - 1.2 - (+b.dataset.k) * .35) / .5) : 0;
+      b.style.borderColor = on ? `rgba(255,93,93,${.25 + .6 * on})` : 'rgba(255,255,255,.07)';
+      b.style.boxShadow = on ? `0 0 ${40 * on}px rgba(255,93,93,${.35 * on})` : 'none';
+      b.style.opacity = b.dataset.scam === '1' ? 1 : 1 - .45 * C((u - 2) / 2);
+      b.querySelector('.flag').style.opacity = on; });
+    $('#feed').style.transform = `scale(${1 + u * .006})`;
+  }
+  if (s.id === 'stat') {
+    rise([...document.querySelectorAll('#L-stat .s1,#L-stat .s2,#L-stat .s3,#L-stat .s4')], s, t);
+    $('#crore').textContent = Math.round(22495 * ease((u - .3) / 1.8)).toLocaleString('en-IN');
+    const r = $('#L-stat .s5'); const p = out((u - 2.2) / .8); r.style.opacity = p; r.style.transform = `scale(${.9 + .1 * p})`;
+    $('#ring76').style.strokeDashoffset = 1193.8 * (1 - .76 * ease((u - 2.6) / 1.6));
+  }
+  if (s.id === 'problem') {
+    const n = s.say_len, a0 = s.say_at - s.t0;
+    const cards = [...document.querySelectorAll('#L-problem .pc')];
+    [a0 + n * .22, a0 + n * .45, a0 + n * .72, a0 + n * .9].forEach((at, i) => { const p = out((u - at) / .6); cards[i].style.opacity = p; cards[i].style.transform = `translateY(${(1 - p) * 30}px)`; });
+    $('#pline').style.opacity = .7 * C((u - a0 - n * .3) / .5);
+  }
+  if (s.id === 'title') {
+    $('#tsh').style.strokeDashoffset = 130 * (1 - ease(u / 1.1)); $('#tck').style.strokeDashoffset = 30 * (1 - ease((u - .9) / .5));
+    $('#tsq').style.opacity = .9 * C((u - 1.2) / .6);
+    rise([...document.querySelectorAll('#L-title .ts')], s, t, .9, .18);
+  }
+  if (TL.phoneScenes.includes(s.id)) {
+    renderPhone('en', t); renderPhone('hi', t);
+    const [cx, cy, sc] = camera(t);
+    $('#rig').style.transform = `translate(${960 - cx * sc}px, ${540 - cy * sc}px) scale(${sc})`;
+    // In a close-up, the other phone steps back so the eye goes to one screen.
+    const dim = .82 * C((sc - 1.3) / .25), focus = cx < 960 ? 'en' : 'hi';
+    for (const lang of ['en', 'hi']) { const o = lang === focus ? 1 : 1 - dim; $('#p' + lang).style.opacity = o; $('#l' + lang).style.opacity = o; $('#c' + lang).style.filter = `opacity(${o})`; }
+    for (const lang of ['en', 'hi']) {
+      const c = TL.chips.find((x) => x.lang === lang && t >= x.t0 && t < x.t1); const chip = $('#c' + lang);
+      if (c) { chip.style.opacity = Math.min(C((t - c.t0) / .4), C((c.t1 - t) / .4)); chip.querySelector('span').textContent = c.text; } else chip.style.opacity = 0;
+      const [a, b] = TL.listen[lang]; const on = s.id === 'listen' ? Math.min(C((t - a + .2) / .3), C((b + .3 - t) / .3)) : 0;
+      $(`#p${lang} .glow`).style.opacity = on;
+    }
+  }
+  // audio visualiser for Listen
+  let vizOn = 0, vizName = null, vizT0 = 0;
+  if (s.id === 'listen') for (const lang of ['hi', 'en']) { const [a, b] = TL.listen[lang]; const o = Math.min(C((t - a + .2) / .3), C((b + .3 - t) / .3)); if (o > vizOn) { vizOn = o; vizName = lang; vizT0 = a + .2; } }
+  $('#viz').style.opacity = vizOn;
+  if (vizName) { $('#vizlab').textContent = vizName === 'hi' ? 'सुन रहे हैं · हिन्दी' : 'Listening · English'; $('#vizlab').className = 'lab' + (vizName === 'hi' ? ' hi' : '');
+    [...$('#vizbars').children].forEach((bar, j) => { const e = envAt(vizName, vizT0, t - j * .012); bar.style.height = (6 + 50 * e * (.6 + .4 * Math.abs(Math.sin(j * 1.7)))) + 'px'; }); }
+
+  if (s.id === 'decide') {
+    const a0 = s.say_at - s.t0, n = s.say_len, at = (f) => a0 + n * f;
+    const hl = (id, f, col) => { const p = C((u - at(f)) / .4); $(id).style.background = `rgba(${col},${.28 * p})`; $(id).style.boxShadow = p ? `inset 0 -3px 0 rgba(${col},${.9 * p})` : 'none'; };
+    hl('#hc1', .14, '255,211,107'); hl('#hc2', .2, '255,211,107'); hl('#hupi', .55, '255,93,93'); hl('#hdom', .74, '255,93,93');
+    $('#dl1').style.strokeDashoffset = 60 * (1 - ease((u - at(.08)) / .5)); $('#dai').style.opacity = out((u - at(.06)) / .6);
+    $('#dnever').style.opacity = out((u - at(.4)) / .5);
+    $('#dl2').style.strokeDashoffset = 60 * (1 - ease((u - at(.38)) / .5)); $('#dfx').style.opacity = out((u - at(.38)) / .5);
+    const rows = [['#r1', .55], ['#r2', .74], ['#r3', .9], ['#r4', .96], ['#r5', 1.0]];
+    rows.forEach(([id, f]) => { const p = out((u - at(f)) / .5); $(id).style.opacity = p; $(id).style.transform = `translateX(${(1 - p) * 40}px)`; });
+    const pts = 50 * C((u - at(.58)) / .5) + 30 * C((u - at(.77)) / .5) + 40 * C((u - at(.93)) / .5);
+    const shown = Math.min(100, pts);
+    $('#gnum').textContent = Math.round(shown); $('#gauge').style.strokeDashoffset = 816.8 * (1 - shown / 100);
+    $('#gauge').style.stroke = shown >= 60 ? '#ff5d5d' : '#ffb547';
+    $('#gband').style.opacity = out((pts - 100) / 15);
+  }
+  if (s.id === 'voice') {
+    const [r0, r1] = TL.rec, e = TL.env.voice, playing = C((t - r0) / (r1 - r0));
+    [...vw.children].forEach((bar, j) => { const idx = Math.floor(j / VB * e.length); const amp = e[idx] || 0;
+      bar.style.height = (10 + 200 * amp) + 'px'; bar.style.background = j / VB <= playing ? '#2bd47f' : '#34403a'; });
+    [...words.children].forEach((w, i) => { const p = out((t - TL.words[i].t) / .25); w.style.opacity = p; w.style.transform = `translateY(${(1 - p) * 14}px)`; });
+    $('#vchip').style.opacity = out((t - r1 + .1) / .5);
+  }
+  if (s.id === 'graph') {
+    const a0 = s.say_at - s.t0;
+    $('#gn1').style.opacity = out((u - .2) / .5); $('#gnu').style.opacity = out((u - .8) / .5);
+    $('#ge1').style.strokeDashoffset = 460 * (1 - ease((u - 1.0) / .9)); $('#ge2').style.strokeDashoffset = 460 * (1 - ease((u - 1.9) / .9));
+    $('#gn2').style.opacity = out((u - 2.4) / .5);
+    $('#gfut').style.opacity = .9 * out((u - a0 - s.say_len * .55) / .8); $('#gnf').style.opacity = out((u - a0 - s.say_len * .6) / .8);
+    const pulse = .5 + .5 * Math.sin(u * 4); $('#gnu').style.filter = `drop-shadow(0 0 ${12 + 18 * pulse}px rgba(255,93,93,.5))`;
+  }
+  if (s.id === 'telegram') {
+    const a0 = s.say_at - s.t0;
+    $('#tgic').style.transform = `scale(${.85 + .15 * out(u / .7)})`;
+    [...document.querySelectorAll('#L-telegram .trow')].forEach((r, i) => { const p = out((u - a0 - 1.2 - i * 1.6) / .6); r.style.opacity = p; r.style.transform = `translateX(${(1 - p) * 50}px)`; });
+  }
+  if (s.id === 'trust') rise([...document.querySelectorAll('#L-trust .tile')], s, t, .8, .5);
+  if (s.id === 'results') {
+    rise([...document.querySelectorAll('#L-results .tile')], s, t, .3, .25);
+    $('#rn1').textContent = Math.round(61 * ease((u - .5) / 1.6)); $('#rn3').textContent = (2.3 * ease((u - 1.2) / 1.4)).toFixed(1);
+    $('#rdev').style.opacity = out((u - 3.2) / .6);
+  }
+  if (s.id === 'timelapse') [...document.querySelectorAll('.tlchips span')].forEach((el, i) => { const p = out((u - 3 - i * 5.5) / .6); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 14}px)`; });
+  if (s.id === 'close') {
+    $('#csh').style.strokeDashoffset = 130 * (1 - ease(u / 1)); $('#cck').style.strokeDashoffset = 30 * (1 - ease((u - .8) / .5));
+    rise([...document.querySelectorAll('#L-close .cs')], s, t, .6, .3);
+  }
+}
+Promise.all([document.fonts.ready, ...Object.values(imgs).flatMap((o) => Object.values(o)).map((im) => im.decode()),
+  ...[...document.images].map((im) => im.decode().catch(() => {}))]).then(() => { render(0); window.READY = true; });
+</script>
+</body></html>

@@ -94,9 +94,14 @@
   - **No effect on the numbers above:** the eval runs every message on a fresh database, so S4 and S5 never fire there.
 
 ## Demo video
-- **File:** [`docs/demo.mp4`](docs/demo.mp4): 3 min 35 s, 1920x1080 at 60 fps. The 2560x1440 master for YouTube is
-  `C:\Users\samar\Videos\CheckBeforeYouPay_demo_1440p60.mp4` (96 MB, too big for GitHub). English narration over a soft
-  instrumental bed (made with Lyria 3.5) that dips under the voice; -14 LUFS. Rebuilt 31 Oct, 01:05.
+- **File:** [`docs/demo.mp4`](docs/demo.mp4): the film version, 3 min 46 s, 1920x1080 at 60 fps. The 2560x1440 master
+  for YouTube is `C:\Users\samar\Videos\CheckBeforeYouPay_film_1440p60.mp4` (162 MB, too big for GitHub). Rebuilt
+  31 Oct, 02:40 with `tools/demo_bilingual/build_film.py` (dark theme, motion graphics, a virtual camera over the real
+  captures, subtitles, Charon narration over two Lyria tracks).
+- **Film scenes:** a feed of messages where the scams light up; the ₹22,495 crore number; how the scam works; then
+  the earlier scenes below, plus an animated "how it decides" diagram (the claims, the UPI ID and the link light up,
+  +50 / +30 / +40 fill a score dial) and a graph of two checks joined by one UPI ID.
+- The light-theme version below is the previous cut (`build.py`), kept for reference.
 - **What it shows**, with English and Hindi phones side by side throughout (Arjun and Sunita):
   1. the ₹22,495 crore problem, and how the scam works (VIP group, look-alike broker app, personal UPI ID);
   2. both paste the same scam and get high risk in under 4 seconds (real check times), then the evidence;
