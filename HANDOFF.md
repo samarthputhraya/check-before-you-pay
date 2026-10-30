@@ -22,7 +22,7 @@
    - Video: docs/demo.mp4. Upload it to YouTube as unlisted if the form wants a link.
 3. **Merge PR #15**, then `bash deploy/gce/deploy.sh origin/main`. It deploys the code that's already live.
 4. **Telegram:** open https://t.me/CheckBeforeYouPayBot, send /start, then a stock-tip message and a screenshot. Check the replies.
-5. **viaSocket:** create an account (coupon HHGOA26-VIASOCKET) and follow docs/VIASOCKET.md. Our webhook side is built.
+5. **viaSocket:** done. The flow is live and tested; see docs/VIASOCKET.md. The coupon wasn't applied: the free plan covers it.
 6. **AI Grants:** the form needs Samarth's WhatsApp (docs/AI_GRANTS.md).
 
 ## TigerGraph Final Round (separate repo, FraudLens)

@@ -1,8 +1,27 @@
 # Report webhook setup
 
-The code is ready; the external viaSocket workflow has not been configured or
-tested live yet. No family alert or spreadsheet row has been sent during the
-offline tests.
+**Live since Fri 30 Oct, 14:20 IST.** Every report on the live site goes to the viaSocket flow
+"Check Before You Pay: reports" (in Samarth's viaSocket workspace). The flow runs these steps:
+
+1. **find_existing:** ignore anything that isn't a report from our site (event, ID formats and evidence URL are
+   checked), then look the `report_id` up in the reports sheet.
+2. **add_row:** if it isn't there yet, add one row to the Google Sheet "Check Before You Pay: reports" (in
+   Samarth's Drive): received_at, report_id, check_id, band, score, lang, masked entities, evidence URL.
+3. **alert:** for a new row only, email samarthputhraya@gmail.com: "Check Before You Pay: High risk reported",
+   with the score, the masked identifiers, the evidence link and the 1930 helpline.
+4. **result:** answers the webhook with `{ok, report_id, added, reason, alerted}`.
+
+**Checked live on 30 Oct with two labelled test checks (`u_test_viasocket`):**
+- Each report added exactly one row, and the second one emailed the alert. The first test ran before the email step
+  existed.
+- The server marked both delivered on the first attempt.
+- Re-sending the same report answered `"reason": "duplicate"` and added no row and sent no email.
+- A request that isn't a report answered `"not a report"` and changed nothing.
+
+The webhook URL is only in the server's environment (`VIASOCKET_REPORT_WEBHOOK_URL`), never in the repo. The
+viaSocket agent token used to build the flow stays in the local `.env.railway`; the server doesn't have it. To pause
+the flow: https://flow.viasocket.com → Automations. To revoke the token: https://flow.viasocket.com/agent-access →
+Regenerate.
 
 ## What the backend does
 

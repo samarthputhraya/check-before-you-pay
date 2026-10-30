@@ -71,7 +71,8 @@ The method and the misses are in docs/EVAL.md.
   the quiz and `/stats`.
 - **Live in test mode:** the Family (₹99 a month) and API (₹999 a month) plans on Dodo. A test purchase was checked end
   to end; only Dodo's signed webhook can mark an order paid.
-- **Not yet:** the viaSocket workflow. Our webhook is built, but the workflow isn't set up.
+- **Live on viaSocket:** every report adds a row to a Google Sheet and emails a family contact. A retried delivery never
+  adds a second row.
 - **Samples:** messages labelled "(sample)" and the quiz questions. They never count in the numbers.
 
 **Challenges we ran into**
