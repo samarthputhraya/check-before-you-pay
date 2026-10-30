@@ -185,10 +185,11 @@ def test_voice_note_uses_existing_audio_pipeline(client, monkeypatch):
     monkeypatch.setattr(telegram, 'download', AsyncMock(return_value=voice))
     response = c.post('/api/telegram/webhook', headers=HEADERS,
         json=update(voice={'file_id': 'voice', 'duration': 2, 'mime_type': 'audio/ogg'}))
-    assert response.status_code == 200 and 'high_risk' in replies[0]['text']
+    assert response.status_code == 200 and '/100' in replies[0]['text']
     assert 'sample@ybl' not in replies[0]['text']
     with db.session(path) as con:
-        assert con.execute('SELECT input_type FROM checks').fetchone()[0] == 'audio'
+        row = con.execute('SELECT input_type,band FROM checks').fetchone()
+        assert row['input_type'] == 'audio' and row['band'] == 'high_risk'
 
 
 @pytest.mark.parametrize('path', ['https://elsewhere.example/a.jpg', '../private', '/absolute', 'photo/../secret'])
