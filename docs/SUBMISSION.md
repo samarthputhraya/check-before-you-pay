@@ -8,7 +8,7 @@ docs/EVAL.md. If a number changes there, change it here too.
 | What | Link |
 |---|---|
 | Live product | https://34-45-129-243.sslip.io |
-| Live numbers | https://34-45-129-243.sslip.io/stats (reset to zero at 08:13 on Fri 30 Oct; our own testing never counts) |
+| Live numbers | https://34-45-129-243.sslip.io/stats (reset to zero at 08:13 on Fri 30 Oct. Web tests with `u_test` IDs never count; the team's 4 Telegram test checks on 30 Oct do) |
 | Quiz | https://34-45-129-243.sslip.io/quiz |
 | Code | https://github.com/samarthputhraya/check-before-you-pay |
 | Demo video (88 s) | https://github.com/samarthputhraya/check-before-you-pay/blob/main/docs/demo.mp4 (upload it to YouTube as unlisted if the form wants a video link) |
