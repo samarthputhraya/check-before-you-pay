@@ -24,6 +24,12 @@ no committed `.env` or `.env.railway`, and only the two documented public
 Standard Webhooks test vectors. This is a heuristic scan; rerun it before
 making the repository public.
 
+After the subsequent Hindi/Hinglish wording edits, the quiz and sample-data
+checks passed **39 tests in 5.36 s**. The matching API examples were updated.
+Answer keys and quiz metadata were verified unchanged. The 553-test combined
+run above predates these copy edits; the focused run validates their affected
+content, public examples and scoring behavior.
+
 ## Earlier combined verification (before PR #11 merged)
 
 On Friday morning, all five branches merged locally into
@@ -128,4 +134,9 @@ any branch. Real-data evaluation remains pending. `eval/real.jsonl` and real-dat
 results are intentionally absent; no real-message result may be claimed.
 The user selected Hindi and Hinglish for fluent review. The 20 items and their
 explanations are prepared in `docs/QUIZ_NATIVE_REVIEW.md`; actual approval or
-corrections are still required. Reviewer availability is not content approval.
+corrections are still required. Subsequent feedback was explicitly AI-assisted:
+the user reported all answer keys correct and supplied wording edits for hi/q2,
+hi/q5, hi/q9, hi/q10, hinglish/q3 and hinglish/q9. Those edits were applied and
+the review sheet regenerated with new source hashes. Answer keys and quiz
+metadata are unchanged. Fluent-speaker approval of the edited 20 items is still
+pending; the AI-assisted feedback is not human signoff.

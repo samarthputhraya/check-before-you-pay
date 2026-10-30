@@ -8,13 +8,19 @@ Report changes by language/item ID. No reviewer name is required. Record an
 anonymous reviewer tag, language, IST date/time and the source revision below
 when giving approval. Preserve answer keys unless the team agrees to a change.
 
+Feedback received on 30 October was explicitly AI-assisted. The user reported
+all answer keys correct and requested wording changes in hi/q2, hi/q5, hi/q9,
+hi/q10, hinglish/q3 and hinglish/q9. Those edits are incorporated below. This
+feedback does not constitute fluent-speaker approval of the 20 Hindi/Hinglish
+items; a fluent reviewer must still read the edited messages and explanations.
+
 These are labelled fictional examples. Domains and payment identifiers in the
 quoted samples are examples to inspect, not links or instructions to follow.
 
 
 ## Hindi
 
-Source: `seed/quiz/hi.json`, Git blob `790682655f89a61cc3a8c3f8eac1a376bba977ef`.
+Source: `seed/quiz/hi.json`, Git blob `e588f572925ba8aef86956196280e2daefbbff1b`.
 
 Overall reviewer result: Pending.
 
@@ -44,7 +50,7 @@ Suggested change or issue:
 
 Answer: **genuine**.
 
-यह असली SIP रिमाइंडर जैसा दिखता है: इसमें न कोई लिंक है, न पेमेंट की माँग, न OTP; पैसा उसी ऑटो-डेबिट मैंडेट से कटेगा जो आपने पहले से लगाया है। फिर भी शक हो तो फ़ंड के आधिकारिक ऐप या स्टेटमेंट में अपनी SIP देख लें।
+यह असली SIP रिमाइंडर जैसा दिखता है: इसमें न कोई लिंक है, न पेमेंट की माँग, न OTP; पैसा उसी ऑटो-डेबिट मैंडेट से कटेगा जो आपने पहले से दिया है। फिर भी शक हो तो फ़ंड के आधिकारिक ऐप या स्टेटमेंट में अपनी SIP देख लें।
 
 - [ ] Wording, meaning, answer and explanation approved by a fluent reviewer.
 
@@ -93,7 +99,7 @@ Suggested change or issue:
 
 Answer: **genuine**.
 
-यह असली कॉन्ट्रैक्ट नोट की सूचना जैसा दिखता है: इसमें न लिंक है, न पेमेंट या OTP की माँग, सिर्फ़ ईमेल देखने को कहा गया है। फिर भी अपने ट्रेड ब्रोकर के आधिकारिक ऐप में मिलाकर देख लें।
+यह असली कॉन्ट्रैक्ट नोट की सूचना जैसा दिखता है: इसमें न लिंक है, न पेमेंट या OTP की माँग, सिर्फ़ ईमेल देखने को कहा गया है। फिर भी ब्रोकर के आधिकारिक ऐप में अपने ट्रेड मिलाकर देख लें।
 
 - [ ] Wording, meaning, answer and explanation approved by a fluent reviewer.
 
@@ -156,7 +162,7 @@ Suggested change or issue:
 ```text
 (sample) नमस्ते, मैं SEBI रजिस्टर्ड रिसर्च एनालिस्ट हूं (रजि. नं. INH000990045)।
 अगले हफ्ते खुलने वाले IPO में अपने इंस्टिट्यूशनल कोटे से आपको अलॉटमेंट दिलवा सकता हूं। एक लॉट ₹14,500 का है, पेमेंट इस UPI पर करें: ipoquota.desk@okaxis
-सीटें सीमित हैं, आज ही कन्फर्म करें।
+स्लॉट सीमित हैं, आज ही कन्फर्म करें।
 ```
 
 Answer: **scam**.
@@ -176,7 +182,7 @@ Suggested change or issue:
 
 Answer: **genuine**.
 
-यह आम बैंक OTP मैसेज है: इसमें कोई लिंक नहीं है और ख़ुद लिखा है कि OTP किसी को न बताएँ। अगर यह भुगतान आपने शुरू नहीं किया, तो OTP किसी को न दें, चाहे फ़ोन करने वाला ख़ुद को बैंक का बताए, और कार्ड के पीछे लिखे नंबर पर बैंक से बात करें।
+यह आम बैंक OTP मैसेज है: इसमें कोई लिंक नहीं है और ख़ुद लिखा है कि OTP किसी को न बताएँ। अगर यह भुगतान आपने शुरू नहीं किया, तो OTP किसी को न दें, चाहे फ़ोन करने वाला ख़ुद को बैंक से बताए, और कार्ड के पीछे लिखे नंबर पर बैंक से बात करें।
 
 - [ ] Wording, meaning, answer and explanation approved by a fluent reviewer.
 
@@ -185,7 +191,7 @@ Suggested change or issue:
 
 ## Hinglish
 
-Source: `seed/quiz/hinglish.json`, Git blob `34df753913e9c653965b82cd3283f74d618943f8`.
+Source: `seed/quiz/hinglish.json`, Git blob `6f1a7b50fba0a1b0c0ab2cb9b1760ff5ea055b35`.
 
 Overall reviewer result: Pending.
 
@@ -232,7 +238,7 @@ Suggested change or issue:
 
 Answer: **genuine**.
 
-Ye asli contract note ki notification jaisa lagta hai: na koi link, na payment, na OTP maanga gaya, sirf email check karne ko bola hai. Phir bhi apne trades broker ke official app me match kar lo.
+Ye asli contract note ki notification jaisa lagta hai: na koi link, na payment, na OTP maanga gaya, sirf email check karne ko bola hai. Phir bhi broker ke official app me apne trades match kar lo.
 
 - [ ] Wording, meaning, answer and explanation approved by a fluent reviewer.
 
@@ -329,7 +335,7 @@ Suggested change or issue:
 
 Answer: **genuine**.
 
-Exchange aise SMS bhejta hai taaki aap broker ke trades match kar sako: isme na link hai, na payment ki maang, na call karne ka number. Details apne registered email ya broker ke official app me dekho.
+Exchange aise SMS bhejta hai taaki aap check kar sako ki broker ne aapke PAN pe kaun se trades kiye: isme na link hai, na payment ki maang, na call karne ka number. Details apne registered email ya broker ke official app me dekho.
 
 - [ ] Wording, meaning, answer and explanation approved by a fluent reviewer.
 

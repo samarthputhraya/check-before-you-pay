@@ -24,7 +24,7 @@
       "id": "q3",
       "text": "(sample) Kaveri Stock Broking: Aapke 28-Oct-2026 ke trades ka contract note aapke registered email pe bhej diya gaya hai. PDF ka password aapka PAN hai (capital letters me). Kuch galat lage toh app ke Help section se humse baat karein.",
       "answer": "genuine",
-      "why": "Ye asli contract note ki notification jaisa lagta hai: na koi link, na payment, na OTP maanga gaya, sirf email check karne ko bola hai. Phir bhi apne trades broker ke official app me match kar lo.",
+      "why": "Ye asli contract note ki notification jaisa lagta hai: na koi link, na payment, na OTP maanga gaya, sirf email check karne ko bola hai. Phir bhi broker ke official app me apne trades match kar lo.",
       "pattern": "broker_contract_note",
       "difficulty": "medium"
     },
@@ -72,7 +72,7 @@
       "id": "q9",
       "text": "(sample) NSE: Trades executed on 28-Oct-2026 for PAN XXXXX1234X through your broker. Details have been sent to your registered email ID. If you have not done these trades, contact your broker immediately. -NSE",
       "answer": "genuine",
-      "why": "Exchange aise SMS bhejta hai taaki aap broker ke trades match kar sako: isme na link hai, na payment ki maang, na call karne ka number. Details apne registered email ya broker ke official app me dekho.",
+      "why": "Exchange aise SMS bhejta hai taaki aap check kar sako ki broker ne aapke PAN pe kaun se trades kiye: isme na link hai, na payment ki maang, na call karne ka number. Details apne registered email ya broker ke official app me dekho.",
       "pattern": "exchange_email_notice",
       "difficulty": "hard"
     },
