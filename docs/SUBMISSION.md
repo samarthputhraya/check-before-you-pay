@@ -14,6 +14,9 @@ docs/EVAL.md. If a number changes there, change it here too.
 | Demo video (88 s) | https://github.com/samarthputhraya/check-before-you-pay/blob/main/docs/demo.mp4 (upload it to YouTube as unlisted if the form wants a video link) |
 | Telegram bot | https://t.me/CheckBeforeYouPayBot (add it only once a real chat reply has been checked) |
 | QR code for posters and slides | [`docs/qr-live.png`](qr-live.png), which opens the site with `?ref=u_qr_poster` |
+| A4 poster with the QR, ready to print | [`docs/poster.pdf`](poster.pdf) (preview: [`docs/poster.png`](poster.png)); rebuild with `python tools/poster.py` |
+| Gallery images for the submission form | [`docs/screenshots/`](screenshots/): 8 phone screenshots of the live site (home, a Hindi verdict with its evidence, the share page, quiz, stats, pricing) |
+| Architecture and sequence diagrams | [`docs/diagrams/architecture.png`](diagrams/architecture.png), [`docs/diagrams/sequence.png`](diagrams/sequence.png) |
 
 ## Submission fields
 
@@ -82,7 +85,8 @@ The method and the misses are in docs/EVAL.md.
     Devanagari.
 
 **Built with:** FastAPI, SQLite, Preact with htm (no build step), Gemini (Flash-Lite for extraction and
-explanation, Gemini TTS for Listen), ffmpeg, Docker, and Google Cloud (Compute Engine, Cloud Build) behind Caddy.
+explanation, Gemini TTS for Listen), ffmpeg, Dodo Payments (test mode), the Telegram Bot API, Docker, and Google Cloud
+(Compute Engine, Cloud Build) behind Caddy.
 
 **Team**
 - **Samarth Puthraya:** product, contract, pitch, deploy.
@@ -93,14 +97,15 @@ Edit this list to match who actually did what before you submit.
 
 ## Launch posts
 
-Use the plain link, or add `?ref=u_<name>` (letters, digits, `_` or `-`) to see which post brought visits. Every
-visit with a ref is stored as a `ref_visit` event.
+Each post below carries its own `?ref=` tag, so every visit it brings is stored as a `ref_visit` event with that tag.
+To tag your own link, add `?ref=u_<name>` (letters, digits, `_` or `-`). Every page carries a 1200x630 preview image
+(og:image), which WhatsApp, X and LinkedIn use for link previews.
 
 **X (under 280 characters)**
 
 > Got a "VIP stock tips" message asking you to pay a UPI ID? Paste it here before you pay. In about 3 seconds you
 > see the red flags and the proof, in English, Hindi, Marathi, Tamil, Telugu, Kannada, Bengali or Hinglish.
-> https://34-45-129-243.sslip.io
+> https://34-45-129-243.sslip.io/?ref=u_x_launch
 
 **LinkedIn**
 
@@ -112,19 +117,21 @@ visit with a ref is stored as a `ref_visit` event.
 > registered brokers collect only through SEBI's @valid UPI handles. On 128 test messages it flagged 61 of 64 scams and 0 of 64 ordinary payment
 > requests.
 >
-> Try it on a message you've received: https://34-45-129-243.sslip.io
+> Try it on a message you've received: https://34-45-129-243.sslip.io/?ref=u_li_launch
 
 **WhatsApp forward (Hindi)**
 
 > कोई "VIP स्टॉक टिप्स" ग्रुप पैसे माँग रहा है? भेजने से पहले उनका मैसेज यहाँ पेस्ट करें। लगभग 3 सेकंड में
-> धोखाधड़ी के संकेत और उनका सबूत हिंदी में दिखेगा: https://34-45-129-243.sslip.io
+> धोखाधड़ी के संकेत और उनका सबूत हिंदी में दिखेगा: https://34-45-129-243.sslip.io/?ref=u_wa_hi
 
 **WhatsApp forward (English)**
 
 > Before you pay anyone from a "VIP stock tips" group, paste their message here. In about 3 seconds it shows the red
-> flags and the proof: https://34-45-129-243.sslip.io
+> flags and the proof: https://34-45-129-243.sslip.io/?ref=u_wa_en
 
 **Instagram caption (for creators; post it only after checking a message you actually received)**
 
 > I pasted a "guaranteed returns" message I got into this. High risk, with the exact lines that gave it away.
 > Check yours before you pay: link in bio. Then try the "Spot the scam" quiz.
+
+Link in bio: `https://34-45-129-243.sslip.io/?ref=u_ig_bio`. Quiz: `https://34-45-129-243.sslip.io/quiz?ref=u_ig_quiz`.
