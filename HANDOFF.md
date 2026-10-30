@@ -1,35 +1,34 @@
-# Handoff: Fri 30 Oct, 08:30 IST (launch morning)
+# Handoff: Fri 30 Oct, 13:30 IST
 
 ## What's live
-- **Site:** https://34-45-129-243.sslip.io runs branch `ops/launch` (85e0188). PR #11 is merged into `main`.
-  - PR #15 (`ops/launch` into `main`) is open, with every change from this morning.
-  - Merge it, then `bash deploy/gce/deploy.sh origin/main` to redeploy the same code from `main`.
-- **Health:** `/api/health` is ok, with the LLM and the database up.
-- **Tests:** 538 pass.
-- **Live smoke test after the reset:** passed in Marathi with a `u_test` ID.
-  - Check 3.1 s; Listen 200 in 6.7 s.
-  - Back button, share page audio, `/stats`, `/pricing` and `/quiz` all fine; no console errors.
-  - `/stats` stayed at 0.
-- **Stats were reset at 08:13.** The old database is at `/opt/cbyp/data/backups/pre-launch-app.db`. It held only our own testing.
-- **The demo is primed:** Sunita's message was run at 08:15 with `u_testdemoprime` (high risk, 100).
-- **Telegram is live:** [@CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot).
-  - Token and secret are on the VM, and the webhook is registered.
-  - A wrong or missing secret gets 401.
+- **Site:** https://34-45-129-243.sslip.io runs branch `ops/launch` at `ccdfb52`. Health is ok.
+  - PR #15 (`ops/launch` into `main`) is open and mergeable. Claude can't merge its own PR; a person has to.
+- **Dodo:** live in test mode. Family is ₹99 a month (Dodo refuses payments under US$1.00, so ₹49 couldn't be charged); API is ₹999.
+  - A test purchase paid end to end: Indian test card 4576 2389 1277 1450, then "Simulate Success" on Cashfree's page. The signed webhook marked the order paid in 1.9 s.
+  - The failure path works too (card 4242 fails at once for INR subscriptions). See docs/DODO.md.
+- **Telegram:** @CheckBeforeYouPayBot. The webhook is registered and has no errors, but no real chat has reached it yet.
+- **/stats:** reset at 08:13. It is still at **0 users**. Our own testing (`u_test` IDs) never counts.
+- **Link previews:** the plain site link shows a picture card (`web/og/home.png`), like the shared verdict links already did.
+- **Tests:** 539 pass.
 
 ## Needs a person, in this order
-1. **Dodo: create a test-mode API key (about 2 minutes).**
-   - Sign in at https://app.dodopayments.com, switch to Test Mode, then Developer → API Keys.
-   - Paste the key into `.env.railway` as `DODO_API_KEY`. The current key gets 401 from Dodo's test API.
-   - I couldn't make the account myself: the safety check blocked entering the sign-up code sent to Samarth's Gmail.
-   - Then run `python tools/dodo_setup.py .env.railway` and `bash deploy/gce/push_env.sh DODO_`.
-   - Then pay once with test card 4242 4242 4242 4242 (docs/DODO.md, step 6). Use a `u_test` ID so the order isn't counted.
-2. **Telegram: send the bot a real message.** Send a stock-tip text and a 3–5 MB screenshot. Nobody has seen a reply in a private chat yet.
-3. **Merge PR #15.** Risheeth's PRs #10 (speech model choice), #13 (MIT license and history audit) and #14 (consent and acceptance handoff) are his to merge. #10 changes Listen's model, so test it after deploying.
-4. **Phase 1 submission:** copy the text from [docs/SUBMISSION.md](docs/SUBMISSION.md).
-   - Fix the team credits first.
-   - Upload docs/demo.mp4 to YouTube (unlisted) if the form wants a video link.
-5. **viaSocket:** our webhook is ready, but the workflow needs a viaSocket account (docs/VIASOCKET.md, coupon HHGOA26-VIASOCKET). The README now says it isn't set up.
+1. **Get real users.** Every judging round asks "is anyone using it?", and we're at 0.
+   - **Posts:** copy is in docs/SUBMISSION.md, ready to paste, each with its own `?ref=` tag (X, LinkedIn, WhatsApp in Hindi and English, Instagram).
+   - **Creators:** ask the House of NGMI creators to check a real message they received.
+   - **Posters:** print docs/poster.pdf (A4, with a QR code) for the house and the demo stage.
+2. **Submit on Devfolio.** No Devfolio confirmation email has arrived, so Phase 1 may not be submitted.
+   - Final close: **Sat 31 Oct, 9:59 AM; aim for 7:59 AM.**
+   - Fields: docs/SUBMISSION.md. Gallery: docs/screenshots/. Diagrams: docs/diagrams/.
+   - Video: docs/demo.mp4. Upload it to YouTube as unlisted if the form wants a link.
+3. **Merge PR #15**, then `bash deploy/gce/deploy.sh origin/main`. It deploys the code that's already live.
+4. **Telegram:** open https://t.me/CheckBeforeYouPayBot, send /start, then a stock-tip message and a screenshot. Check the replies.
+5. **viaSocket:** create an account (coupon HHGOA26-VIASOCKET) and follow docs/VIASOCKET.md. Our webhook side is built.
 6. **AI Grants:** the form needs Samarth's WhatsApp (docs/AI_GRANTS.md).
+
+## TigerGraph Final Round (separate repo, FraudLens)
+- **Submitted** by email to Devanshu on 30 Oct: frozen commit `65f8a54692d96bc84523ef98c89ee7d7b1de635a` on `round2`.
+- **Turn off auto-suspend on the Savanna workspace**, and keep it running until 2 Nov. If it pauses while judges re-run a case, the run can't be reproduced.
+- Watch for Devanshu's reply with the freeze, Stage 1 and demo times.
 
 ## What changed this morning
 - **Stats leave out our testing.**
