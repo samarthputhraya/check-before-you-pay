@@ -32,8 +32,9 @@ from backend.schemas import Plan
 log = logging.getLogger('cbyp')
 
 BASE_URLS = {'test_mode': 'https://test.dodopayments.com', 'live_mode': 'https://live.dodopayments.com'}
-# plan id -> (name, product ID variable, fallback price variable, fallback price in rupees)
-PLANS = {'family': ('Family', 'DODO_PRODUCT_FAMILY', 'DODO_PRICE_FAMILY_INR', 49),
+# plan id -> (name, product ID variable, fallback price variable, fallback price in rupees). Family is ₹99, not ₹49:
+# Dodo refuses any payment under US$1.00 (seen live on 30 Oct).
+PLANS = {'family': ('Family', 'DODO_PRODUCT_FAMILY', 'DODO_PRICE_FAMILY_INR', 99),
          'api': ('API', 'DODO_PRODUCT_API', 'DODO_PRICE_API_INR', 999)}
 CHECKOUT_TIMEOUT = 8.0
 PRICE_TIMEOUT = 2.0

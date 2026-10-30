@@ -1,0 +1,58 @@
+sequenceDiagram
+    autonumber
+    actor U as Sunita (user)
+    participant W as Web app
+    participant B as FastAPI backend
+    participant G as Gemini API
+    participant R as RDAP registry
+    participant S as SQLite
+    actor F as Family on WhatsApp
+
+    U->>W: pastes the "VIP stock tips" message, language Hindi
+    W->>B: POST /api/check {lang, anon_id, input}
+    B->>B: validate input, rate limit (30 checks an hour per user)
+    B->>S: same message + language checked before?
+    alt cache hit
+        S-->>B: saved verdict (answered in under 1 s)
+    else new message
+        par extract in parallel
+            B->>B: regex: UPI IDs, phones, links, wallets
+            B->>G: extract claims (each quote must appear word for word)
+            B->>G: embed the message (script similarity)
+            B->>R: domain age (2 s limit, never fetches the user's link)
+        end
+        B->>S: link context: salted HMAC identifiers vs earlier high-risk or reported checks
+        S-->>B: linked checks (S4), near-copy script (S5)
+        B->>B: score with fixed signals S1-S7 (code only), band: high risk / caution / no known signals
+        B->>G: explain in Hindi, 2 sentences
+        G-->>B: explanation
+        B->>B: guards: right script, no made-up IDs, no invented reports, never "safe", else fixed text
+        B->>S: save check (masked evidence, hashed identifiers), cache it
+    end
+    B-->>W: verdict, score, signals with evidence, next steps, share URL
+    W-->>U: "High risk" + the exact lines that gave it away
+
+    opt Listen
+        U->>W: tap Listen
+        W->>B: GET /api/check/{id}/audio
+        B->>S: cached MP3?
+        B->>G: text to speech (first time only)
+        B->>B: ffmpeg to MP3, cache it
+        B-->>W: audio/mpeg, played in Hindi
+    end
+
+    opt Share with family
+        U->>W: tap Share
+        W->>W: draw the card in Hindi, open the share sheet
+        W->>B: event share_clicked
+        U->>F: forwards the card and link
+        F->>B: GET /c/{id}?ref=... (share page, with audio)
+        B->>S: event ref_visit (counts toward k-factor on /stats)
+    end
+
+    opt Report
+        U->>W: tap Report (optionally consent to keep the text)
+        W->>B: POST /api/report
+        B->>S: report linked to the check's identifiers
+        Note over B,S: The next person who checks the same UPI ID, number or website is warned (S4)
+    end

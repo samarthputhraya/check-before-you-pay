@@ -23,7 +23,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | 0:30-0:50 | Samarth | **Today.** "SEBI warned about exactly these groups on 22 October. Look at what a family can check today. SEBI Check needs you to know it exists. The 1930 helpline is for after the money's gone. The I4C registry only knows numbers someone already reported, and scammers make a new UPI ID every day. Truecaller screens calls, not a stock-tip group's payment request." |
 | 0:50-2:00 | *(demo driver)* | **Demo:** write after the check works (see 3) |
 | 2:00-2:30 | *(B)* | **How:** write after the check works. The likely line: "The risk score is a fixed formula over facts we check, like whether the UPI ID is a SEBI @valid handle and whether the link copies a real broker. The AI only reads the message and explains the result, so the same message always gets the same score." |
-| 2:30-3:00 | Samarth | **Close:** "Families pay ₹49 a month to cover everyone's phones. Brokers and banks can call the same check before a payment leaves. Next we take it into the WhatsApp groups where these scams start. Sunita's son forwards her the next VIP group message, and this time she sees the red flags before she pays." Use real usage numbers here once we have them: users, checks, shares. |
+| 2:30-3:00 | Samarth | **Close:** "Families pay ₹99 a month to cover everyone's phones. Brokers and banks can call the same check before a payment leaves. Next we take it into the WhatsApp groups where these scams start. Sunita's son forwards her the next VIP group message, and this time she sees the red flags before she pays." Use real usage numbers here once we have them: users, checks, shares. |
 
 ## 3. Demo path (live, on a phone, about 70 seconds)
 
@@ -31,7 +31,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 - Open https://34-45-129-243.sslip.io on the demo phone. Set the language to **हिन्दी**.
 - Copy both messages below into the phone's notes app.
 - Keep WhatsApp logged in.
-- Have the backup video open in another tab: [`docs/demo.mp4`](demo.mp4) (88 s, narrated, the same two messages; re-record with `tools/demo_video.py` after the stats reset).
+- Have the backup video open in another tab: [`docs/demo.mp4`](demo.mp4) (88 s, narrated, the same two messages; to re-record, run `tools/demo_video.py` against a local server, never the live site before the pitch).
 
 **Message 1, Sunita's** (sample; every ID is made up):
 
@@ -47,7 +47,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | 2 | The verdict appears (High risk) | "Under five seconds. Point at the evidence: this UPI ID isn't a SEBI @valid handle, the app link copies Zerodha, and here is the exact line where they promise 30% a month. The AI didn't decide this score. Fixed checks did, and every point has its proof." |
 | 3 | Tap **परिवार को भेजें** | "One tap sends this card to the family group on WhatsApp. That's how the warning travels as fast as the scam." |
 | 4 | Tap **दूसरा मैसेज जाँचें**, paste message 2, check | "A different message, from a different group, the next day." |
-| 5 | Point at "Linked to 1 earlier check through the same UPI ID" | "Scammers change messages every day. They can't hide that the money goes to the same place. Every check makes the next one smarter." |
+| 5 | Point at "Linked to 2 earlier checks … through the same UPI ID" (the morning run and step 1 both count) | "Scammers change messages every day. They can't hide that the money goes to the same place. Every check makes the next one smarter." |
 | 6 | Open `/stats` | "And this is live: real people, real checks, in these languages, since Friday." |
 
 **What the judge should notice:** the language, the speed, the evidence quotes, and the ring link in step 5.
@@ -55,8 +55,9 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 **Fallback line:** "The venue Wi-Fi is fighting us, so here's the same check recorded this morning." Then play the video from the same step.
 
 **Before the demo:**
-- Run message 1 once in the morning, so step 5 has a link to show.
-- Never run message 2 first.
+- Message 1 was run once on the live site after the stats reset (Fri 30 Oct, 08:15, test ID `u_testdemoprime`: high risk, 100). So step 1 answers from the cache in under a second with the same verdict, and step 5 has a link to show even if step 1 is skipped.
+- Each extra run of message 1 adds one to the count in step 5. Copies of message 2 never count, because a message never links to its own copies.
+- Never run message 2 before the demo.
 
 ## 4. Hard questions (2-sentence answers)
 
@@ -67,7 +68,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
    - Every check, ring link, report and quiz score on the live URL is real, and so are the numbers on /stats (sample data is excluded).
    - Messages labelled "(sample)" and the quiz messages are written by us; payments run in Dodo's test mode, so no real money moves.
 3. **Who pays, and why would they switch?**
-   - Families pay ₹49 a month because one stopped scam is worth years of it.
+   - Families pay ₹99 a month because one stopped scam is worth years of it.
    - Brokers and banks pay per check, because every scam payment that leaves through them becomes a dispute and a complaint.
 4. **What happens when the AI is wrong?**
    - The AI never decides the score: a fixed formula over checked facts does, and every signal shows its evidence.
