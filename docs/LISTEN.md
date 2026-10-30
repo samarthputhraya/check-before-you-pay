@@ -8,7 +8,9 @@ does not exist. No frontend files are changed in this PR.
 The speech is the masked public headline, explanation and first next step in
 their stored language. Gemini auto-detects the language of that text. It uses
 the existing discovered TTS model (`GEMINI_TTS_MODEL`, when set, must be in the
-available model list), with the prebuilt Kore voice. No source message, signal
+available model list), with the prebuilt Kore voice. When no model is configured,
+discovery prefers a Flash-Lite TTS model that advertises `generateContent`, then
+falls back to other capable TTS models. No source message, signal
 quote, transcript or URL is included. The wrapper validates WAV or explicitly
 typed little-endian PCM and ffmpeg converts it to mono MP3. Docker already
 installs ffmpeg; local development needs it on PATH. Audio too long to fit is
@@ -34,3 +36,19 @@ codec tests do not establish provider quality or phone playback.
 References: [Google Gen AI Python speech API](https://googleapis.github.io/python-genai/)
 and [Google speech formats](https://ai.google.dev/gemini-api/docs/speech-generation).
 ffmpeg options were checked against the installed `ffmpeg -h full` help.
+
+## Real-provider probes, 30 October
+
+Models were discovered using the local key. A short full Tamil verdict produced
+an 11.21-second MP3 using `gemini-3.8-flash-lite-tts` in 4.95 seconds; repeat
+retrieval took 18 ms and made no second TTS call. The initial default-model Tamil
+probe also succeeded but took 8.30 seconds overall. Hindi hit the 8-second
+provider limit in both initial endpoint probes. An isolated diagnostic using the
+same 109-character Hindi verdict and Flash-Lite then returned valid WAV speech
+in 5.06 seconds (9.96 seconds of speech). A 26-character Hindi diagnostic took
+2.85 seconds. These few observations show variable provider latency, not an SLA.
+After the discovery preference change, fresh end-to-end backend probes succeeded
+for Hindi in **4.23 s** (10.66 s of MP3) and Tamil in **4.60 s** (11.30 s of MP3).
+Their repeats took 15/16 ms, returned identical bytes and made no extra TTS call.
+The endpoint keeps its original timeout and returns a clean retryable 503 when
+it expires. No phone playback or native pronunciation signoff is claimed.

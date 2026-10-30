@@ -135,10 +135,13 @@ class Providers:
                     generative = sorted(n for n, m in available.items() if 'generateContent' in (m.supported_actions or [])
                                         and 'flash' in n and not any(s in n for s in ('preview','image','tts','live','native','omni')))
                     lite = [n for n in generative if 'lite' in n]
+                    speech = sorted(n for n, m in available.items()
+                                    if 'tts' in n and 'generateContent' in (m.supported_actions or []))
+                    speech_lite = [n for n in speech if 'flash' in n and 'lite' in n]
                     for role, env, candidates in [('extract','GEMINI_EXTRACT_MODEL', lite or generative),
                                                   ('explain','GEMINI_EXPLAIN_MODEL', lite or generative),
                                                   ('embed','GEMINI_EMBED_MODEL', sorted(n for n,m in available.items() if 'embedContent' in (m.supported_actions or []) and 'preview' not in n)),
-                                                  ('tts','GEMINI_TTS_MODEL', sorted(n for n in available if 'tts' in n))]:
+                                                  ('tts','GEMINI_TTS_MODEL', speech_lite or speech)]:
                         chosen = os.getenv(env, '').strip().removeprefix('models/')
                         capability = 'embedContent' if role == 'embed' else 'generateContent'
                         if chosen and (chosen not in available or capability not in (available[chosen].supported_actions or [])):
