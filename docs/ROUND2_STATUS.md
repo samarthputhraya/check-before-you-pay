@@ -47,16 +47,17 @@ MP3 in 4.23 s and Tamil MP3 in 4.60 s; cached retrieval took 15/16 ms without
 another model call. Earlier Hindi timeout failures and their diagnostic are
 documented in `docs/LISTEN.md`. Risheeth reported successful playback of both
 fresh Hindi and Tamil links, then identified his device as an iPhone on iOS 27.2.
-Basic iPhone playback is user-reported passed. Browser, device model, measured
-timing and native pronunciation details were not supplied. Android is pending.
+Basic iPhone playback is user-reported passed. Subsequent screenshot/voice
+uploads were tested in Safari: screenshot passed; voice did not (see below).
+Device model and native pronunciation details were not supplied. Android is pending.
 
 | Task | PR / state | Acceptance still required |
 |---|---|---|
-| R1 Telegram | Live; user reports text verdict and working link passed; setup follow-up in [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Screenshot/voice chat acceptance remains; the text result is user-reported |
+| R1 Telegram | Live; Risheeth text/link passed; Samarth's main-branch docs report real-chat text, screenshot and voice success; setup follow-up in [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Code follow-up review; `/lang hi` and unsupported file not live-tested |
 | R2 Listen | Live; fresh Hindi/Tamil iPhone iOS 27.2 playback user-reported passed; follow-up in [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Android acceptance pending; Listen-button flow and native pronunciation not recorded |
 | R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12), merged through #11; tests passed | Code task complete |
 | R4 public readiness | [#13](https://github.com/samarthputhraya/check-before-you-pay/pull/13) | Samarth reviews scan; rerun before visibility change |
-| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14); retain Samarth's live viaSocket workflow per user decision | Clip assigned to Samarth; corpus not collected; Hindi/Hinglish reviewer available but approval pending; screenshot/voice phone tests |
+| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14); retain Samarth's live viaSocket workflow; iPhone Safari screenshot passed | Voice recording failed, transcript needed; test-ID relabelling pending; Android pending; clip with Samarth; corpus absent; fluent quiz approval pending |
 
 The confirmed public bot username is **CheckBeforeYouPayBot**:
 https://telegram.me/CheckBeforeYouPayBot. The user supplied the token in `.env.example`;
@@ -66,8 +67,10 @@ already points to the live endpoint, with zero pending updates and no recent
 delivery error. The existing registration was preserved. Risheeth subsequently
 reported that the requested private-chat text check passed with a verdict and
 working link, responding to the under-10-second test prompt. No timing trace was
-captured here. Screenshot/voice chat acceptance remains. Keep credentials out
-of PRs and chat; the production viaSocket URL is already configured by Samarth.
+captured here. Main `95fafa9` now includes Samarth's real-chat text, screenshot
+and voice tests at 1.7–5.0 s server time, documented in `docs/TELEGRAM.md`.
+Keep credentials out of PRs and chat; the production viaSocket URL is already
+configured by Samarth.
 
 The user's browser timed out reaching `t.me`, before opening the chat. They were
 directed to search for `@CheckBeforeYouPayBot` inside the Telegram app. This is
@@ -127,6 +130,18 @@ caution 30 in 4.42/2.55 s, retaining the guaranteed-return and deposit meaning.
 These are authored API probes, not the pending Android screenshot/voice test
 or ten consented human voice notes. The initial screenshot wall-time miss is
 retained in `docs/PHONE_ACCEPTANCE.md`; its root cause was not established.
+
+Risheeth then reported actual iPhone/Safari uploads on 30 October. Screenshot
+`chk_01M66FCVS35V00B5` passed at about 18:48 IST: high risk 100 in about 2.4 s,
+with domain age unchecked. Voice `chk_01M66FJQ4DS3N0PG` did not pass at about
+18:52: no known signals 0 in about 2.3 s, where caution was expected. A clean M4A
+control of the same script, `chk_01M66G2981H1TRN0`, returned caution 30.
+The public API confirms these verdicts, but omits transcripts. The failed
+recording's "What we read" text and original file are needed to isolate the
+cause. A transcription difference is a hypothesis, not a finding. The original
+phone identity still needs Samarth's test relabelling; it was not a `u_test` ID.
+Android and the ten-note human voice gate remain pending. Do not mark voice
+acceptance passed based on the clean control or the earlier synthetic probes.
 
 ## Instructions ready for the human handoff
 

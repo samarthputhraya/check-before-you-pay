@@ -2,10 +2,37 @@
 
 **30 October results:** Risheeth reported that the fresh Hindi and Tamil MP3
 links both worked and clarified that his device is an iPhone running iOS 27.2.
-Basic iPhone audio playback is user-reported passed. Browser, device model,
-phone timings, complete Listen-button flow and native pronunciation details
-were not supplied. Android acceptance remains pending. Real WhatsApp screenshot
-and scripted voice-note acceptance remain pending on the actual test device.
+Basic iPhone audio playback is user-reported passed. The subsequent upload
+checks below were performed in Safari. Device model, complete Listen-button
+flow and native pronunciation details were not supplied. Android remains pending.
+
+## iPhone Safari upload results, 30 October
+
+| Check | Time (IST, approximate) | Check ID | Result | Acceptance |
+|---|---|---|---|---|
+| Screenshot | 18:48 | `chk_01M66FCVS35V00B5` | High risk 100; 2.4 s; S1 50, S4 20, S5 15, S6 40; domain age unchecked | PASS, user-reported |
+| Phone voice recording | 18:52 | `chk_01M66FJQ4DS3N0PG` | No known signals 0; 2.3 s; expected caution | NOT PASSED |
+| Clean M4A of the same script through the live API | Not supplied | `chk_01M66G2981H1TRN0` | Caution 30; correct transcript reported | API control passed; not a replacement for the failed phone recording |
+
+The assistant retrieved all three public verdicts and confirmed the bands,
+scores and unchecked fields. Stored server latencies were 2404, 2337 and
+2060 ms respectively; these are distinct from the user's approximate timings.
+The failed recording returned no signals and no unchecked stages. That alone
+does not distinguish a transcription difference from missing/rejected claims.
+The clean M4A success proves one controlled audio input works, not that the
+original recording was understood correctly. Root cause remains unproven.
+
+The original phone result's "What we read" transcript has been requested.
+Public verdicts omit transcripts by design, and the database excludes source
+transcripts from saved verdict JSON; the public API cannot recover this text.
+If the result page is no longer open, use the original recording from outside
+Git for a reproducible investigation. Do not alter scoring rules or force the
+expected band while the evidence is missing.
+
+The phone used a non-test anonymous ID for these checks. Samarth must relabel
+that known test identity and associated usage as testing before any usage claims.
+This relabelling has not been confirmed. Future iPhone checks should use
+`u_test_risheeth_iphone`; changing browser storage affects future checks only.
 
 ## iPhone test identity
 
@@ -20,8 +47,9 @@ javascript:localStorage.setItem('cbyp_anon_id','u_test_risheeth_iphone');alert(l
 The alert must show `u_test_risheeth_iphone`; dismiss it and allow the page to
 reload before uploading. Keep subsequent tests in the same Safari context.
 Storage is separate between browsers; configuring Safari does not configure
-Chrome or an Android phone. This setup has been instructed, not yet confirmed
-on the user's phone. iPhone results cannot close the separate Android gate.
+Chrome or an Android phone. The reported upload checks still used a non-test
+ID, so the test-ID setup has not been confirmed. iPhone results cannot close
+the separate Android gate.
 
 ## Synthetic live API preflight, 30 October
 
