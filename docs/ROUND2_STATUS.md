@@ -117,6 +117,16 @@ Risheeth replied that the replacements worked, confirming playback in response
 to the Android prompt. This is user-reported evidence; no phone model, measured
 timing or detailed native pronunciation assessment was supplied.
 
+Synthetic media preflight then checked the live input pipeline with `u_test`
+IDs. A labelled Hindi screenshot returned high risk 100 with no unchecked stages
+in 14.31 s wall time (4.62 s stored pipeline timing); an uncached warm-connection
+control returned the same result in 5.28 s (2.92 s pipeline timing). English and
+Hindi synthetic OGG fixtures reading the fictional en1/hi1 scripts returned
+caution 30 in 4.42/2.55 s, retaining the guaranteed-return and deposit meaning.
+These are authored API probes, not the pending Android screenshot/voice test
+or ten consented human voice notes. The initial screenshot wall-time miss is
+retained in `docs/PHONE_ACCEPTANCE.md`; its root cause was not established.
+
 ## Instructions ready for the human handoff
 
 - `docs/VIASOCKET.md`: exact masked fields, private demo Sheet, own-email recipient,

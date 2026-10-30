@@ -6,6 +6,34 @@ audio playback is user-reported passed. Device model, phone timings, complete
 Listen-button flow and native pronunciation details were not supplied.
 Real WhatsApp screenshot and scripted voice-note acceptance remain pending.
 
+## Synthetic live API preflight, 30 October
+
+These checks used `u_test` IDs and authored fixtures. They do not establish
+Android upload behavior, real-message performance, consented voice collection
+or the ten-note human acceptance gate below.
+
+| Input | Check ID | HTTP | Wall time | Stored/server processing | Result |
+|---|---|---:|---:|---:|---|
+| Hindi screenshot | `chk_01M66C5G3QW6FJK5` | 200 | 14.31 s | 4.62 s stored | high risk, 100 |
+| Same screenshot, warm connection and neutral sample label | `chk_01M66CBJD7RS3TQX` | 200 | 5.28 s | 2.92 s | high risk, 100 |
+| English synthetic OGG reading en1 | `chk_01M66C60066WWKXW` | 200 | 4.42 s | Not recorded | caution, 30 |
+| Hindi synthetic OGG reading hi1 | `chk_01M66C662KK1GPZN` | 200 | 2.55 s | Not recorded | caution, 30 |
+
+All four checks were uncached and returned no unchecked stages. The screenshot
+fixture is the labelled sample in `docs/screenshots/2-home-hi-filled.png`.
+The two voice fixtures were generated using the discovered TTS model's stock
+voice from the fictional scripts below, then converted to OGG/Opus. They are
+not housemate recordings. English and Hindi transcripts retained the promised
+doubling in seven days and deposit request. Caution is the expected band for
+these claims-only scripts; neither contains a payment identifier.
+
+The first screenshot exceeded the ten-second wall-time target. Its stored
+pipeline timing excludes upload, request parsing and input validation. The warm
+control used the same image plus a neutral sample label to avoid the cache.
+The timing difference does not establish a root cause; keep both observations
+and verify on the actual phone/network before claiming screenshot acceptance.
+No frontend, scoring or pipeline changes were made for these probes.
+
 Use a real Android phone and the live site. Record device/browser, IST time,
 network, check ID, wall time, language, expected result, actual result and issue.
 Use anonymous IDs starting `u_test`. No phone test is claimed by API tests.
