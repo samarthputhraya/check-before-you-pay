@@ -78,10 +78,19 @@ async def encode_mp3(data: bytes) -> bytes:
 async def keep_warm(every: float = 600) -> None:
     """Keep ffmpeg's libraries in the 1 GB VM's page cache, so a Listen tap doesn't pay for a cold start."""
     while True:
+        proc = None
         with suppress(Exception):  # no ffmpeg (a dev laptop) just means nothing to warm
-            proc = await asyncio.create_subprocess_exec('ffmpeg', '-hide_banner', '-version',
-                stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
-            await asyncio.wait_for(proc.wait(), 30)
+            try:
+                proc = await asyncio.create_subprocess_exec('ffmpeg', '-hide_banner', '-version',
+                    stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+                await asyncio.wait_for(proc.wait(), 30)
+            finally:
+                # Shutdown/timeout must reap the child too; otherwise Windows test
+                # loops and server restarts can leave a live subprocess transport.
+                if proc is not None and proc.returncode is None:
+                    with suppress(ProcessLookupError):
+                        proc.kill()
+                    await proc.wait()
         await asyncio.sleep(every)
 
 
