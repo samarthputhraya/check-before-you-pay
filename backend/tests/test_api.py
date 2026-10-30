@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import io
+import re
 
 from PIL import Image
 from pathlib import Path
@@ -346,6 +347,15 @@ def test_web_routes_serve_the_app(client, path):
     assert resp.status_code == 200
     assert "text/html" in resp.headers["content-type"]
     assert '<div id="app">' in resp.text
+
+
+def test_home_link_has_a_picture_preview(client):
+    # Creators share the plain site link; WhatsApp shows a picture only for an absolute og:image that exists.
+    html = client.get("/").text
+    image = re.search(r'<meta property="og:image" content="https://[^/]+(/og/home\.png)">', html)
+    assert image and '<meta name="twitter:card" content="summary_large_image">' in html
+    resp = client.get(image.group(1))
+    assert resp.status_code == 200 and resp.headers["content-type"] == "image/png"
 
 
 def test_security_headers(client):

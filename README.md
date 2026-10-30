@@ -53,10 +53,10 @@ The method, the data, the confidence intervals and the misses are in [docs/EVAL.
 | Partner | What it does here |
 |---|---|
 | **Gemini** (organisers' key) | Reads screenshots and WhatsApp voice notes, extracts claims with verified quotes, and explains every verdict in 8 languages. Model names are discovered from the key at startup and retried if discovery fails |
-| **Dodo Payments** | The Family plan (₹49 a month) and the API plan, sold through Dodo's hosted checkout in test mode. Only Dodo's signed webhook can mark an order paid. [Setup](docs/DODO.md) |
-| **viaSocket** | Every report fires a webhook (masked fields only, never message text) that a viaSocket workflow turns into a family alert and a sheet row. `/api/check` also works as an HTTP step in any viaSocket workflow. [Setup](docs/VIASOCKET.md) |
+| **Dodo Payments** | The Family plan (₹99 a month) and the API plan (₹999 a month), sold through Dodo's hosted checkout in test mode. Only Dodo's signed webhook can mark an order paid. **Status:** live in test mode; a full test purchase was checked on the live site. [Setup](docs/DODO.md) |
+| **viaSocket** | Every report can fire a webhook (masked fields only, never message text) for a viaSocket workflow to turn into a family alert and a sheet row. `/api/check` also works as an HTTP step in any viaSocket workflow. **Status:** our side is built and tested offline; the viaSocket workflow itself isn't set up yet. [Setup](docs/VIASOCKET.md) |
 | **Cake Wallet** | Ethereum, Bitcoin and Tron wallet addresses are extracted, masked and ring-linked like UPI IDs, with no login and no raw data stored |
-| **AI Grants India** | Credits for the fallback model provider behind the same wrapper |
+| **AI Grants India** | Not used yet. The LLM wrapper already falls back to an OpenAI model when one is configured; AI Grants credits would pay for it. The application is drafted in [docs/AI_GRANTS.md](docs/AI_GRANTS.md) |
 | **TigerGraph** | Not in this app. Samarth's FraudLens is our entry in TigerGraph's separate six-team Final Round |
 
 ## What's real, and what's sample
@@ -71,7 +71,7 @@ The method, the data, the confidence intervals and the misses are in [docs/EVAL.
   Sample checks are excluded from every usage number.
 - **Test mode:**
   - Dodo payments run in test mode, so no real money moves.
-  - The plans show "Coming soon" until the Dodo products are configured.
+  - Test purchases use Dodo's test cards (see docs/DODO.md).
 
 ## Privacy
 - **Identifiers are stored as salted HMAC hashes.** Pages show only masked values like `98xxxxxx21` or `tr…@ybl`.
@@ -139,7 +139,7 @@ The live site is **https://34-45-129-243.sslip.io**. It runs on one Google Cloud
 
 ### Payments (Dodo)
 
-The `/pricing` page sells a Family plan (₹49 a month) and an API plan through Dodo Payments' hosted checkout, in
+The `/pricing` page sells a Family plan (₹99 a month) and an API plan (₹999 a month) through Dodo Payments' hosted checkout, in
 test mode unless live mode is approved. No payment is ever faked: only Dodo's signed webhook can mark an order paid.
 
 - `GET /api/plans` shows each plan's price as Dodo will charge it. The price is read from the Dodo product and
@@ -148,11 +148,11 @@ test mode unless live mode is approved. No payment is ever faked: only Dodo's si
   is polled after the customer comes back.
 - `POST /api/dodo/webhook` checks the Standard Webhooks signature and processes each `webhook-id` once. It marks the
   order paid only if the event matches that order's checkout or product.
-- No key reaches the browser or the logs. We store no email or payment details, and `orders_paid` in `/api/stats`
-  counts paid orders.
+- No key reaches the browser or the logs. We store no email or payment details. `orders_paid` in `/api/stats`
+  counts paid orders, leaving out our own `u_test` test purchases.
 
-Setup, test cards and the pricing-page flow are in [docs/DODO.md](docs/DODO.md). Read its first section before
-creating products: Dodo's subscription minimum is about US$1.00, so a ₹49-a-month plan may be refused.
+Setup, test cards and the pricing-page flow are in [docs/DODO.md](docs/DODO.md). Family is ₹99 rather than ₹49
+because Dodo refuses any payment under US$1.00.
 
 ### Rules
 

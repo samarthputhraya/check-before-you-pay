@@ -1,32 +1,71 @@
 # Dodo Payments setup (test mode)
 
-The backend code is done and tested offline against a mocked Dodo. It has not made a real Dodo call yet, because we
-have no key. These steps take about 15 minutes in the Dodo dashboard, and step 6 is the first real end-to-end test.
+**Live in test mode since Fri 30 Oct, 10:30 IST.** Both plans are on sale at https://34-45-129-243.sslip.io/pricing.
+A full test purchase was checked on the live site: Family → Dodo's checkout → Indian test card → Cashfree's simulator
+→ back to `/pricing`. The signed webhook marked the order paid within 2 seconds. A failed payment marks the order
+failed, and the page says so.
 
-## Read first: ₹49 may be below Dodo's subscription minimum
+| | Test-mode value |
+|---|---|
+| Family | `pdt_0NqpoynrJI45dFaNw9kBM`, ₹99 a month |
+| API | `pdt_0NqpoyuFvUJobBvB1Zkfj`, ₹999 a month |
+| Webhook | `ep_3LOjZOCKv9g5r9ZvmUgw8JssVg1`, for the four events in step 3 |
 
-Dodo's [minimum amounts](https://docs.dodopayments.com/features/adaptive-currency.md#minimum-amounts) table says a
-subscription in any currency other than USD, EUR or GBP must be worth at least **US$1.00**. INR's own minimum is
-₹5, but the US$1.00 check applies on top of it. ₹49 is about US$0.55, so Dodo will probably refuse a ₹49-a-month
-subscription with `TOTAL_PAYMENT_AMOUNT_BELOW_MINIMUM_AMOUNT`.
+## Quick setup: one key, two commands (about 5 minutes)
 
-- Step 6 shows whether it does. When checkout fails, the server log prints Dodo's error code, for example
-  `dodo checkout failed: HTTP 422 TOTAL_PAYMENT_AMOUNT_BELOW_MINIMUM_AMOUNT`.
-- If it does, raise the Family price in Dodo to ₹99 a month (about US$1.10). The pricing page reads its prices from
-  Dodo, so no code change is needed. The brief and the contract say ₹49, so tell role A before you change it.
+Only step 1 needs a person in the dashboard. The tool does steps 2 to 4 of the manual setup below through Dodo's API.
 
-## 1. Test mode and an API key
+1. Sign in at https://app.dodopayments.com, switch to **Test Mode**, open **Developer → API Keys**, create a key and
+   paste it into `.env.railway` as `DODO_API_KEY=…`. It is shown once.
+2. Create the products and the webhook, and write the settings:
+
+   ```bash
+   python tools/dodo_setup.py .env.railway
+   ```
+
+   - It creates **Check Before You Pay: Family** (₹99 a month) and **Check Before You Pay: API** (₹999 a month), both
+     INR and billed monthly, and a webhook to `<PUBLIC_BASE_URL>/api/dodo/webhook` for the four events in step 3.
+   - It reuses products with those names and a webhook with that URL, so running it again creates nothing new. If a
+     product's price in Dodo differs from the one in the tool, it reprices it.
+   - It writes `DODO_MODE`, both product IDs, both fallback prices and `DODO_WEBHOOK_SECRET` into the file. It prints
+     the IDs, never the key or the secret.
+   - It was run against the real test-mode API on 30 Oct. If Dodo rejects a request, it prints Dodo's error code;
+     fall back to the manual steps.
+3. Copy the settings to the VM and restart the app (about 10 seconds of downtime):
+
+   ```bash
+   bash deploy/gce/push_env.sh DODO_
+   ```
+
+4. Check with step 5 (`/api/plans`), then pay with a test card as in step 6.
+
+## Why Family is ₹99, not ₹49
+
+Dodo refuses any payment under **US$1.00**. On 30 Oct a ₹49 checkout opened, but pressing Continue on Dodo's page
+failed with "Minimum amount of 1.00 USD is required to process payment". ₹99 is about US$1.10. The brief and the
+contract said ₹49; ₹99 is the lowest round price Dodo will take.
+
+## Which test payment methods work for an INR subscription
+
+| Method | Result on 30 Oct |
+|---|---|
+| Indian Visa `4576 2389 1277 1450`, `06/32`, CVV `123` | Opens Cashfree's test simulator (India's card mandate step). **Simulate Success** pays; **Simulate Failure** fails |
+| Visa `4242 4242 4242 4242` | Fails at once: Dodo sends `payment.failed`. Use it to test the failure path |
+
+## Manual setup
+
+### 1. Test mode and an API key
 
 1. Open the Dodo dashboard and switch to **Test Mode**. A test-mode key only works against test mode.
 2. Go to **Developer → API Keys**, create a key and copy it. It is shown once.
 
-## 2. Create the two products
+### 2. Create the two products
 
 Go to **Products → Add product** and create both of these:
 
 | Product | Type | Price | Currency | Billing |
 |---|---|---|---|---|
-| Family | Subscription | ₹49 (see above) | INR | every 1 month |
+| Family | Subscription | ₹99 (see above) | INR | every 1 month |
 | API | Subscription | ₹999 | INR | every 1 month |
 
 - Copy each product ID (`pdt_…`).
@@ -36,7 +75,7 @@ Go to **Products → Add product** and create both of these:
   shows a price Dodo won't charge.
 - Dodo always treats INR-to-INR payments as tax-inclusive, so the price on the page is the amount charged.
 
-## 3. Add the webhook endpoint
+### 3. Add the webhook endpoint
 
 1. Go to **Developer → Webhooks → Add endpoint**.
 2. URL: `https://34-45-129-243.sslip.io/api/dodo/webhook`
@@ -44,7 +83,7 @@ Go to **Products → Add product** and create both of these:
    Don't leave the selection empty, because an empty selection sends every event type.
 4. Click **Create endpoint**, then copy the signing secret (`whsec_…`) from the endpoint's **Overview** tab.
 
-## 4. Set the environment variables
+### 4. Set the environment variables
 
 For local runs, put these in `.env`. For the VM, put them in `/opt/cbyp/app.env`, which reaches the VM with
 `gcloud compute scp` (see the Deploy section of the README). Then restart or redeploy.
@@ -55,7 +94,7 @@ DODO_WEBHOOK_SECRET=whsec_<from the endpoint's Overview tab>
 DODO_MODE=test_mode
 DODO_PRODUCT_FAMILY=pdt_<Family>
 DODO_PRODUCT_API=pdt_<API>
-DODO_PRICE_FAMILY_INR=49     # shown only while Dodo can't be reached
+DODO_PRICE_FAMILY_INR=99     # shown only while Dodo can't be reached
 DODO_PRICE_API_INR=999
 PUBLIC_BASE_URL=https://34-45-129-243.sslip.io
 ```
@@ -65,7 +104,7 @@ PUBLIC_BASE_URL=https://34-45-129-243.sslip.io
 - Checkout stays off until the key, the webhook secret and that plan's product ID are all set. Without the secret,
   no payment could ever be confirmed.
 
-## 5. Check the configuration
+### 5. Check the configuration
 
 ```bash
 curl https://34-45-129-243.sslip.io/api/plans
@@ -81,22 +120,23 @@ shows `false`, the server log names the cause:
 | `dodo product for api is off sale: not billed in INR every month` | Fix the product's currency or billing period |
 | `dodo price lookup for api failed: ConnectTimeout` | Dodo didn't answer. The plan stays on sale at the fallback price, and the lookup is retried after a minute |
 
-## 6. Test end to end
+### 6. Test end to end
 
-1. Open `https://34-45-129-243.sslip.io/pricing`, choose Family and pay on Dodo's page with a
-   [test card](https://docs.dodopayments.com/miscellaneous/testing-process.md):
-   - Visa `4242 4242 4242 4242`, expiry `06/32`, CVV `123`.
-   - Or the Indian Visa `4576 2389 1277 1450` with the same expiry and CVV.
-   - Or the UPI ID `success@upi`, with the billing country set to India.
-2. Dodo sends you back to `/pricing?order=ord_…`. Within a few seconds `GET /api/orders/ord_…` should return
-   `"status": "paid"`, and `orders_paid` in `/api/stats` should go up by 1.
-3. Under **Developer → Webhooks**, the endpoint's delivery log should show `200` for each event.
-4. Try a declined card, `4000 0000 0000 0002`. The order should become `failed`. A retry that then succeeds on the
-   same checkout page still marks it `paid`.
-5. **Send example** on the webhook page should also get `200`. The example's metadata doesn't name any of our orders,
+1. Open `https://34-45-129-243.sslip.io/pricing` with a `u_test` anon ID, so the order isn't counted in `/stats`
+   (`localStorage.setItem('cbyp_anon_id', 'u_testyourname')`, then reload).
+2. Choose Family, fill in Dodo's contact step, choose **Card** and pay with the Indian test Visa
+   `4576 2389 1277 1450`, `06/32`, CVV `123`. On Cashfree's simulator page, press **Simulate Success**.
+3. Dodo sends you back to `/pricing?order=ord_…`. Within a few seconds `GET /api/orders/ord_…` should return
+   `"status": "paid"`, and the page says the payment was received. With a visitor's ID, `orders_paid` in `/api/stats`
+   goes up by 1.
+4. Under **Developer → Webhooks**, the endpoint's delivery log should show `200` for each event.
+5. Try the failure path with `4242 4242 4242 4242`, or **Simulate Failure** on Cashfree's page. The order should
+   become `failed`, and the page says the payment didn't go through. A retry that then succeeds on the same checkout
+   page still marks it `paid`.
+6. **Send example** on the webhook page should also get `200`. The example's metadata doesn't name any of our orders,
    so it changes nothing, but a `200` proves the signing secret is right. A `401` means the secret is wrong.
 
-## 7. What the pricing page must do (role C)
+### 7. What the pricing page must do (role C)
 
 1. **Read the plans.** Read `GET /api/plans` and show each `price_inr` per month.
    - If `available` is `false`, disable that plan's button and show "Coming soon".

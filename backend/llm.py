@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import logging
 import os
 import re
 import time
@@ -19,6 +20,8 @@ from backend.config import get_settings
 from backend.links import Embedding
 from backend.privacy import mask_text
 from backend.schemas import Band, Lang, Signal
+
+log = logging.getLogger('cbyp')
 
 T = TypeVar('T', bound=BaseModel)
 LANGUAGE_NAMES = dict(en='English', hi='Hindi', mr='Marathi', ta='Tamil', te='Telugu', kn='Kannada', bn='Bengali', hinglish='Hinglish in Latin script')
@@ -150,7 +153,9 @@ class Providers:
                         if chosen or candidates:
                             self.models[role] = chosen or candidates[-1]
                     self.ready = 'extract' in self.models
-                except Exception:
+                except Exception as exc:
+                    # The exception type only: no message, URL or key. Seen once at a cold start on 30 Oct.
+                    log.warning('gemini model discovery failed: %s; retrying in 30 s', type(exc).__name__)
                     self.ready = False
             if os.getenv('OPENAI_API_KEY', '').strip():
                 if self.openai is None:
