@@ -21,7 +21,7 @@
    - Fields: docs/SUBMISSION.md. Gallery: docs/screenshots/. Diagrams: docs/diagrams/.
    - Video: docs/demo.mp4. Upload it to YouTube as unlisted if the form wants a link.
 3. **Merge PR #17** (PR #15 is merged). The live site already runs its code, so no deploy is needed.
-4. **Telegram:** open https://telegram.me/CheckBeforeYouPayBot (or search CheckBeforeYouPayBot in the Telegram app), send /start, then a stock-tip message and a screenshot. Check the replies.
+4. **Telegram:** done. Checked in a real chat on 30 Oct (text, screenshot, voice note); see docs/TELEGRAM.md. Those 4 checks are Samarth's own tests, not users.
    - `t.me` and `telegram.org` time out on the hotel Wi-Fi (its DNS sends `t.me` to a different address than Google DNS does). `telegram.me`, `web.telegram.org` and the bot API all work, so the docs link to `telegram.me`.
 5. **viaSocket:** done. The flow is live and tested; see docs/VIASOCKET.md. The coupon wasn't applied: the free plan covers it. The two test rows were deleted from the sheet on 30 Oct; it holds only the header now.
 6. **AI Grants:** the form needs Samarth's WhatsApp (docs/AI_GRANTS.md).
