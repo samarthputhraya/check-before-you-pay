@@ -8,16 +8,18 @@ for Samarth's post-freeze review.
 
 ## Current combined verification
 
-Against main `afd5f77`, all pending Role B branches plus the test-isolation fix
-in [#16](https://github.com/samarthputhraya/check-before-you-pay/pull/16) merged
-locally without conflicts. The combined suite passed **551 tests in 53.07 s**:
+Against main `f5b4267` (including PR #15), all pending Role B branches, the
+test-isolation fix in [#16](https://github.com/samarthputhraya/check-before-you-pay/pull/16)
+and Samarth's deployed PR #17 were merged locally. A Telegram documentation
+conflict was resolved on its own PR branch to preserve the live configuration
+and identity guard. The combined suite passed **553 tests in 62.21 s**:
 `python -m pytest -o addopts='' -q --tb=short`.
 The test-isolation fix clears the developer's `PUBLIC_BASE_URL` in the offline
 fixture: otherwise a live HTTPS URL makes the HTTP test client's event cookie
 Secure and causes shares to be omitted. Production cookie security is unchanged.
 The combined diff against this main leaves scoring files and `web/` unchanged.
 The integration branch remains local and is not a deployment branch.
-A history scan at integration commit `e405cb4` covered **149 reachable commits**:
+A history scan at integration commit `df2c3ef` covered **178 reachable commits**:
 no committed `.env` or `.env.railway`, and only the two documented public
 Standard Webhooks test vectors. This is a heuristic scan; rerun it before
 making the repository public.
@@ -41,7 +43,7 @@ documented in `docs/LISTEN.md`. Android/native-speaker acceptance remains pendin
 
 | Task | PR / state | Acceptance still required |
 |---|---|---|
-| R1 Telegram | Initial code on main; identity/setup tests in [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Real forwarded text/photo/voice chat test under 10 s; server configuration if that fails |
+| R1 Telegram | Live; user reports text verdict and working link passed; setup follow-up in [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Screenshot/voice chat acceptance remains; the text result is user-reported |
 | R2 Listen | Backend and button on main/live; later model/warmup fixes in [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Physical Android playback and native pronunciation |
 | R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12), merged through #11 | Dodo test-mode delivery when valid server keys exist |
 | R4 public readiness | [#13](https://github.com/samarthputhraya/check-before-you-pay/pull/13) | Samarth reviews scan; rerun before visibility change |
@@ -52,9 +54,11 @@ https://t.me/CheckBeforeYouPayBot. The user supplied the token in `.env.example`
 it was moved to ignored `.env` and cleared from the tracked template before any
 commit. `getMe` successfully verified the exact username. `getWebhookInfo`
 already points to the live endpoint, with zero pending updates and no recent
-delivery error. The existing registration was preserved. Real chat acceptance
-is still required; registration alone is not proof of a reply. No viaSocket
-webhook URL has been supplied. Keep credentials out of PRs and chat.
+delivery error. The existing registration was preserved. Risheeth subsequently
+reported that the requested private-chat text check passed with a verdict and
+working link, responding to the under-10-second test prompt. No timing trace was
+captured here. Screenshot/voice chat acceptance remains. Keep credentials out
+of PRs and chat; the production viaSocket URL is already configured by Samarth.
 
 The user's browser timed out reaching `t.me`, before opening the chat. They were
 directed to search for `@CheckBeforeYouPayBot` inside the Telegram app. This is
@@ -105,6 +109,8 @@ native-speaker acceptance. Samarth's viewport/browser checks are in `HANDOFF.md`
   public-release consent, real-data schema and the current evaluation command.
 - `docs/PHONE_ACCEPTANCE.md`: ten fictional voice scripts, Android screenshot and
   Listen checks, and native Hindi/Hinglish/Marathi quiz review.
+- `docs/QUIZ_NATIVE_REVIEW.md`: readable messages, explanations, approval fields
+  and exact source revision hashes for a fluent reviewer. Approval remains pending.
 
 The planned Thursday 6–9 PM collection window has passed; no resulting files were
 provided. `eval/real.jsonl` and real-data results are intentionally absent. Do not
