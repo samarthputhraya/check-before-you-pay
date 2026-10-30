@@ -1,10 +1,27 @@
 # Phone and voice acceptance
 
 **30 October results:** Risheeth reported that the fresh Hindi and Tamil MP3
-links both worked in response to the Android Chrome playback prompt. Basic
-audio playback is user-reported passed. Device model, phone timings, complete
-Listen-button flow and native pronunciation details were not supplied.
-Real WhatsApp screenshot and scripted voice-note acceptance remain pending.
+links both worked and clarified that his device is an iPhone running iOS 27.2.
+Basic iPhone audio playback is user-reported passed. Browser, device model,
+phone timings, complete Listen-button flow and native pronunciation details
+were not supplied. Android acceptance remains pending. Real WhatsApp screenshot
+and scripted voice-note acceptance remain pending on the actual test device.
+
+## iPhone test identity
+
+Continue the iPhone check in Safari. On the live origin, save a bookmark named
+`utest`, edit its address to the following bookmarklet, then invoke that bookmark
+while the live page is open:
+
+```javascript
+javascript:localStorage.setItem('cbyp_anon_id','u_test_risheeth_iphone');alert(localStorage.getItem('cbyp_anon_id'));location.reload()
+```
+
+The alert must show `u_test_risheeth_iphone`; dismiss it and allow the page to
+reload before uploading. Keep subsequent tests in the same Safari context.
+Storage is separate between browsers; configuring Safari does not configure
+Chrome or an Android phone. This setup has been instructed, not yet confirmed
+on the user's phone. iPhone results cannot close the separate Android gate.
 
 ## Synthetic live API preflight, 30 October
 
