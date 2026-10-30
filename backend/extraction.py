@@ -87,8 +87,14 @@ def written_ids(transcript: str) -> str:
     return _SPOKEN_ID.sub(rewrite, transcript)
 
 
+def _pictograph(ch: str) -> bool:
+    # Emoji and their modifiers; currency (₹), maths and punctuation stay.
+    return unicodedata.category(ch) == 'So' or ch == '\ufe0f' or 0x1F3FB <= ord(ch) <= 0x1F3FF
+
+
 def normalize(text: str) -> str:
-    return ' '.join(ZERO_WIDTH.sub('', unicodedata.normalize('NFKC', text)).lower().split())
+    text = ZERO_WIDTH.sub('', unicodedata.normalize('NFKC', text))
+    return ' '.join(''.join(' ' if _pictograph(ch) else ch for ch in text).lower().split())
 
 
 def source_text(text: str) -> str:

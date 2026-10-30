@@ -58,9 +58,17 @@ def _ip_key(ip: str) -> str:
     return hmac.new(salt, ip.encode(), hashlib.sha256).hexdigest()
 
 
+FREE_CHECKS_PER_HOUR = 30
+PAID_CHECKS_PER_HOUR = 300  # the Family plan's benefit on the phone that bought it (API_CONTRACT: GET /api/plans)
+
+
 def enforce(anon_id: str, ip: str) -> None:
     # Per-user limits stay strict; the coarse IP budget allows a shared house Wi-Fi.
-    _enforce_buckets([('user:' + anon_id, 30),
+    try:
+        paid = db.has_paid_order(get_settings().sqlite_path, anon_id)
+    except (sqlite3.Error, OSError):
+        paid = False
+    _enforce_buckets([('user:' + anon_id, PAID_CHECKS_PER_HOUR if paid else FREE_CHECKS_PER_HOUR),
                       ('ip:' + _ip_key(ip), int(os.getenv('IP_CHECKS_PER_HOUR', '3000')))])
 
 
