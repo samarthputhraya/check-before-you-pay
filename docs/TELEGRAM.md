@@ -6,13 +6,20 @@ webhook is registered on the live site with only `message` updates.
 - Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
   `200`, and a group-chat update is ignored.
 - **Checked in a real chat** on 30 Oct: text, a screenshot and a voice note each got a verdict. See "Validation and acceptance" below.
+- Risheeth also reported that a private-chat sample text check returned a verdict and its link worked (user-reported,
+  not a timed trace).
 - To change the token or secret later: edit `.env.railway`, run `bash deploy/gce/push_env.sh TELEGRAM_`, then
   `sudo docker exec app python -m backend.telegram_setup` on the VM.
 
+
+The local token also passed `getMe` for the exact username; the existing live
+registration was preserved. Do not run setup with a locally generated secret
+until it matches the deployed server configuration.
+
 ## Setup
 
-1. Risheeth opens the official `@BotFather` in Telegram and creates a bot with
-   `/newbot`. Choose an available public username and retain its token privately.
+1. Risheeth retains the token for `@CheckBeforeYouPayBot` privately from the
+   official `@BotFather` chat. The bot username has already been confirmed.
 2. Set `TELEGRAM_BOT_TOKEN` and a separate random `TELEGRAM_WEBHOOK_SECRET` in
    `.env`. The webhook secret must be 32–256 characters using letters, digits,
    `_` or `-`. Set the existing random `IDENTIFIER_SALT` (32+ characters) and
@@ -23,7 +30,8 @@ webhook is registered on the live site with only `message` updates.
    Bot API URLs should appear in logs.
 4. After deployment, run `python -m backend.telegram_setup`. It calls Telegram's
    `setWebhook` with `secret_token`, only `message` updates and four connections.
-   It checks `getWebhookInfo` without printing the token or webhook URL. It does
+   It verifies `getMe` matches `CheckBeforeYouPayBot` before changing anything,
+   then checks `getWebhookInfo` without printing the token or webhook URL. It does
    not discard pending updates. Missing configuration fails closed.
 5. Keep the bot in private chats for this demo. Group messages and other update
    types are acknowledged and ignored, so the bot does not process bystanders'
@@ -36,7 +44,7 @@ The same input validation, 30-check/hour user limit, coarse adapter limit and
 `pipeline.run_check` apply. Files are capped at 5 MB, images at 25 megapixels,
 voice at two minutes, and text at 5,000 characters. Media is fetched only from
 Telegram's fixed API host, with redirects disabled, size checks during download
-and a two-second download budget; submitted links are never fetched.
+and a three-second download budget; submitted links are never fetched.
 
 The returned verdict is masked, with its band/score, top three signals, next
 steps and the public `/c/{id}?ref={anon_id}` link. Plain text avoids interpreting
