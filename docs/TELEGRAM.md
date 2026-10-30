@@ -5,7 +5,10 @@ webhook is registered on the live site with only `message` updates.
 
 - Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
   `200`, and a group-chat update is ignored.
-- **Still to check:** a real reply in a private chat. Send the bot a stock-tip message and a 3–5 MB screenshot.
+- **User acceptance, 30 October:** Risheeth reported that the private-chat sample
+  text check passed: verdict returned and its link worked, in response to the
+  under-10-second test prompt. This is user-reported evidence, not a timed trace
+  captured by this assistant. Screenshot/voice chat checks remain pending.
 - To change the token or secret later: edit `.env.railway`, run `bash deploy/gce/push_env.sh TELEGRAM_`, then
   `sudo docker exec app python -m backend.telegram_setup` on the VM.
 
