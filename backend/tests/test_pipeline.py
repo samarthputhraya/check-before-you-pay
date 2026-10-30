@@ -88,7 +88,7 @@ def test_cache_persists_unique_checks_and_entity_links(client, tmp_path):
         assert con.execute('SELECT COUNT(*) FROM check_entities').fetchone()[0] == 2
         assert con.execute('SELECT COUNT(*) FROM checks').fetchone()[0] == 2
         assert MESSAGE not in '\n'.join(con.iterdump())
-    assert db.stats(path).checks == 2
+    assert db.stats(path).checks == 1  # the u_test check is our own testing
     assert client.get('/api/check/' + second['check_id']).status_code == 200
 
 
@@ -163,6 +163,25 @@ def test_cosine_rejects_invalid_vectors():
     assert cosine([0, 0], [0, 0]) == 0
     assert cosine([float('nan')], [1]) == 0
     assert cosine([1], [1, 0]) == 0
+
+
+def test_team_testing_never_reaches_the_public_numbers(client, tmp_path):
+    from backend.schemas import EventRequest
+
+    path = tmp_path / 'checks.db'
+    for owner in ('u_testsmoke', 'u_0a1b2c3d4e5f6a7b'):  # a team test ID, then a visitor's random hex ID
+        checked = client.post('/api/check', json=body(MESSAGE + ' ' + owner, owner=owner)).json()
+        db.record_event(path, EventRequest(anon_id=owner, event='share_clicked', check_id=checked['check_id']))
+        db.save_quiz_result(path, owner, 'q_scams_v1', 'en', 3)
+        assert client.post('/api/report', json={'check_id': checked['check_id'], 'anon_id': owner,
+                                                   'consent_store_text': False}).status_code == 200
+        with db.session(path) as con:
+            con.execute("INSERT INTO orders(id,plan,anon_id,status,mode,created_at) VALUES (?,'family',?,'paid','test_mode',0)",
+                        ('ord_' + owner, owner))
+    stats = db.stats(path)
+    assert (stats.checks, stats.users, stats.reports, stats.quiz_plays, stats.orders_paid) == (1, 1, 1, 1, 1)
+    assert stats.share_rate == 1.0 and stats.rings == 0  # the two checks share a UPI ID, but one is a test
+    assert len(db.top_rings(path, None, include_samples=True)) == 1  # counting everything, they do form a ring
 
 
 def test_seed_is_repeatable_and_excluded_from_real_usage(client, tmp_path):

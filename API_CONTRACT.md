@@ -287,6 +287,8 @@ the webhook ledger; it does not erase the historical payment or mark a refund.
 
 `quiz_plays` and `orders_paid` were added on 29 Oct. Clients that don't know them ignore them.
 
+Every figure leaves out the labelled sample checks and anything from an anon ID starting with `u_test` (our own testing, since 30 Oct).
+
 ---
 
 ## GET /api/health
