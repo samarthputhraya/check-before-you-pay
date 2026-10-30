@@ -12,7 +12,8 @@ and skips delivery for that report. Adding a URL later does not send old skipped
 reports.
 
 If configured, a background task POSTs JSON after sending the report response.
-The network request has a two-second total timeout. Failure never changes report
+The network request has a ten-second total timeout, because viaSocket runs the whole workflow (a sheet row and an
+email) before it answers. Delivery runs in the background after the report is saved. Failure never changes report
 success. Pending deliveries survive restarts and retry after at least 60 seconds,
 up to three attempts total. The worker checks pending deliveries every 30 seconds.
 An HTTP redirect is treated as failure. The URL must use HTTPS.
@@ -67,7 +68,7 @@ Configure an HTTP POST action to `https://34-45-129-243.sslip.io/api/check`, wit
 ```json
 {
   "lang": "en",
-  "anon_id": "u_viasocket_test",
+  "anon_id": "u_test_viasocket",
   "ref": null,
   "input": {"text": "(test, made up) (sample) Investment: pay sample@ybl"}
 }
