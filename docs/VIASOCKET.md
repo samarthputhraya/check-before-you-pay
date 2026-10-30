@@ -1,8 +1,14 @@
 # Report webhook setup
 
-The backend is ready. A five-step plan has been generated in Risheeth's
-viaSocket account, but Google Sheets and Gmail authorization is still pending.
-No configured live workflow, spreadsheet row or email has been verified yet.
+Samarth's newer handoff in PR #17 reports a separate production workflow live
+since 30 October, 14:20 IST, in his workspace, using his sheet and alert address.
+He reports successful row/email delivery and duplicate suppression. Those are
+Samarth's observations; this branch has not independently repeated them.
+
+A five-step plan has also been generated in Risheeth's viaSocket account.
+Google Sheets and Gmail connections now show ready. This draft is inactive:
+expected webhook payload and action mappings still need configuration. Coordinate
+with Samarth before switching the server or activating a replacement workflow.
 
 ## What the backend does
 
@@ -105,10 +111,13 @@ Current status: the user supplied the sheet URL and confirmed its ownership,
 Editor access for Samarth and all seven headers. Risheeth confirmed the alert
 recipient. The generated plan receives a webhook, validates `event` and
 `report_id`, looks up the ID in Sheet1, stops duplicates, then appends the row
-and sends the email for a new ID. The Google Sheets connection popup is open;
-Google Sheets and Gmail authorization must be completed before the plan can be
-built and its mappings verified. No webhook URL has been obtained or sent,
-no live activation or duplicate test has occurred, and no clip has been recorded.
+and sends the email for a new ID. Risheeth completed Google authorization and
+viaSocket shows both connections ready. The builder has created a webhook
+trigger and is waiting for expected payload/Continue; the remaining actions and
+their mappings have not been verified. No URL from this draft has been obtained
+or sent, and this draft has not been activated or tested. A decision is pending
+on retaining Samarth's existing production flow versus finishing this replacement
+for a coordinated switch. No 20-second clip has been recorded by this work.
 See `docs/ROUND2_STATUS.md` for the remaining acceptance work.
 
 References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),

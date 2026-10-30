@@ -66,12 +66,19 @@ The earlier computer-control failures were resolved enough to reach the
 viaSocket automation dashboard and generate a five-step workflow plan.
 The user supplied the private demo Sheet URL and confirmed the correct headers,
 ownership and Samarth's Editor access. Risheeth explicitly confirmed his own
-email for alerts. Google Sheets and Gmail authorization remain pending in the
-open connection setup. The proposed plan validates event/report ID, looks up
+email for alerts. Google Sheets and Gmail connections now show ready.
+The proposed plan validates event/report ID, looks up
 the report ID, stops duplicates, then appends a row and sends one email for a new
-ID. This is a proposed plan, not an activated or tested workflow. Its webhook
-URL, private server handoff, live one-row/one-email test, duplicate test and clip
-remain pending.
+ID. A draft webhook trigger exists, awaiting expected payload and the remaining
+action mappings. This draft has not been activated or tested.
+
+Samarth's newer PR #17 reports a separate production viaSocket flow live since
+14:20 IST in his own workspace, with his sheet/email, two test reports and a
+successful duplicate test. This is attributed handoff evidence, not a new test
+by this work. The user has been asked whether to retain that production flow
+or finish the Risheeth draft for a coordinated switch. No server setting has been
+changed and no second workflow has been activated. A 20-second clip is still
+pending here.
 
 ## Live API smoke evidence
 
