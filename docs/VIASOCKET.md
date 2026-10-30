@@ -1,8 +1,8 @@
 # Report webhook setup
 
-The code is ready; the external viaSocket workflow has not been configured or
-tested live yet. No family alert or spreadsheet row has been sent during the
-offline tests.
+The backend is ready. A five-step plan has been generated in Risheeth's
+viaSocket account, but Google Sheets and Gmail authorization is still pending.
+No configured live workflow, spreadsheet row or email has been verified yet.
 
 ## What the backend does
 
@@ -88,8 +88,8 @@ Paste the sheet URL into the team handoff; the sheet stays private.
 
 Connect Google from the Google Sheets step inside viaSocket. No Drive connector
 is required. Use only the masked fields above. Use Risheeth's own email as the
-alert recipient, after he confirms it. His commit email is
-`risheeth200623@gmail.com`, but that is not yet confirmation of the Google account.
+alert recipient. Risheeth explicitly confirmed
+`risheeth200623@gmail.com` for the demo alert.
 Do not use a real family member for the demo.
 
 Send the webhook URL privately to Samarth so he can set
@@ -101,9 +101,15 @@ row and one email. Keep the webhook URL, Google account screens and inbox
 contents outside the clip. Test replay separately: same report ID, no second
 row/email. Record completion and proof only after actually observing them.
 
-Current status: sheet URL, confirmed alert account, webhook URL, live activation
-and clip have not been supplied or verified. No row or email was sent by this
-work. See `docs/ROUND2_STATUS.md` for the remaining acceptance work.
+Current status: the user supplied the sheet URL and confirmed its ownership,
+Editor access for Samarth and all seven headers. Risheeth confirmed the alert
+recipient. The generated plan receives a webhook, validates `event` and
+`report_id`, looks up the ID in Sheet1, stops duplicates, then appends the row
+and sends the email for a new ID. The Google Sheets connection popup is open;
+Google Sheets and Gmail authorization must be completed before the plan can be
+built and its mappings verified. No webhook URL has been obtained or sent,
+no live activation or duplicate test has occurred, and no clip has been recorded.
+See `docs/ROUND2_STATUS.md` for the remaining acceptance work.
 
 References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),
 [workflow actions](https://viasocket.com/help/workflow/actions).

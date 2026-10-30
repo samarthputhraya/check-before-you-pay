@@ -62,9 +62,16 @@ not evidence of a bot response or a bot failure. The locally generated webhook
 secret did not match the existing server configuration; do not run setup with
 that local value until Samarth aligns the server and registration privately.
 
-The local computer-control tool could not establish the browser URL sufficiently
-to operate it, and no Telegram/viaSocket connector was available. viaSocket
-account setup remains with Risheeth; its sheet question was deferred at his request.
+The earlier computer-control failures were resolved enough to reach the
+viaSocket automation dashboard and generate a five-step workflow plan.
+The user supplied the private demo Sheet URL and confirmed the correct headers,
+ownership and Samarth's Editor access. Risheeth explicitly confirmed his own
+email for alerts. Google Sheets and Gmail authorization remain pending in the
+open connection setup. The proposed plan validates event/report ID, looks up
+the report ID, stops duplicates, then appends a row and sends one email for a new
+ID. This is a proposed plan, not an activated or tested workflow. Its webhook
+URL, private server handoff, live one-row/one-email test, duplicate test and clip
+remain pending.
 
 ## Live API smoke evidence
 
