@@ -10,7 +10,9 @@ from backend.links import Embedding
 
 @pytest.fixture(autouse=True)
 def offline_providers(monkeypatch):
-    for name in ('GEMINI_API_KEY', 'OPENAI_API_KEY', 'VIASOCKET_REPORT_WEBHOOK_URL', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET',
+    # A developer's HTTPS deployment URL would make the HTTP test client's
+    # event-proof cookie Secure, silently dropping otherwise valid shares.
+    for name in ('PUBLIC_BASE_URL', 'GEMINI_API_KEY', 'OPENAI_API_KEY', 'VIASOCKET_REPORT_WEBHOOK_URL', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_WEBHOOK_SECRET',
                  'PHISHTANK_FEED_PATH', 'ADMIN_TOKEN', 'GEMINI_EXTRACT_MODEL', 'GEMINI_EXPLAIN_MODEL',
                  'GEMINI_EMBED_MODEL', 'GEMINI_TTS_MODEL', 'OPENAI_MODEL', 'OPENAI_EMBED_MODEL',
                  'OPENAI_TRANSCRIBE_MODEL', 'DODO_API_KEY', 'DODO_WEBHOOK_SECRET', 'DODO_MODE',

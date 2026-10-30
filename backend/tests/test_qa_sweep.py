@@ -54,6 +54,17 @@ def test_earlier_checks_are_not_called_complaints(text, lang):
     assert language.explanation_ok(text, lang, 'high_risk', reports=2) is True  # people did report it
 
 
+@pytest.mark.parametrize(('text', 'skipped', 'link', 'ok'), [
+    ('No risk signals were found for this site.', False, False, False),  # live, 30 Oct: a voice note with no link
+    ('This site copies a real broker and was registered 3 days ago.', False, True, True),  # the message has a link
+    ('This message makes risky claims, and some checks could not be completed.', False, False, False),  # all ran
+    ('This message makes risky claims, and some checks could not be completed.', True, False, True),
+    ('This message makes claims that could mean risk.', False, False, True),
+])
+def test_explanation_matches_what_was_checked(text, skipped, link, ok):
+    assert language.explanation_ok(text, 'en', 'caution', skipped=skipped, link=link) is ok
+
+
 def signal(id, text, kind='lookup'):
     return Signal(id=id, points=10, label='x', evidence=Evidence(kind=kind, text=text, source_url=None))
 

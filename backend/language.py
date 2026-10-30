@@ -92,6 +92,11 @@ _LATIN_TOKENS = re.compile(r'\S*[.@…/]\S*|\b[A-Z]{2,}\b')
 # report ("report it on 1930", "1930 पर रिपोर्ट करें") is fine, so only complaint words and "reported"/plural forms count.
 _COMPLAINT = re.compile(r'complain|\breported\b|\breports\b|\breport\s+ho\b|shikayat|शिकायत|तक्रार|रिपोर्टों|रिपोर्टें'
                         r'|रिपोर्ट\s+(?:हो|की\s+गई|किया\s+गया|झाल)|புகார்|ఫిర్యాదు|రిపోర్ట్‌లు|ದೂರು|ರಿಪೋರ್ಟ್‌ಗಳ|অভিযোগ', re.I)
+# People check a message, screenshot or voice note, so "this site" is wrong unless it has a link, and saying a check
+# didn't run when every check ran is a made-up fact (live, 30 Oct: "No risk signals were found for this site." for a
+# voice note, and "some checks could not be completed" with nothing skipped). English only; the prompt covers the rest.
+_THIS_SITE = re.compile(r'\bthis (?:web)?site\b', re.I)
+_SKIPPED = re.compile(r"\b(?:could|were|was|did)(?:n't| not) (?:be )?(?:completed|run|finished|done)\b", re.I)
 
 
 # The danda (।, ॥) sits in the Devanagari block but ends sentences in Bengali too: punctuation, not a script mix.
@@ -102,7 +107,7 @@ _DANDA = (0x0964, 0x0965)
 _ID_OK = re.compile(r'(?:[\w.-]*…@[a-z0-9]+|@valid[\w-]*)(?:-?[\u0900-\u0DFF]+)?', re.I)  # case endings: …@ybl-க்கு
 
 
-def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0) -> bool:
+def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0, skipped: bool = True, link: bool = True) -> bool:
     own = _SCRIPTS.get(lang)
     native = 0
     for token in re.findall(r'\S*@\S*', text):
@@ -122,6 +127,8 @@ def explanation_ok(text: str, lang: Lang, band: Band, reports: int = 0) -> bool:
     if own and native <= latin:
         return False
     if not reports and _COMPLAINT.search(text):
+        return False
+    if (not link and _THIS_SITE.search(text)) or (not skipped and _SKIPPED.search(text)):
         return False
     return not (band == 'no_known_signals' and _SAFE.search(text))
 

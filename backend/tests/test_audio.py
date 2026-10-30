@@ -3,6 +3,7 @@ import io
 import shutil
 import wave
 from unittest.mock import AsyncMock
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -39,8 +40,8 @@ def saved(tmp_path, monkeypatch):
     def save(lang='hi'):
         view.lang = lang
         view.headline = {'hi': 'पैसे न भेजें', 'ta': 'பணம் அனுப்ப வேண்டாம்'}[lang]
-        view.explanation = 'सत्यापित करें sample@ybl'
-        view.next_steps = [NextStep(text='पहले जाँचें'), NextStep(text='not spoken')]
+        view.explanation = {'hi': 'सत्यापित करें sample@ybl', 'ta': 'sample@ybl முகவரியைச் சரிபார்க்கவும்'}[lang]
+        view.next_steps = [NextStep(text={'hi': 'पहले जाँचें', 'ta': 'முதலில் சரிபார்க்கவும்'}[lang]), NextStep(text='not spoken')]
         db.save_check(path, view, [], None, None, 'test-audio', 'u_testaudio', 'text', 1.0)
         return view
     return path, save
@@ -63,7 +64,7 @@ def test_audio_masked_and_persistently_cached(saved, monkeypatch, lang):
     assert first.headers['content-type'] == 'audio/mpeg'
     assert tts.await_count == encoder.await_count == 1
     spoken = tts.call_args.args[0]
-    assert view.headline in spoken and 'पहले जाँचें' in spoken
+    assert view.headline in spoken and view.next_steps[0].text in spoken
     assert 'sample@ybl' not in spoken and 'not spoken' not in spoken
     assert '…' not in spoken and audio.SPOKEN_UPI[lang] in spoken  # the masked ID is named, not spelled out
     with db.session(path) as con:
@@ -122,3 +123,64 @@ def test_real_mp3_codec():
     decoded = MP3(io.BytesIO(result))
     assert 0 < decoded.info.length < 60
     assert decoded.info.channels == 1
+
+
+@pytest.mark.asyncio
+async def test_discovery_prefers_capable_flash_lite_speech_model(monkeypatch):
+    class Models:
+        def __aiter__(self):
+            return self.iterate()
+        async def iterate(self):
+            for name, actions in [('test-flash-lite', ['generateContent']),
+                                  ('test-flash-tts', ['generateContent']),
+                                  ('test-flash-lite-tts', ['generateContent']),
+                                  ('zzz-flash-lite-tts', ['bidiGenerateContent'])]:
+                yield SimpleNamespace(name='models/' + name, supported_actions=actions)
+    provider = llm.Providers()
+    provider.google = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(list=AsyncMock(return_value=Models()))))
+    monkeypatch.setenv('GEMINI_API_KEY', 'test-only-key')
+    await provider.initialize()
+    assert provider.models['tts'] == 'test-flash-lite-tts'
+    assert provider.models['extract'] == 'test-flash-lite'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('mime, payload', [('audio/wav', wav()), ('audio/L16;codec=pcm;rate=24000', b'\0\0' * 24000)],
+                         ids=['wav', 'pcm'])
+async def test_provider_normalizes_real_response_shapes(monkeypatch, mime, payload):
+    generate = AsyncMock(return_value=SimpleNamespace(candidates=[SimpleNamespace(content=SimpleNamespace(parts=[
+        SimpleNamespace(inline_data=SimpleNamespace(data=payload, mime_type=mime))]))]))
+    provider = llm.Providers()
+    provider.initialize = AsyncMock()
+    provider.models['tts'] = 'discovered-test-tts'
+    provider.google = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(generate_content=generate)))
+    result = await provider.tts('पैसे भेजने से पहले जाँचें।')
+    with wave.open(io.BytesIO(result)) as f:
+        assert f.getnframes() == 24000
+    assert generate.call_args.kwargs['model'] == 'discovered-test-tts'
+
+
+@pytest.mark.asyncio
+async def test_warmer_reaps_process_on_shutdown(monkeypatch):
+    started = asyncio.Event()
+    class Child:
+        returncode = None
+        killed = False
+        waits = 0
+        async def wait(self):
+            self.waits += 1
+            started.set()
+            if self.returncode is None:
+                await asyncio.Event().wait()
+            return self.returncode
+        def kill(self):
+            self.killed = True
+            self.returncode = -9
+    child = Child()
+    monkeypatch.setattr(audio.asyncio, 'create_subprocess_exec', AsyncMock(return_value=child))
+    task = asyncio.create_task(audio.keep_warm())
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert child.killed and child.waits == 2

@@ -100,3 +100,27 @@ the workflow request.
 
 References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),
 [workflow actions](https://viasocket.com/help/workflow/actions).
+
+## Inactive Risheeth demo draft
+
+The user explicitly chose to keep Samarth's production workflow described above.
+Leave the alternate Risheeth draft inactive; do not replace the live server URL.
+No new private webhook handoff is needed for that decision.
+
+Before discovering the production flow, Risheeth supplied a private demo Sheet
+named "Check Before You Pay – reports (demo)" and confirmed its ownership,
+Samarth's Editor access and seven headers: report_id, check_id, band, score,
+lang, entities, url. He explicitly confirmed risheeth200623@gmail.com for his
+own demo alerts. Google Sheets and Gmail connections show ready in his workspace.
+
+The alternate builder has a webhook trigger and a five-step plan: validate event
+and report ID, look up the ID in Sheet1, stop duplicates, append the seven masked
+fields, then send the alert. Expected payload and remaining action mappings are
+incomplete. This alternate draft has not been activated or tested, and no URL
+from it was obtained, sent or committed.
+
+The remaining viaSocket deliverable here is a 20-second recording of the
+production report becoming one row and one email. The user confirmed Samarth
+will record this clip; its delivery is still pending. Keep webhook URLs, account screens and inbox
+contents out of the clip. Confirm email delivery using a workflow result or
+step status without showing the inbox. Do not stage a row or fake delivery.
