@@ -1,4 +1,10 @@
-# Phone and voice acceptance — pending
+# Phone and voice acceptance
+
+**30 October results:** Risheeth reported that the fresh Hindi and Tamil MP3
+links both worked in response to the Android Chrome playback prompt. Basic
+audio playback is user-reported passed. Device model, phone timings, complete
+Listen-button flow and native pronunciation details were not supplied.
+Real WhatsApp screenshot and scripted voice-note acceptance remain pending.
 
 Use a real Android phone and the live site. Record device/browser, IST time,
 network, check ID, wall time, language, expected result, actual result and issue.

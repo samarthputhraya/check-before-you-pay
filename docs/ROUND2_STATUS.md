@@ -39,18 +39,20 @@ R1 now has 21 focused tests and verifies the confirmed bot identity before
 registering its webhook. R2's final real-provider backend probes returned Hindi
 MP3 in 4.23 s and Tamil MP3 in 4.60 s; cached retrieval took 15/16 ms without
 another model call. Earlier Hindi timeout failures and their diagnostic are
-documented in `docs/LISTEN.md`. Android/native-speaker acceptance remains pending.
+documented in `docs/LISTEN.md`. Risheeth subsequently reported successful
+playback of both fresh Hindi and Tamil links in response to the Android prompt.
+Detailed device/timing and native pronunciation results were not supplied.
 
 | Task | PR / state | Acceptance still required |
 |---|---|---|
 | R1 Telegram | Live; user reports text verdict and working link passed; setup follow-up in [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Screenshot/voice chat acceptance remains; the text result is user-reported |
-| R2 Listen | Backend and button on main/live; later model/warmup fixes in [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Physical Android playback and native pronunciation |
-| R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12), merged through #11 | Dodo test-mode delivery when valid server keys exist |
+| R2 Listen | Live; fresh Hindi/Tamil Android playback user-reported passed; follow-up in [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Listen-button phone flow, device/timing details and native pronunciation not recorded |
+| R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12), merged through #11; tests passed | Code task complete |
 | R4 public readiness | [#13](https://github.com/samarthputhraya/check-before-you-pay/pull/13) | Samarth reviews scan; rerun before visibility change |
-| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14); retain Samarth's live viaSocket workflow per user decision | viaSocket clip; consented corpus; native quiz signoff; Android tests |
+| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14); retain Samarth's live viaSocket workflow per user decision | Clip assigned to Samarth; corpus not collected; Hindi/Hinglish reviewer available but approval pending; screenshot/voice phone tests |
 
 The confirmed public bot username is **CheckBeforeYouPayBot**:
-https://t.me/CheckBeforeYouPayBot. The user supplied the token in `.env.example`;
+https://telegram.me/CheckBeforeYouPayBot. The user supplied the token in `.env.example`;
 it was moved to ignored `.env` and cleared from the tracked template before any
 commit. `getMe` successfully verified the exact username. `getWebhookInfo`
 already points to the live endpoint, with zero pending updates and no recent
@@ -81,9 +83,9 @@ Samarth's newer PR #17 reports a separate production viaSocket flow live since
 successful duplicate test. This is attributed handoff evidence, not a new test
 by this work. The user explicitly chose to retain Samarth's production workflow
 and leave the Risheeth draft inactive. No server setting has been changed and
-no second workflow has been activated. A 20-second clip is still pending here;
-it requires access to Samarth's live sheet and workflow, with webhook URLs and
-inbox contents excluded from capture.
+no second workflow has been activated. The user confirmed Samarth will record
+the 20-second clip. Delivery of the clip remains pending; webhook URLs and inbox
+contents must be excluded from capture.
 
 ## Live API smoke evidence
 
@@ -105,7 +107,9 @@ Later that afternoon, the older check IDs returned 404. Fresh `u_test` checks
 and MP3s returned 200: Hindi `chk_01M66A8YW0A5QB37` (check 3.75 s, audio 6.30 s,
 MP3 9.46 s) and Tamil `chk_01M66A98E5YK122P` (check 2.87 s, audio 9.12 s,
 MP3 14.78 s). Fresh links were sent to Risheeth for Android playback acceptance;
-his result is pending. This API verification does not count as a phone test.
+Risheeth replied that the replacements worked, confirming playback in response
+to the Android prompt. This is user-reported evidence; no phone model, measured
+timing or detailed native pronunciation assessment was supplied.
 
 ## Instructions ready for the human handoff
 
@@ -118,6 +122,10 @@ his result is pending. This API verification does not count as a phone test.
 - `docs/QUIZ_NATIVE_REVIEW.md`: readable messages, explanations, approval fields
   and exact source revision hashes for a fluent reviewer. Approval remains pending.
 
-The planned Thursday 6–9 PM collection window has passed; no resulting files were
-provided. `eval/real.jsonl` and real-data results are intentionally absent. Do not
-present authored examples, automated checks or pending forms as human evidence.
+The user explicitly confirmed that no real messages, anonymized corpus, consent
+manifest or receipts have been collected on Samarth's machine or committed to
+any branch. Real-data evaluation remains pending. `eval/real.jsonl` and real-data
+results are intentionally absent; no real-message result may be claimed.
+The user selected Hindi and Hinglish for fluent review. The 20 items and their
+explanations are prepared in `docs/QUIZ_NATIVE_REVIEW.md`; actual approval or
+corrections are still required. Reviewer availability is not content approval.

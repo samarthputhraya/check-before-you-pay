@@ -3,7 +3,9 @@
 **Status, Friday 30 October:** the planned Thursday collection window has
 passed. No collected files or written consent receipts have been supplied to
 this checkout. Do not claim collection happened or create fictional real-data
-results. The instructions below apply when contributions become available.
+results. The user reconfirmed that no anonymized messages, consent manifest or
+receipts exist on Samarth's machine or in any branch. Real-data evaluation stays
+pending. The instructions below apply when contributions become available.
 
 ## Written consent and redaction come first
 
