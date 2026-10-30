@@ -2,13 +2,30 @@
 
 Role B code is in separate PRs; Samarth reviews/merges and deploys.
 
+## Final combined verification
+
+On Friday morning, all five branches merged locally into
+`codex/round2-integration` without conflicts against main `db7af7e`.
+`python -m pytest -o addopts='' -q --tb=short` passed **508 tests in 58.21 s**.
+The combined diff leaves `backend/signals.py`, `backend/weights.py` and `web/`
+unchanged. A fresh history scan covered 135 reachable commits, with no committed
+environment files and only the two previously reviewed public test vectors.
+The integration branch is a local test branch; none of these PRs has been merged
+into remote main or deployed by this work.
+
+R1 now has 20 focused tests and verifies the confirmed bot identity before
+registering its webhook. R2's final real-provider backend probes returned Hindi
+MP3 in 4.23 s and Tamil MP3 in 4.60 s; cached retrieval took 15/16 ms without
+another model call. Earlier Hindi timeout failures and their diagnostic are
+documented in `docs/LISTEN.md`. Android/native-speaker acceptance remains pending.
+
 | Task | PR / state | Acceptance still required |
 |---|---|---|
 | R1 Telegram | [#9](https://github.com/samarthputhraya/check-before-you-pay/pull/9) | Bot token in private environment; Samarth deploy/register webhook; forwarded text/photo/voice test chat under 10 s |
 | R2 Listen | [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Rishabh button integration; deployed Hindi/Tamil Android playback and native pronunciation |
 | R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12) | Review/merge/deploy; Dodo test-mode delivery when server keys exist |
 | R4 public readiness | [#13](https://github.com/samarthputhraya/check-before-you-pay/pull/13) | Samarth reviews scan; rerun before visibility change |
-| R5 people work | Prepared instructions; pending people/accounts | viaSocket sheet/email proof and clip; consented corpus; native quiz signoff; Android tests |
+| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14), instructions prepared | viaSocket sheet/email proof and clip; consented corpus; native quiz signoff; Android tests |
 
 The confirmed public bot username is **CheckBeforeYouPayBot**:
 https://t.me/CheckBeforeYouPayBot. At the last local check, `TELEGRAM_BOT_TOKEN`
