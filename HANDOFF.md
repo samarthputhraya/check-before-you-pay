@@ -94,18 +94,20 @@
   - **No effect on the numbers above:** the eval runs every message on a fresh database, so S4 and S5 never fire there.
 
 ## Demo video
-- **File:** [`docs/demo.mp4`](docs/demo.mp4): 88 s, phone-sized, narrated in English.
-- **What it shows:**
-  - Sunita's Hindi check, then the evidence;
-  - Listen, with the verdict's real Hindi audio;
-  - the second message linking to the first by its UPI ID;
-  - the share page, the quiz, and a closing slide with the held-out numbers.
-- **How it was recorded:**
-  - On a fresh local database, at commit 4422bfb, with the real Gemini key. The Hindi screens it shows haven't changed since.
-  - The live database already holds tonight's test checks. Those would link Sunita's *first* message to earlier ones and spoil the story.
-- **To re-record:** run `python tools/demo_video.py http://127.0.0.1:8000 out_dir` against a fresh local server.
-  - It uses a `u_test` ID now, so a recording never counts in `/stats`.
-  - Don't record on the live site before the pitch: it runs message 2, and the demo needs message 2 to be new.
+- **File:** [`docs/demo.mp4`](docs/demo.mp4): 130 s, 1920x1080 at 60 fps, narrated in English. Rebuilt on Fri 30 Oct, 23:10.
+- **What it shows:** two phones side by side the whole time, Arjun in English and Sunita in Hindi:
+  - the problem in numbers, then the same scam pasted in both languages;
+  - high risk on both, with the real check times, then the evidence (UPI ID, look-alike broker link, quoted claims);
+  - Listen: the verdicts' own Hindi audio, then English;
+  - the second message linking to the first by its UPI ID, the share page and the quiz, in both languages;
+  - the four real Telegram checks from 30 Oct (text, screenshot, voice note, an ordinary rent request), with server times;
+  - the held-out numbers, and a closing card with the QR code.
+- **How it was recorded:** two fresh local servers (one per language) at the PR #18 code, with the real Gemini key, so
+  the first messages stand alone. Every screen is a real capture; nothing is mocked.
+- **To re-record:** `python tools/demo_bilingual/capture.py`, then
+  `python tools/demo_bilingual/build.py --fps 60 --workers 3 --out docs/demo.mp4` (about 8 minutes in all).
+  - It uses `u_test` IDs and local databases, so a recording never touches the live site or `/stats`.
+- **Not in it yet:** a screen recording of the Telegram chat itself. Send one and it goes into the Telegram scene.
 
 ## Known limits
 - The model's reading of a message varies a little between runs, even at temperature 0. Same message, different run: the band can move between caution and high risk.
