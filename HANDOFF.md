@@ -94,20 +94,20 @@
   - **No effect on the numbers above:** the eval runs every message on a fresh database, so S4 and S5 never fire there.
 
 ## Demo video
-- **File:** [`docs/demo.mp4`](docs/demo.mp4): 130 s, 1920x1080 at 60 fps, narrated in English. Rebuilt on Fri 30 Oct, 23:10.
-- **What it shows:** two phones side by side the whole time, Arjun in English and Sunita in Hindi:
-  - the problem in numbers, then the same scam pasted in both languages;
-  - high risk on both, with the real check times, then the evidence (UPI ID, look-alike broker link, quoted claims);
-  - Listen: the verdicts' own Hindi audio, then English;
-  - the second message linking to the first by its UPI ID, the share page and the quiz, in both languages;
-  - the four real Telegram checks from 30 Oct (text, screenshot, voice note, an ordinary rent request), with server times;
-  - the held-out numbers, and a closing card with the QR code.
-- **How it was recorded:** two fresh local servers (one per language) at the PR #18 code, with the real Gemini key, so
-  the first messages stand alone. Every screen is a real capture; nothing is mocked.
-- **To re-record:** `python tools/demo_bilingual/capture.py`, then
-  `python tools/demo_bilingual/build.py --fps 60 --workers 3 --out docs/demo.mp4` (about 8 minutes in all).
-  - It uses `u_test` IDs and local databases, so a recording never touches the live site or `/stats`.
-- **Not in it yet:** a screen recording of the Telegram chat itself. Send one and it goes into the Telegram scene.
+- **File:** [`docs/demo.mp4`](docs/demo.mp4): about 3 minutes, 2560x1440 at 60 fps, English narration over a soft
+  instrumental bed (made with Lyria 3.5) that ducks under the voice; loudness-normalised to -14 LUFS. Rebuilt 31 Oct, 00:50.
+- **What it shows**, with English and Hindi phones side by side throughout (Arjun and Sunita):
+  1. the ₹22,495 crore problem, and how the scam works (VIP group, look-alike broker app, personal UPI ID);
+  2. both paste the same scam and get high risk in under 4 seconds (real check times), then the evidence;
+  3. Listen: the app's own Hindi and English audio;
+  4. **a real iPhone voice note** (Risheeth reading a sample scam script, 30 Oct): the spoken UPI ID is caught,
+     high risk 90 in both apps;
+  5. the next message linked by its UPI ID, the share page and the quiz;
+  6. the four real Telegram checks with server times, how it stays trustworthy, the held-out numbers, and the QR code.
+- **How it was made:** every phone screen is a real capture from fresh local servers at the PR #19 code with the real
+  Gemini key; nothing is mocked. `tools/demo_bilingual/` rebuilds it (capture.py, capture_voice.py, build.py). The voice
+  note itself stays outside Git.
+- **Not in it:** a screen recording of the Telegram chat itself.
 
 ## Known limits
 - The model's reading of a message varies a little between runs, even at temperature 0. Same message, different run: the band can move between caution and high risk.

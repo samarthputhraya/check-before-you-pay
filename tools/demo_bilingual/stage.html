@@ -1,141 +1,191 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700&display=block" rel="stylesheet">
 <style>
-:root { --green: #0b6839; --mint: #5fd39a; --ink: #f4f7f5; --soft: #a9bdb2; --bg: #06110c; --red: #e5484d; --tg: #2aabee; }
+:root { --ink: #121417; --soft: #5d636d; --faint: #8b9099; --line: #e4e2db; --paper: #f6f5f1; --card: #ffffff;
+  --green: #0b6839; --green-soft: #e6f2eb; --red: #b42318; --red-soft: #fdecea; --red-line: #f3c4bf;
+  --amber: #8a5300; --amber-soft: #fff4dc; --tg: #229ed9; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink);
-  font-family: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
-#bg { position: absolute; inset: 0; background:
-  radial-gradient(900px 700px at 30% 55%, rgba(11,104,57,.42), transparent 70%),
-  radial-gradient(700px 600px at 85% 20%, rgba(95,211,154,.10), transparent 70%), var(--bg); }
+html, body { width: 1920px; height: 1080px; overflow: hidden; color: var(--ink);
+  font-family: 'Inter', 'Noto Sans Devanagari', 'Nirmala UI', sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: linear-gradient(180deg, #f9f8f5 0%, #f1efea 100%); }
+.hi { font-family: 'Noto Sans Devanagari', 'Inter', sans-serif; }
 .layer { position: absolute; inset: 0; opacity: 0; }
 /* phones */
-.phone { position: absolute; top: 150px; width: 412px; height: 864px; border-radius: 58px; background: #0c0d0d;
-  box-shadow: 0 0 0 2px #2b2f2d, 0 40px 90px rgba(0,0,0,.55), inset 0 0 0 2px #1a1c1b; transition: none; }
-.phone .screen { position: absolute; left: 12px; top: 12px; width: 388px; height: 840px; border-radius: 46px; overflow: hidden;
-  background: #fff; }
+.phone { position: absolute; top: 150px; width: 412px; height: 864px; border-radius: 60px; background: #1c1d1f;
+  box-shadow: 0 0 0 1.5px #3a3c40, inset 0 0 0 2px #2b2d30, 0 60px 110px -30px rgba(18,20,23,.45), 0 25px 50px -25px rgba(18,20,23,.35); }
+.phone .screen { position: absolute; left: 12px; top: 12px; width: 388px; height: 840px; border-radius: 48px; overflow: hidden; background: #fff; }
 .phone .screen img { position: absolute; left: 0; top: 46px; width: 388px; opacity: 0; will-change: transform, opacity; }
 .phone .status { position: absolute; left: 0; top: 0; width: 388px; height: 46px; background: #f6f7f5; z-index: 4;
-  display: flex; justify-content: space-between; align-items: center; padding: 6px 30px 0 34px; color: #111;
-  font: 600 16px 'Inter', sans-serif; }
+  display: flex; justify-content: space-between; align-items: center; padding: 6px 30px 0 34px; color: #111; font: 600 16px 'Inter'; }
 .phone .status svg { display: block; }
-.phone .island { position: absolute; left: 50%; top: 22px; width: 112px; height: 32px; margin-left: -56px; border-radius: 20px;
-  background: #000; z-index: 5; }
-.phone .glow { position: absolute; inset: -14px; border-radius: 70px; box-shadow: 0 0 0 3px var(--mint), 0 0 60px rgba(95,211,154,.55);
-  opacity: 0; }
-#pen { left: 150px; } #phi { left: 618px; }
+.phone .island { position: absolute; left: 50%; top: 22px; width: 112px; height: 32px; margin-left: -56px; border-radius: 20px; background: #000; z-index: 5; }
+.phone .glow { position: absolute; inset: -12px; border-radius: 70px; box-shadow: 0 0 0 3px var(--green), 0 0 50px rgba(11,104,57,.28); opacity: 0; }
+#pen { left: 170px; } #phi { left: 640px; }
 .label { position: absolute; top: 92px; width: 412px; text-align: center; font-size: 22px; font-weight: 600; color: var(--soft); }
-.label b { color: var(--ink); font-weight: 700; }
-.label .pill { display: inline-block; padding: 6px 16px; border-radius: 999px; background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.12); }
-#len { left: 150px; } #lhi { left: 618px; }
+.label .pill { display: inline-block; padding: 8px 18px; border-radius: 999px; background: #fff; border: 1px solid var(--line);
+  box-shadow: 0 6px 16px -10px rgba(0,0,0,.18); }
+.label b { color: var(--ink); }
+#len { left: 170px; } #lhi { left: 640px; }
 .tap { position: absolute; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; z-index: 6; opacity: 0;
-  background: rgba(20,30,25,.28); border: 3px solid rgba(255,255,255,.95); box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
-.chip { position: absolute; top: 1030px; width: 412px; text-align: center; font-size: 22px; font-weight: 700; opacity: 0; }
-.chip span { padding: 6px 16px; border-radius: 999px; background: rgba(229,72,77,.16); color: #ffb3b5; border: 1px solid rgba(229,72,77,.4); }
-.wave { position: absolute; top: 1024px; width: 412px; text-align: center; opacity: 0; font-size: 22px; font-weight: 700; color: var(--mint); }
+  background: rgba(18,20,23,.16); border: 3px solid rgba(255,255,255,.95); box-shadow: 0 0 0 1px rgba(0,0,0,.18); }
+.chip { position: absolute; top: 1032px; width: 412px; text-align: center; font-size: 21px; font-weight: 700; opacity: 0; }
+.chip span { padding: 7px 16px; border-radius: 999px; background: var(--red-soft); color: var(--red); border: 1px solid var(--red-line); }
+.wave { position: absolute; top: 1028px; width: 412px; text-align: center; opacity: 0; font-size: 21px; font-weight: 700; color: var(--green); }
 .bars { display: inline-flex; gap: 4px; vertical-align: middle; margin-right: 10px; height: 26px; align-items: center; }
-.bars i { display: block; width: 5px; border-radius: 3px; background: var(--mint); }
-/* panel */
-#panel { position: absolute; left: 1130px; top: 0; width: 680px; height: 1080px; display: flex; flex-direction: column;
-  justify-content: center; }
-.kicker { font-size: 22px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mint); margin-bottom: 22px; }
-.head { font-size: 64px; line-height: 1.08; font-weight: 800; letter-spacing: -.02em; margin-bottom: 28px; }
-.sub { font-size: 29px; line-height: 1.42; color: var(--soft); font-weight: 500; }
-.pts { display: flex; align-items: baseline; gap: 18px; margin: 14px 0; color: var(--ink); font-size: 29px; }
-.pts b { flex: none; width: 92px; padding: 6px 0; text-align: center; border-radius: 12px; font-size: 26px;
-  background: rgba(229,72,77,.16); color: #ffb3b5; border: 1px solid rgba(229,72,77,.4); }
-#brand { position: absolute; right: 64px; bottom: 44px; display: flex; align-items: center; gap: 12px; font-size: 20px;
-  color: var(--soft); font-weight: 600; opacity: 0; }
-#brand img { width: 34px; height: 34px; }
+.bars i { display: block; width: 5px; border-radius: 3px; background: var(--green); }
+/* side panel */
+#panel { position: absolute; left: 1150px; top: 0; width: 680px; height: 1080px; display: flex; flex-direction: column; justify-content: center; }
+#panel > * { opacity: 0; }
+.kicker { font-size: 20px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--green); margin-bottom: 22px; }
+.head { font-size: 62px; line-height: 1.08; font-weight: 800; letter-spacing: -.025em; margin-bottom: 28px; }
+.head .r { color: var(--red); } .head .g { color: var(--green); }
+.sub { font-size: 28px; line-height: 1.45; color: var(--soft); font-weight: 500; }
+.pts { display: flex; align-items: baseline; gap: 18px; margin: 14px 0; color: var(--ink); font-size: 27px; line-height: 1.35; }
+.pts b { flex: none; width: 88px; padding: 6px 0; text-align: center; border-radius: 12px; font-size: 24px;
+  background: var(--red-soft); color: var(--red); border: 1px solid var(--red-line); }
+.quote { font-size: 40px; line-height: 1.3; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 26px; }
+.quote em { font-style: normal; background: linear-gradient(transparent 62%, #ffe08a 62%); }
+.meta { font-size: 22px; color: var(--faint); font-weight: 600; }
+#brand { position: absolute; right: 64px; bottom: 42px; display: flex; align-items: center; gap: 12px; font-size: 20px; color: var(--ink); font-weight: 700; opacity: 0; }
+#brand img { width: 32px; height: 32px; }
 /* full-screen cards */
-.card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center;
-  text-align: center; opacity: 0; }
-.big { font-size: 150px; font-weight: 800; letter-spacing: -.04em; line-height: 1; }
-.mid { font-size: 44px; font-weight: 600; color: var(--soft); margin-top: 22px; }
-.red { color: #ff7b7f; }
-.src { position: absolute; bottom: 60px; font-size: 20px; color: #6f857a; }
-.logo { width: 120px; height: 120px; margin-bottom: 36px; }
-.name { font-size: 104px; font-weight: 800; letter-spacing: -.03em; }
-.tag { font-size: 38px; color: var(--soft); margin-top: 26px; max-width: 1300px; line-height: 1.35; font-weight: 500; }
-.langs { margin-top: 46px; font-size: 30px; color: var(--mint); font-weight: 600; letter-spacing: .02em; }
-.grid { display: grid; grid-template-columns: repeat(2, 560px); gap: 34px; margin-top: 10px; }
-.stat { padding: 36px 30px; border-radius: 28px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); text-align: left; }
-.stat .n { font-size: 92px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-.stat .d { font-size: 28px; color: var(--soft); margin-top: 14px; font-weight: 500; }
-.tgwrap { display: flex; gap: 70px; align-items: center; }
-.tgicon { width: 230px; height: 230px; border-radius: 50%; background: var(--tg); display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 30px 80px rgba(42,171,238,.35); flex: none; }
-.tgrows { text-align: left; width: 1050px; }
-.tgh { font-size: 54px; font-weight: 800; margin-bottom: 8px; }
-.tgs { font-size: 26px; color: var(--soft); margin-bottom: 30px; }
-.row { display: flex; align-items: center; gap: 22px; padding: 20px 26px; margin: 12px 0; border-radius: 20px;
-  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); font-size: 27px; }
-.row .what { flex: 1; } .row .what small { display: block; color: var(--soft); font-size: 21px; margin-top: 4px; }
-.row .v { font-weight: 700; padding: 6px 14px; border-radius: 12px; font-size: 23px; white-space: nowrap; }
-.v.high { background: rgba(229,72,77,.16); color: #ffb3b5; } .v.caution { background: rgba(245,166,35,.16); color: #ffd28a; }
-.v.none { background: rgba(255,255,255,.08); color: #d6e2db; }
-.row .s { width: 86px; text-align: right; font-weight: 700; color: var(--mint); font-size: 25px; }
-.qr { width: 260px; height: 260px; border-radius: 22px; background: #fff; padding: 16px; }
-.closegrid { display: flex; gap: 70px; align-items: center; text-align: left; margin-top: 10px; }
-.url { font-size: 44px; font-weight: 700; margin: 12px 0; }
-.small { font-size: 28px; color: var(--soft); margin-top: 10px; }
+.card { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; opacity: 0; }
+.card .st { opacity: 0; }
+.big { font-size: 168px; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
+.mid { font-size: 42px; font-weight: 600; color: var(--soft); margin-top: 24px; }
+.red { color: var(--red); }
+.src { position: absolute; bottom: 54px; font-size: 19px; color: var(--faint); }
+.logo { width: 112px; height: 112px; margin-bottom: 34px; border-radius: 26px; box-shadow: 0 20px 40px -18px rgba(11,104,57,.55); }
+.name { font-size: 108px; font-weight: 800; letter-spacing: -.035em; }
+.tag { font-size: 38px; color: var(--soft); margin-top: 24px; line-height: 1.35; font-weight: 500; }
+.langs { margin-top: 44px; font-size: 28px; color: var(--green); font-weight: 600; }
+.steps { display: flex; gap: 34px; margin-top: 54px; }
+.step { width: 470px; padding: 40px 36px; border-radius: 30px; background: var(--card); border: 1px solid var(--line);
+  box-shadow: 0 30px 60px -35px rgba(0,0,0,.25); text-align: left; }
+.step .n { width: 54px; height: 54px; border-radius: 16px; background: var(--red-soft); color: var(--red); font-size: 28px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 26px; }
+.step .t { font-size: 32px; font-weight: 700; line-height: 1.25; }
+.step .d { font-size: 23px; color: var(--soft); margin-top: 12px; line-height: 1.4; }
+.h2 { font-size: 66px; font-weight: 800; letter-spacing: -.03em; }
+.grid { display: grid; grid-template-columns: repeat(2, 580px); gap: 30px; margin-top: 46px; }
+.stat { padding: 38px 36px; border-radius: 30px; background: var(--card); border: 1px solid var(--line); text-align: left;
+  box-shadow: 0 30px 60px -35px rgba(0,0,0,.25); }
+.stat .n { font-size: 92px; font-weight: 800; letter-spacing: -.035em; line-height: 1; }
+.stat .d { font-size: 27px; color: var(--soft); margin-top: 14px; font-weight: 500; }
+.devices { margin-top: 30px; font-size: 24px; color: var(--soft); font-weight: 500; }
+.devices b { color: var(--ink); }
+.tgwrap { display: flex; gap: 80px; align-items: center; }
+.tgicon { width: 240px; height: 240px; border-radius: 50%; background: var(--tg); display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 40px 80px -30px rgba(34,158,217,.6); flex: none; }
+.tgrows { text-align: left; width: 1060px; }
+.tgh { font-size: 56px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 10px; }
+.tgs { font-size: 25px; color: var(--soft); margin-bottom: 26px; }
+.row { display: flex; align-items: center; gap: 22px; padding: 22px 28px; margin: 14px 0; border-radius: 22px; background: var(--card);
+  border: 1px solid var(--line); box-shadow: 0 20px 40px -30px rgba(0,0,0,.25); font-size: 27px; font-weight: 600; }
+.row .what { flex: 1; } .row .what small { display: block; color: var(--soft); font-size: 21px; margin-top: 4px; font-weight: 500; }
+.v { font-weight: 700; padding: 7px 15px; border-radius: 12px; font-size: 22px; white-space: nowrap; }
+.v.high { background: var(--red-soft); color: var(--red); } .v.caution { background: var(--amber-soft); color: var(--amber); }
+.v.none { background: #eef0f2; color: #3c4149; }
+.row .s { width: 90px; text-align: right; font-weight: 800; color: var(--green); font-size: 26px; }
+.trust { display: grid; grid-template-columns: repeat(2, 600px); gap: 26px; margin-top: 46px; }
+.tr { display: flex; gap: 22px; align-items: flex-start; padding: 32px; border-radius: 26px; background: var(--card); border: 1px solid var(--line);
+  text-align: left; box-shadow: 0 25px 50px -35px rgba(0,0,0,.25); }
+.tr .ic { flex: none; width: 52px; height: 52px; border-radius: 15px; background: var(--green-soft); display: flex; align-items: center; justify-content: center; }
+.tr .t { font-size: 29px; font-weight: 700; } .tr .d { font-size: 22px; color: var(--soft); margin-top: 8px; line-height: 1.4; }
+.tlwin { position: absolute; left: 320px; top: 236px; width: 1280px; height: 720px; border-radius: 28px; background: #1c1d1f;
+  box-shadow: 0 60px 110px -40px rgba(18,20,23,.5), 0 0 0 1px rgba(0,0,0,.06); }
+.tlhead { position: absolute; top: 74px; left: 0; right: 0; text-align: center; }
+.tlhead .h2 { font-size: 58px; }
+.tlchips { position: absolute; top: 984px; left: 0; right: 0; display: flex; justify-content: center; gap: 16px; }
+.tlchips span { padding: 10px 20px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 22px; font-weight: 700;
+  box-shadow: 0 10px 24px -16px rgba(0,0,0,.3); opacity: 0; }
+.tlchips span b { color: var(--green); }
+.qr { width: 250px; height: 250px; border-radius: 24px; background: #fff; padding: 16px; border: 1px solid var(--line); box-shadow: 0 30px 60px -35px rgba(0,0,0,.3); }
+.closegrid { display: flex; gap: 64px; align-items: center; text-align: left; margin-top: 48px; }
+.url { font-size: 46px; font-weight: 800; margin: 10px 0; letter-spacing: -.01em; }
+.small { font-size: 27px; color: var(--soft); margin-top: 10px; }
 </style></head>
 <body>
-<div id="bg"></div>
-
 <div class="layer" id="phones">
   <div class="label" id="len"><span class="pill"><b>Arjun</b> · English</span></div>
-  <div class="label" id="lhi"><span class="pill"><b>सुनीता</b> · हिन्दी</span></div>
-  <div class="phone" id="pen"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span><span style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#111"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#111"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#111"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.5 6.5 0 0 1 9.2 0l-1.5 1.5a4.4 4.4 0 0 0-6.2 0zM1 4.4a9.9 9.9 0 0 1 14 0l-1.5 1.5a7.8 7.8 0 0 0-11 0z" fill="#111"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#111" opacity=".45"/><rect x="2.5" y="2.5" width="16" height="8" rx="2" fill="#111"/><rect x="25" y="4.5" width="1.6" height="4" rx=".8" fill="#111" opacity=".45"/></svg></span></div></div><div class="island"></div></div>
-  <div class="phone" id="phi"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span><span style="display:flex;gap:6px;align-items:center"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#111"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#111"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#111"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#111"/></svg><svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0zM3.4 6.8a6.5 6.5 0 0 1 9.2 0l-1.5 1.5a4.4 4.4 0 0 0-6.2 0zM1 4.4a9.9 9.9 0 0 1 14 0l-1.5 1.5a7.8 7.8 0 0 0-11 0z" fill="#111"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#111" opacity=".45"/><rect x="2.5" y="2.5" width="16" height="8" rx="2" fill="#111"/><rect x="25" y="4.5" width="1.6" height="4" rx=".8" fill="#111" opacity=".45"/></svg></span></div></div><div class="island"></div></div>
-  <div class="chip" id="cen" style="left:150px"><span></span></div>
-  <div class="chip" id="chi" style="left:618px"><span></span></div>
-  <div class="wave" id="wen" style="left:150px"><span class="bars"></span>Listening · English</div>
-  <div class="wave" id="whi" style="left:618px"><span class="bars"></span>सुन रहे हैं · हिन्दी</div>
+  <div class="label hi" id="lhi"><span class="pill"><b>सुनीता</b> · हिन्दी</span></div>
+  <div class="phone" id="pen"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span>STATUSICONS</div></div><div class="island"></div></div>
+  <div class="phone" id="phi"><div class="glow"></div><div class="screen"><div class="status"><span>6:48</span>STATUSICONS</div></div><div class="island"></div></div>
+  <div class="chip" id="cen" style="left:170px"><span></span></div>
+  <div class="chip hi" id="chi" style="left:640px"><span></span></div>
+  <div class="wave" id="wen" style="left:170px"><span class="bars"></span>Listening · English</div>
+  <div class="wave hi" id="whi" style="left:640px"><span class="bars"></span>सुन रहे हैं · हिन्दी</div>
   <div id="panel"></div>
 </div>
 
-<div class="card" id="c-stats">
-  <div class="big">₹<span id="crore">22,495</span> crore</div>
-  <div class="mid">lost to cyber fraud in India in 2025</div>
-  <div class="mid" style="margin-top:44px"><span class="red" style="font-weight:800;font-size:64px">76%</span>&nbsp; of it to fake investment schemes</div>
-  <div class="src">MHA data, reported by ThePrint · SEBI warned about invite-only WhatsApp tip groups on 22 Oct 2026</div>
+<div class="card" id="c-hook">
+  <div class="big st">₹<span id="crore">22,495</span> crore</div>
+  <div class="mid st">lost to cyber fraud in India in 2025</div>
+  <div class="mid st" style="margin-top:40px"><span class="red" style="font-weight:800;font-size:70px">76%</span>&nbsp; of it to fake investment schemes</div>
+  <div class="src st">MHA data, reported by ThePrint</div>
+</div>
+<div class="card" id="c-problem">
+  <div class="kicker st">How the scam works</div>
+  <div class="h2 st">It starts in a WhatsApp group</div>
+  <div class="steps">
+    <div class="step st"><div class="n">1</div><div class="t">You’re added to a “VIP stock tips” group</div><div class="d">Screenshots of big profits, “95% accuracy”, invite only.</div></div>
+    <div class="step st"><div class="n">2</div><div class="t">You’re sent an app that copies a real broker</div><div class="d">A look-alike link, outside the Play Store.</div></div>
+    <div class="step st"><div class="n">3</div><div class="t">You’re asked to pay a personal UPI ID</div><div class="d">Real brokers collect only through SEBI’s @valid handles.</div></div>
+  </div>
+  <div class="src st">SEBI warned about invite-only WhatsApp tip groups on 22 Oct 2026</div>
 </div>
 <div class="card" id="c-title">
-  <img class="logo" src="icon.svg">
-  <div class="name">Check Before You Pay</div>
-  <div class="tag">Forward any investment tip or payment request.<br>See the red flags in seconds, in your own language.</div>
-  <div class="langs">English · हिन्दी · Hinglish · मराठी · தமிழ் · తెలుగు · ಕನ್ನಡ · বাংলা</div>
+  <img class="logo st" src="icon.svg">
+  <div class="name st">Check Before You Pay</div>
+  <div class="tag st">Forward the message. See the red flags in seconds,<br>in your own language.</div>
+  <div class="langs st">English · <span class="hi">हिन्दी</span> · Hinglish · <span class="hi">मराठी</span> · தமிழ் · తెలుగు · ಕನ್ನಡ · বাংলা</div>
 </div>
 <div class="card" id="c-telegram">
   <div class="tgwrap">
-    <div class="tgicon"><svg width="128" height="128" viewBox="0 0 24 24"><path fill="#fff" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13 1.5 11.5c-1-.3-1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg></div>
+    <div class="tgicon st"><svg width="130" height="130" viewBox="0 0 24 24"><path fill="#fff" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13 1.5 11.5c-1-.3-1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5z"/></svg></div>
     <div class="tgrows">
-      <div class="tgh">Or forward it to <span style="color:var(--tg)">@CheckBeforeYouPayBot</span></div>
-      <div class="tgs">Tested in a real private chat on 30 Oct. Server time for each verdict:</div>
-      <div class="row"><div class="what">Text: an invite-only stock tip<small>with a personal @ybl UPI ID</small></div><span class="v high">High risk · 90</span><span class="s">2.3 s</span></div>
-      <div class="row"><div class="what">Screenshot of the same tip<small>linked to the earlier check by its UPI ID</small></div><span class="v high">High risk · 100</span><span class="s">5.0 s</span></div>
-      <div class="row"><div class="what">Voice note<small>“guaranteed returns daily 250%”</small></div><span class="v caution">Caution · 30</span><span class="s">2.3 s</span></div>
-      <div class="row"><div class="what">An ordinary rent request<small>to a personal UPI ID</small></div><span class="v none">No warning · 0</span><span class="s">1.7 s</span></div>
+      <div class="tgh st">No app needed: forward it to <span style="color:var(--tg)">@CheckBeforeYouPayBot</span></div>
+      <div class="tgs st">Tested in a real private chat on 30 Oct. Server time for each verdict:</div>
+      <div class="row st"><div class="what">Text: an invite-only stock tip<small>with a personal @ybl UPI ID</small></div><span class="v high">High risk · 90</span><span class="s">2.3 s</span></div>
+      <div class="row st"><div class="what">A screenshot of the same tip<small>linked to the earlier check by its UPI ID</small></div><span class="v high">High risk · 100</span><span class="s">5.0 s</span></div>
+      <div class="row st"><div class="what">A voice note<small>“guaranteed returns daily 250%”</small></div><span class="v caution">Caution · 30</span><span class="s">2.3 s</span></div>
+      <div class="row st"><div class="what">An ordinary rent request<small>to a personal UPI ID</small></div><span class="v none">No warning · 0</span><span class="s">1.7 s</span></div>
     </div>
   </div>
 </div>
-<div class="card" id="c-results">
-  <div class="kicker" style="margin-bottom:34px">Measured, not claimed</div>
-  <div class="grid">
-    <div class="stat"><div class="n"><span id="r1">61</span> / 64</div><div class="d">scam messages flagged</div></div>
-    <div class="stat"><div class="n">0 / 64</div><div class="d">ordinary payment requests flagged</div></div>
-    <div class="stat"><div class="n">2.3 s</div><div class="d">median check time · p95 2.8 s</div></div>
-    <div class="stat"><div class="n">8</div><div class="d">Indian languages, by text, screenshot or voice note</div></div>
+<div class="card" id="c-trust">
+  <div class="kicker st">Built to be trusted</div>
+  <div class="h2 st">Evidence, not accusations</div>
+  <div class="trust">
+    <div class="tr st"><div class="ic">ICON1</div><div><div class="t">Fixed checks set the score</div><div class="d">The AI reads and explains. It never picks the points.</div></div></div>
+    <div class="tr st"><div class="ic">ICON2</div><div><div class="t">Every point shows its source</div><div class="d">Quotes must appear word for word in the message.</div></div></div>
+    <div class="tr st"><div class="ic">ICON3</div><div><div class="t">Never calls anyone a fraud</div><div class="d">It shows risk signals, then links to SEBI Check and the 1930 helpline.</div></div></div>
+    <div class="tr st"><div class="ic">ICON4</div><div><div class="t">Private by design</div><div class="d">UPI IDs and numbers are stored only as salted hashes.</div></div></div>
   </div>
-  <div class="src">128 held-out messages in 8 languages, written by someone who never saw the code · docs/EVAL.md</div>
+</div>
+<div class="card" id="c-results">
+  <div class="kicker st">Measured, not claimed</div>
+  <div class="grid">
+    <div class="stat st"><div class="n">61 / 64</div><div class="d">scam messages flagged</div></div>
+    <div class="stat st"><div class="n">0 / 64</div><div class="d">ordinary payment requests flagged</div></div>
+    <div class="stat st"><div class="n">2.3 s</div><div class="d">median check time · p95 2.8 s</div></div>
+    <div class="stat st"><div class="n">8</div><div class="d">Indian languages: text, screenshot or voice</div></div>
+  </div>
+  <div class="devices st">Also checked on <b>iPhone Safari</b> (real phone) · <b>Telegram</b> (real chat) · <b>Android Chrome</b> (emulated)</div>
+  <div class="src st">128 held-out messages in 8 languages, written by someone who never saw the code · docs/EVAL.md</div>
+</div>
+<div class="card" id="c-timelapse" style="display:block">
+  <div class="tlhead"><div class="kicker st" style="margin-bottom:12px">Behind the scenes · 40-second timelapse</div>
+    <div class="h2 st">Built in three days at Hacker House Goa</div></div>
+  <div class="tlwin st"></div>
+  <div class="tlchips"><span><b>562</b> tests passing</span><span>Live since <b>29 Oct</b></span><span><b>8</b> languages</span>
+    <span>Telegram bot <b>live</b></span><span>viaSocket alerts <b>live</b></span><span>Open source · <b>MIT</b></span></div>
 </div>
 <div class="card" id="c-close">
-  <img class="logo" src="icon.svg" style="width:96px;height:96px;margin-bottom:24px">
-  <div class="name" style="font-size:88px">Check Before You Pay</div>
-  <div class="closegrid" style="margin-top:44px">
+  <img class="logo st" src="icon.svg" style="width:96px;height:96px;margin-bottom:24px">
+  <div class="name st" style="font-size:92px">Check Before You Pay</div>
+  <div class="closegrid st">
     <img class="qr" src="qr.png">
     <div>
       <div class="kicker" style="margin:0">Live now</div>
@@ -152,30 +202,30 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--
 const TL = window.TL, K = 388 / 390;
 const $ = (s) => document.querySelector(s);
 const ease = (x) => x < 0 ? 0 : x > 1 ? 1 : x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = (x) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
 const imgs = { en: {}, hi: {} };
 const tapEls = { en: document.createElement('div'), hi: document.createElement('div') };
 for (const lang of ['en', 'hi']) {
   const screen = $(`#p${lang} .screen`);
-  const names = [...new Set(TL.tracks[lang].map((s) => s.img))];
-  for (const n of names) { const im = new Image(); im.src = n + '.png'; screen.appendChild(im); imgs[lang][n] = im; }
+  for (const n of [...new Set(TL.tracks[lang].map((s) => s.img))]) { const im = new Image(); im.src = n + '.png'; screen.appendChild(im); imgs[lang][n] = im; }
   tapEls[lang].className = 'tap'; screen.appendChild(tapEls[lang]);
   const bars = $(`#w${lang} .bars`); for (let i = 0; i < 5; i++) bars.appendChild(document.createElement('i'));
 }
 const scene = (t) => TL.scenes.find((s) => t >= s.t0 && t < s.t1) || TL.scenes[TL.scenes.length - 1];
-const PHONE_SCENES = ['personas', 'check', 'evidence', 'listen', 'ring', 'share', 'quiz'];
-const CARD = { stats: 'c-stats', title: 'c-title', telegram: 'c-telegram', results: 'c-results', close: 'c-close' };
+const PHONE_SCENES = TL.phoneScenes;
+const CARDS = ['hook', 'problem', 'title', 'telegram', 'trust', 'results', 'timelapse', 'close'];
 let lastPanel = null;
-
-function fadeFor(s, t, inD = .55, outD = .45) {
-  return Math.min(clamp01((t - s.t0) / inD), clamp01((s.t1 - t) / outD));
+const fadeFor = (s, t, inD = .6, outD = .45) => Math.min(clamp01((t - s.t0) / inD), clamp01((s.t1 - t) / outD));
+function stagger(els, s, t, gap = .12, dur = .7, start = .1) {
+  els.forEach((el, i) => { const p = out((t - s.t0 - start - i * gap) / dur); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 22}px)`; });
 }
 function phoneLayer(t) {
   const s = scene(t), i = TL.scenes.indexOf(s);
-  if (!PHONE_SCENES.includes(s.id)) return 0;
+  if (!PHONE_SCENES.includes(s.id)) return [0, 0];
   const prevPhone = i > 0 && PHONE_SCENES.includes(TL.scenes[i - 1].id), nextPhone = i < TL.scenes.length - 1 && PHONE_SCENES.includes(TL.scenes[i + 1].id);
-  const a = prevPhone ? 1 : clamp01((t - s.t0) / .6), b = nextPhone ? 1 : clamp01((s.t1 - t) / .5);
-  return Math.min(a, b);
+  const a = prevPhone ? 1 : out((t - s.t0) / .8), b = nextPhone ? 1 : clamp01((s.t1 - t) / .5);
+  return [Math.min(a, b), prevPhone ? 0 : 1 - a];
 }
 function renderPhone(lang, t) {
   const tr = TL.tracks[lang];
@@ -185,12 +235,11 @@ function renderPhone(lang, t) {
   for (const n in imgs[lang]) imgs[lang][n].style.opacity = 0;
   const cur = imgs[lang][g.img];
   cur.style.transform = `translateY(${-y * K}px)`;
-  const prev = k > 0 ? tr[k - 1] : null, f = (t - g.t0) / .28;
+  const prev = k > 0 ? tr[k - 1] : null, f = (t - g.t0) / .3;
   if (prev && prev.img !== g.img && f < 1) {
     const pi = imgs[lang][prev.img]; pi.style.opacity = 1; pi.style.transform = `translateY(${-prev.y1 * K}px)`; pi.style.zIndex = 1;
     cur.style.zIndex = 2; cur.style.opacity = ease(f);
   } else { cur.style.zIndex = 2; cur.style.opacity = 1; }
-  // tap indicator
   const el = tapEls[lang]; el.style.opacity = 0;
   for (const tp of TL.taps) {
     if (tp.lang !== lang) continue;
@@ -204,41 +253,39 @@ function renderPhone(lang, t) {
 }
 function render(t) {
   const s = scene(t);
-  const pl = phoneLayer(t);
-  $('#phones').style.opacity = pl;
-  $('#brand').style.opacity = pl;
-  for (const id in CARD) $('#' + CARD[id]).style.opacity = s.id === id ? fadeFor(s, t, .6, .5) : 0;
-  if (s.id === 'stats') {
-    const v = Math.round(22495 * ease(clamp01((t - s.t0 - .2) / 1.6)));
-    $('#crore').textContent = v.toLocaleString('en-IN');
+  const [pl, rise] = phoneLayer(t);
+  $('#phones').style.opacity = pl; $('#brand').style.opacity = pl;
+  $('#pen').style.transform = $('#phi').style.transform = `translateY(${rise * 60}px)`;
+  for (const id of CARDS) {
+    const el = $('#c-' + id);
+    if (s.id !== id) { el.style.opacity = 0; continue; }
+    el.style.opacity = clamp01((s.t1 - t) / .45);
+    stagger([...el.querySelectorAll('.st')], s, t, id === 'telegram' || id === 'trust' ? .16 : .14);
   }
+  if (s.id === 'timelapse') [...document.querySelectorAll('.tlchips span')].forEach((el, i) => {
+    const p = out((t - s.t0 - 3.5 - i * 5.5) / .6); el.style.opacity = p; el.style.transform = `translateY(${(1 - p) * 14}px)`; });
+  if (s.id === 'hook') $('#crore').textContent = Math.round(22495 * ease(clamp01((t - s.t0 - .2) / 1.8))).toLocaleString('en-IN');
   if (pl > 0) {
     renderPhone('en', t); renderPhone('hi', t);
-    // panel
     if (s.panel !== lastPanel) {
       lastPanel = s.panel;
-      $('#panel').innerHTML = s.panel ? `<div class="kicker">${s.panel[0]}</div><div class="head">${s.panel[1]}</div><div class="sub">${s.panel[2]}</div>` : '';
+      $('#panel').innerHTML = s.panel ? s.panel.map((h) => `<div>${h}</div>`).join('') : '';
     }
-    const pf = fadeFor(s, t, .6, .4);
-    $('#panel').style.opacity = pf; $('#panel').style.transform = `translateY(${(1 - pf) * 18}px)`;
-    // verdict times under the phones
+    const kids = [...$('#panel').children];
+    stagger(kids, s, t, .1, .7, .15);
+    const fo = clamp01((s.t1 - t) / .4);
+    kids.forEach((el) => { el.style.opacity = Math.min(+el.style.opacity, fo); });
     for (const lang of ['en', 'hi']) {
-      const chip = $('#c' + lang);
-      let o = 0;
-      if (s.id === 'check') {
-        const tp = TL.taps.find((x) => x.lang === lang && x.t >= s.t0 && x.t < s.t1);
-        if (tp) o = Math.min(clamp01((t - tp.t - 1.9) / .4), clamp01((s.t1 - t) / .4));
-        chip.querySelector('span').textContent = (lang === 'en' ? 'High risk · ' : 'ज़्यादा ख़तरा · ') + TL.secs[lang].first.toFixed(1) + ' s';
-      }
+      const chip = $('#c' + lang); let o = 0;
+      const c = TL.chips.find((x) => x.lang === lang && t >= x.t0 && t < x.t1);
+      if (c) { o = Math.min(clamp01((t - c.t0) / .4), clamp01((c.t1 - t) / .4)); chip.querySelector('span').textContent = c.text; }
       chip.style.opacity = o;
-      // Listen highlight
       const [a, b] = TL.listen[lang];
       const inL = s.id === 'listen' ? Math.min(clamp01((t - a + .2) / .35), clamp01((b + .3 - t) / .35)) : 0;
-      const other = lang === 'en' ? 'hi' : 'en', [oa, ob] = TL.listen[other];
+      const [oa, ob] = TL.listen[lang === 'en' ? 'hi' : 'en'];
       const otherOn = s.id === 'listen' ? Math.min(clamp01((t - oa + .2) / .35), clamp01((ob + .3 - t) / .35)) : 0;
       $(`#p${lang} .glow`).style.opacity = inL;
-      $(`#p${lang}`).style.opacity = 1 - .55 * otherOn;
-      $(`#l${lang}`).style.opacity = 1 - .55 * otherOn;
+      $(`#p${lang}`).style.opacity = 1 - .5 * otherOn; $(`#l${lang}`).style.opacity = 1 - .5 * otherOn;
       $('#w' + lang).style.opacity = inL;
       [...$(`#w${lang} .bars`).children].forEach((bar, j) => { bar.style.height = (8 + 16 * Math.abs(Math.sin(t * 7 + j * 1.3))) + 'px'; });
     }
