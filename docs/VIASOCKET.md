@@ -1,16 +1,27 @@
 # Report webhook setup
 
-Samarth's newer handoff in PR #17 reports a separate production workflow live
-since 30 October, 14:20 IST, in his workspace, using his sheet and alert address.
-He reports successful row/email delivery and duplicate suppression. Those are
-Samarth's observations; this branch has not independently repeated them.
-The user confirmed that this existing production workflow is the one to keep.
-Its sheet and alert recipient remain Samarth's; no replacement server setting
-or new private webhook handoff is required from this work.
+**Live since Fri 30 Oct, 14:20 IST.** Every report on the live site goes to the viaSocket flow
+"Check Before You Pay: reports" (in Samarth's viaSocket workspace). The flow runs these steps:
 
-A five-step plan has also been generated in Risheeth's viaSocket account.
-Google Sheets and Gmail connections now show ready. This draft is inactive:
-expected webhook payload and action mappings are incomplete. Leave it inactive.
+1. **find_existing:** ignore anything that isn't a report from our site (event, ID formats and evidence URL are
+   checked), then look the `report_id` up in the reports sheet.
+2. **add_row:** if it isn't there yet, add one row to the Google Sheet "Check Before You Pay: reports" (in
+   Samarth's Drive): received_at, report_id, check_id, band, score, lang, masked entities, evidence URL.
+3. **alert:** for a new row only, email samarthputhraya@gmail.com: "Check Before You Pay: High risk reported",
+   with the score, the masked identifiers, the evidence link and the 1930 helpline.
+4. **result:** answers the webhook with `{ok, report_id, added, reason, alerted}`.
+
+**Checked live on 30 Oct with two labelled test checks (`u_test_viasocket`):**
+- Each report added exactly one row, and the second one emailed the alert. The first test ran before the email step
+  existed.
+- The server marked both delivered on the first attempt.
+- Re-sending the same report answered `"reason": "duplicate"` and added no row and sent no email.
+- A request that isn't a report answered `"not a report"` and changed nothing.
+
+The webhook URL is only in the server's environment (`VIASOCKET_REPORT_WEBHOOK_URL`), never in the repo. The
+viaSocket agent token used to build the flow stays in the local `.env.railway`; the server doesn't have it. To pause
+the flow: https://flow.viasocket.com → Automations. To revoke the token: https://flow.viasocket.com/agent-access →
+Regenerate.
 
 ## What the backend does
 
@@ -20,10 +31,9 @@ and skips delivery for that report. Adding a URL later does not send old skipped
 reports.
 
 If configured, a background task POSTs JSON after sending the report response.
-This branch uses a two-second delivery timeout. Samarth's deployed change in
-PR #17 raises it to ten seconds because the live workflow completes its sheet
-and email actions before responding. Failure never changes report success.
-Pending deliveries survive restarts and retry after at least 60 seconds,
+The network request has a ten-second total timeout, because viaSocket runs the whole workflow (a sheet row and an
+email) before it answers. Delivery runs in the background after the report is saved. Failure never changes report
+success. Pending deliveries survive restarts and retry after at least 60 seconds,
 up to three attempts total. The worker checks pending deliveries every 30 seconds.
 An HTTP redirect is treated as failure. The URL must use HTTPS.
 
@@ -62,7 +72,7 @@ The machine-readable example is `examples/viasocket_report.json`.
 3. Connect the intended Google Sheet. Add columns `report_id`, `check_id`, `band`,
    `score`, `lang`, `entities`, `url`. Serialize `entities` as JSON for a single
    cell. Use `report_id` to deduplicate deliveries.
-4. Add an email action to Risheeth's own confirmed Google email for this demo.
+4. Add an email action to a family contact who has agreed to receive these alerts.
    Configure the recipient inside the workflow. Example subject:
    `Check Before You Pay: {{band}}`; body: `A check was reported. Risk score:
    {{score}}. Review the evidence: {{url}}`.
@@ -88,47 +98,29 @@ route HTTP errors using their `error.code` and `error.message`. The normal
 30-checks/hour per anonymous ID limit still applies. No model key belongs in
 the workflow request.
 
-## Inactive Risheeth demo draft
-
-The following setup was prepared before the existing production workflow was
-discovered. The user chose to keep Samarth's live workflow. Do not activate this
-draft or replace the server URL with it.
-
-Risheeth creates the Google Sheet himself at sheets.new while signed into his
-own account. Name it **Check Before You Pay – reports (demo)** and share Editor
-access with **samarthputhraya@gmail.com**. Header row:
-`report_id`, `check_id`, `band`, `score`, `lang`, `entities`, `url`.
-Paste the sheet URL into the team handoff; the sheet stays private.
-
-Connect Google from the Google Sheets step inside viaSocket. No Drive connector
-is required. Use only the masked fields above. Use Risheeth's own email as the
-alert recipient. Risheeth explicitly confirmed
-`risheeth200623@gmail.com` for the demo alert.
-Do not use a real family member for the demo.
-
-Send the webhook URL privately to Samarth so he can set
-`VIASOCKET_REPORT_WEBHOOK_URL` on the live server. Never commit, screenshot or
-paste it in the PR. Keep any local copy only in `.env`.
-
-Record a 20-second clip showing one labelled `u_test` report becoming one sheet
-row and one email. Keep the webhook URL, Google account screens and inbox
-contents outside the clip. Test replay separately: same report ID, no second
-row/email. Record completion and proof only after actually observing them.
-
-Current status: the user supplied the sheet URL and confirmed its ownership,
-Editor access for Samarth and all seven headers. Risheeth confirmed the alert
-recipient. The generated plan receives a webhook, validates `event` and
-`report_id`, looks up the ID in Sheet1, stops duplicates, then appends the row
-and sends the email for a new ID. Risheeth completed Google authorization and
-viaSocket shows both connections ready. The builder has created a webhook
-trigger and is waiting for expected payload/Continue; the remaining actions and
-their mappings have not been verified. No URL from this draft has been obtained
-or sent, and this draft has not been activated or tested. The user's final
-decision is to retain Samarth's existing production flow and leave this draft
-inactive. No 20-second clip has been recorded by this work. Recording production
-proof requires access to Samarth's live sheet and workflow; keep webhook URLs
-and inbox contents out of the recording.
-See `docs/ROUND2_STATUS.md` for the remaining acceptance work.
-
 References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),
 [workflow actions](https://viasocket.com/help/workflow/actions).
+
+## Inactive Risheeth demo draft
+
+The user explicitly chose to keep Samarth's production workflow described above.
+Leave the alternate Risheeth draft inactive; do not replace the live server URL.
+No new private webhook handoff is needed for that decision.
+
+Before discovering the production flow, Risheeth supplied a private demo Sheet
+named "Check Before You Pay ? reports (demo)" and confirmed its ownership,
+Samarth's Editor access and seven headers: report_id, check_id, band, score,
+lang, entities, url. He explicitly confirmed risheeth200623@gmail.com for his
+own demo alerts. Google Sheets and Gmail connections show ready in his workspace.
+
+The alternate builder has a webhook trigger and a five-step plan: validate event
+and report ID, look up the ID in Sheet1, stop duplicates, append the seven masked
+fields, then send the alert. Expected payload and remaining action mappings are
+incomplete. This alternate draft has not been activated or tested, and no URL
+from it was obtained, sent or committed.
+
+The remaining viaSocket deliverable here is a 20-second recording of the
+production report becoming one row and one email. It requires access to
+Samarth's live workflow and sheet. Keep webhook URLs, account screens and inbox
+contents out of the clip. Confirm email delivery using a workflow result or
+step status without showing the inbox. Do not stage a row or fake delivery.
