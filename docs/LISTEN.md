@@ -65,3 +65,20 @@ its 12.62-second MP3 took 10.72 s to generate/download. Tamil check
 `chk_01M65AH1S6ENXT22` took 4.77 s; its 12.74-second MP3 took 6.61 s.
 Repeat downloads took 0.94/0.92 s and returned identical bytes. These are two
 synthetic API probes, not native-speaker or physical Android acceptance.
+
+## Fresh Android acceptance links, 30 October afternoon
+
+The earlier check IDs subsequently returned 404, so fresh labelled synthetic
+checks were created using `u_test_android_acceptance_hi` and
+`u_test_android_acceptance_ta`. Both returned 200 with high-risk verdicts:
+
+| Language | Check ID | Check time | Audio time | MP3 duration |
+|---|---|---:|---:|---:|
+| Hindi | `chk_01M66A8YW0A5QB37` | 3.75 s | 6.30 s | 9.46 s |
+| Tamil | `chk_01M66A98E5YK122P` | 2.87 s | 9.12 s | 14.78 s |
+
+Both audio endpoints returned 200 `audio/mpeg`; ffprobe confirmed durations
+under 60 seconds. The user was sent the fresh `/api/check/{id}/audio` links for
+an Android Chrome check. Physical playback, complete spoken meaning and native
+pronunciation remain pending until the user reports results. The reason the
+older IDs disappeared was not established; earlier measurements remain historical.
