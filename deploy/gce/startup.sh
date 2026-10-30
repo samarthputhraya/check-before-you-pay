@@ -19,6 +19,7 @@ mkdir -p /opt/cbyp/data
 cat > /opt/cbyp/Caddyfile <<EOF
 $HOST {
 	encode gzip
+	header Strict-Transport-Security "max-age=31536000"
 	reverse_proxy app:8000
 }
 EOF
@@ -52,6 +53,10 @@ s.backup(t); t.close(); s.close(); os.replace(tmp, final)
 " || logger -t cbyp-backup "backup failed"
 rm -f /opt/cbyp/data/backups/*.tmp
 ls -1t /opt/cbyp/data/backups/app-*.db 2>/dev/null | tail -n +49 | xargs -r rm -f
+# Listen MP3s live in the database, so it can grow; past 80% disk, keep only the newest 6 backups.
+if [ "$(df --output=pcent /opt/cbyp/data | tail -1 | tr -dc 0-9)" -gt 80 ]; then
+  ls -1t /opt/cbyp/data/backups/app-*.db | tail -n +7 | xargs -r rm -f
+fi
 EOF
 chmod 755 /etc/cron.hourly/cbyp-backup
 systemctl enable --now cron

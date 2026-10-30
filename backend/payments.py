@@ -254,6 +254,11 @@ def apply_event(path: Path, cfg: Dodo, webhook_id: str, event: object) -> tuple[
     event = event if isinstance(event, dict) else {}
     kind = event['type'][:64] if isinstance(event.get('type'), str) else ''
     data = event.get('data') if isinstance(event.get('data'), dict) else {}
+    if kind == 'refund.succeeded':
+        payment_id = data.get('payment_id')
+        if not isinstance(payment_id, str) or not re.fullmatch(r'pay_[A-Za-z0-9_-]{1,128}', payment_id):
+            raise ApiError(400, 'invalid_request', 'The refund must identify its payment.')
+        return kind, db.apply_dodo_refund(path, webhook_id, payment_id, cfg.mode)
     meta = data.get('metadata') if isinstance(data.get('metadata'), dict) else {}
     status = EVENT_STATUS.get(kind)
     order_id = meta.get('order_id')
@@ -263,7 +268,9 @@ def apply_event(path: Path, cfg: Dodo, webhook_id: str, event: object) -> tuple[
     if status and reason:
         # Not recorded: if our config was wrong (a product ID typo), Dodo's resend can still apply once it's fixed.
         return kind, reason
-    outcome = db.apply_dodo_event(path, webhook_id, kind, order_id if status else None, status, ref)
+    payment_id = data.get('payment_id')
+    payment_id = payment_id if isinstance(payment_id, str) and re.fullmatch(r'pay_[A-Za-z0-9_-]{1,128}', payment_id) else None
+    outcome = db.apply_dodo_event(path, webhook_id, kind, order_id if status else None, status, ref, payment_id)
     return kind, outcome
 
 

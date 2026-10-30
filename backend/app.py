@@ -17,8 +17,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import TypeAdapter, ValidationError
 
-from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, webhooks
+from backend import db, events as event_proof, llm, payments, pipeline, quiz as quizzes, rate_limit, telegram, webhooks
 from backend.cache import consent_buffer
+from backend import audio
 from backend.config import WEB_DIR, get_settings
 from backend.errors import ApiError, install_error_handlers
 from backend.guard import Guard
@@ -29,7 +30,7 @@ from backend.schemas import (
     HealthResponse, Lang, OrderId, OrderResponse, PlansResponse, QuizAnswerRequest, QuizAnswerResponse, QuizResponse,
     ReportRequest, ReportResponse, Share, StatsResponse,
 )
-from backend.share_page import render_share_page
+from backend.share_page import render_not_found, render_share_page
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logging.getLogger("httpx").setLevel(logging.WARNING)  # it logs full outgoing URLs, and webhook URLs carry secrets
@@ -49,11 +50,15 @@ async def lifespan(app: FastAPI):
     await llm.providers.initialize()
     webhook_worker = asyncio.create_task(webhooks.worker())
     model_worker = asyncio.create_task(llm.providers.refresh_loop())
+    ffmpeg_warmer = asyncio.create_task(audio.keep_warm())
     try:
         yield
     finally:
         webhook_worker.cancel()
         model_worker.cancel()
+        ffmpeg_warmer.cancel()
+        with suppress(asyncio.CancelledError):
+            await ffmpeg_warmer
         with suppress(asyncio.CancelledError):
             await webhook_worker
         with suppress(asyncio.CancelledError):
@@ -72,6 +77,19 @@ def base_url(request: Request) -> str:
 
 
 # ---- API --------------------------------------------------------------------
+
+@app.post('/api/telegram/webhook')
+async def telegram_webhook(request: Request, background_tasks: BackgroundTasks) -> dict:
+    telegram.authenticate(request.headers.getlist('x-telegram-bot-api-secret-token'))
+    try:
+        update = telegram.Update.model_validate(await request.json())
+    except (ValueError, ValidationError):
+        raise ApiError(400, 'invalid_request', 'Invalid Telegram update.') from None
+    if update.message is not None:
+        reservation = telegram.reserve(update.update_id)
+        if reservation is not None:
+            background_tasks.add_task(telegram.process, update, reservation)
+    return {'ok': True}
 
 @app.api_route("/api/health", methods=["GET", "HEAD"], response_model=HealthResponse)
 def health(response: Response) -> HealthResponse:
@@ -120,6 +138,14 @@ def report(body: ReportRequest, response: Response, background_tasks: Background
     elif created:
         logging.getLogger('cbyp').info('viasocket not configured')
     return ReportResponse(report_id=report_id, ok=True, text_saved=text_saved)
+
+
+@app.get('/api/check/{check_id}/audio', response_class=Response,
+         responses={200: {'content': {'audio/mpeg': {}}}})
+async def check_audio(check_id: str) -> Response:
+    _require_check_id(check_id)
+    return Response(await audio.for_check(check_id), media_type='audio/mpeg',
+                    headers={'Cache-Control': 'public, max-age=86400', 'X-Content-Type-Options': 'nosniff'})
 
 
 @app.get("/api/quiz", response_model=QuizResponse)
@@ -239,14 +265,17 @@ _ANON_ID = TypeAdapter(AnonId)
 
 @app.api_route("/c/{check_id}", methods=["GET", "HEAD"], response_class=HTMLResponse, include_in_schema=False)
 def share_page(check_id: str, request: Request, ref: str | None = None) -> HTMLResponse:
-    _require_check_id(check_id)
+    try:
+        _CHECK_ID.validate_python(check_id)
+    except ValidationError:
+        return HTMLResponse(render_not_found(), status_code=404)
     try:
         ref = _ANON_ID.validate_python(ref) if ref else None
     except ValidationError:
         ref = None  # a mangled ref must not break the page; we just don't credit anyone
     view = db.get_check(get_settings().sqlite_path, check_id)
     if view is None:
-        raise ApiError(404, 'not_found', 'No check with that ID.')
+        return HTMLResponse(render_not_found(), status_code=404)
     view = public_view(view)
     page_url = f"{base_url(request)}/c/{check_id}"
     return HTMLResponse(render_share_page(view, page_url, ref))

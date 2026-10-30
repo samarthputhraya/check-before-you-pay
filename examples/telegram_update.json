@@ -1,0 +1,9 @@
+{
+  "update_id": 1,
+  "message": {
+    "message_id": 1,
+    "chat": {"id": 123, "type": "private"},
+    "from": {"id": 123, "language_code": "hi", "is_bot": false},
+    "text": "(sample) Stock tips: 300% guaranteed. Pay sample@ybl for an institutional account."
+  }
+}

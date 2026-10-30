@@ -106,6 +106,7 @@
 | 400 | `empty_input` | No text, image or audio was sent |
 | 413 | `input_too_large` | Text over 5,000 characters, or a file over 5 MB |
 | 415 | `unsupported_media` | Image or audio type not on the list above |
+| 422 | `unreadable_file` | A screenshot or voice note with no text we could read and no typed text alongside. The page asks for a clearer file or the pasted text |
 | 429 | `rate_limited` | More than 30 checks per hour for this user, or the per-IP limit |
 | 503 | `check_unavailable` | Only when even the regex fallback fails |
 
@@ -130,6 +131,19 @@ This also fires the viaSocket webhook.
 ## GET /api/check/{check_id}
 
 The public, masked view of a check. It has the same shape as the `/api/check` response but without `transcript`.
+
+---
+
+## GET /api/check/{check_id}/audio
+
+Returns `audio/mpeg` (MP3,
+under 60 seconds) speaking the masked headline, explanation and first next step
+in the stored check's language. Successful audio is cached per check in SQLite
+and has `Cache-Control: public, max-age=86400`. Unknown or malformed IDs return
+`not_found` (404); provider, conversion, cache or timeout failures return
+`audio_unavailable` (503) in the standard JSON error envelope. Generation has an
+8-second provider timeout and a 20-second overall budget. No request body or
+credentials are required. Added with Round 2 Role B endpoint authorization.
 
 ---
 
@@ -174,7 +188,7 @@ The HTML share page. It includes Open Graph tags (an English title and the band)
 
 **Response:** `204`.
 
-`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`, `pricing_view`.
+`event` is one of `visit`, `check_started`, `check_done`, `share_clicked`, `ref_visit`, `report`, `quiz_done`, `quiz_shared`, `return_visit`, `pricing_view`, `listen_played`.
 
 The server records `check_done`, `report` and `quiz_done` itself, plus `checkout_started` and `checkout_paid`. A client that sends any of these five is ignored.
 
@@ -195,6 +209,7 @@ The pricing page reads its plans from here, so the prices on the page always mat
 ```
 
 - `available` is `false` when that plan's Dodo product isn't configured. The page disables its button and says "Coming soon".
+- **What a paid Family plan does today:** the phone that bought it (its `anon_id`) can run 300 checks an hour instead of 30. Checking stays free for everyone.
 - `test_mode` is `true` unless the server runs with live Dodo keys. While it's `true`, the page shows "Test mode: no real money is charged".
 
 ---
@@ -229,7 +244,7 @@ The pricing page polls this after Dodo sends the customer back. Only Dodo's sign
 { "order_id": "ord_01JB9A", "plan": "family", "status": "paid" }
 ```
 
-- `status` is `pending`, `paid` or `failed`.
+- `status` is `pending`, `paid`, `failed` or `refunded`.
 - **Errors:** `not_found` (404).
 
 ---
@@ -239,6 +254,15 @@ The pricing page polls this after Dodo sends the customer back. Only Dodo's sign
 Called by Dodo only, never by our pages. The server verifies the Standard Webhooks signature (`webhook-id`, `webhook-timestamp`, `webhook-signature`) with `DODO_WEBHOOK_SECRET` before it records anything.
 - **Response:** `200` when processed. A repeat of the same `webhook-id` returns `200` and changes nothing.
 - **Errors:** `401` for a bad or stale signature.
+
+`refund.succeeded` links through the payment ID from a verified payment webhook,
+marks the associated paid order `refunded`, and removes it from `orders_paid`.
+Refund metadata cannot select an order. Refunds arriving before the payment
+event are recorded and applied when that verified payment arrives. Refunded
+orders cannot be made paid again by a late/replayed success event. As specified
+for this MVP, any successful refund (including a partial refund) excludes the
+order from the paid-order count. `subscription.cancelled` is recorded once in
+the webhook ledger; it does not erase the historical payment or mark a refund.
 
 ---
 
@@ -272,3 +296,32 @@ Called by Dodo only, never by our pages. The server verifies the Standard Webhoo
 Answers `GET` and `HEAD`. Returns **503** with `"ok": false` when the database can't be written, so a deploy without a working volume fails its healthcheck.
 
 `db` returns `down` when the database can't be reached. Checks still return a verdict while it's down; S4 and S5 score 0, and `"links"` is added to `unchecked`.
+
+---
+
+## POST /api/telegram/webhook
+
+Added under Role B's Round 2 authorization in `docs/ROLE_B_NEXT.md`. Telegram
+posts its standard Update JSON here; the body limit is 64 KB. The
+`X-Telegram-Bot-Api-Secret-Token` header must match `TELEGRAM_WEBHOOK_SECRET`.
+The endpoint compares it in constant time before parsing/processing the update.
+
+**Response 200:** `{"ok": true}` acknowledges receipt, before a background task
+runs the check and sends a Telegram reply. Duplicate update IDs are ignored by
+a bounded in-memory cache. Ignored update types and non-private chats also get 200.
+
+Supported private-chat inputs: text, photos, PNG/JPEG documents and voice notes
+in the existing `/api/check` formats/limits. `/lang hi` switches language (the
+eight API language codes are accepted); otherwise Telegram's language code is
+used, falling back to English. Overrides expire after 24 hours or a restart.
+
+The reply contains the band, score, top three signals with masked evidence,
+next steps and the public referral URL. The pipeline, score and rate limits are
+the same as `/api/check`. Telegram user IDs become `u_tg_` plus a keyed HMAC;
+raw Telegram IDs, update bodies and message text are not persisted.
+
+Errors use the normal envelope: `invalid_signature` (401), `invalid_request`
+(400), `input_too_large` (413), or `telegram_unavailable` (503, missing configuration
+or capacity). Check/rate-limit failures after acknowledgment are reported in the
+chat, rather than changing the webhook response. See `docs/TELEGRAM.md` for
+delivery, restart and live acceptance limits.

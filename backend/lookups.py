@@ -16,6 +16,7 @@ from backend.extraction import canonical_url, registered_domain
 
 _ages: dict[str, tuple[float, tuple[int, str]]] = {}
 _feed: tuple[str, float, set[str]] | None = None
+UNREGISTERED = -1  # Negative RDAP answer, not an age or a scoring change.
 
 
 async def domain_age(domain: str) -> tuple[int, str] | None:
@@ -31,6 +32,12 @@ async def domain_age(domain: str) -> tuple[int, str] | None:
         async with asyncio.timeout(2):
             async with httpx.AsyncClient(timeout=2, follow_redirects=False) as client:
                 async with client.stream('GET', url, headers={'Accept':'application/rdap+json'}) as response:
+                    if response.status_code == 404:
+                        if len(_ages) > 10000:
+                            _ages.clear()
+                        value = UNREGISTERED, url
+                        _ages[domain] = (time.monotonic(), value)
+                        return value
                     response.raise_for_status()
                     chunks = bytearray()
                     async for chunk in response.aiter_bytes():

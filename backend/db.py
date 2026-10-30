@@ -46,13 +46,21 @@ CREATE TABLE IF NOT EXISTS quiz_results (
 CREATE TABLE IF NOT EXISTS rate_limits (bucket TEXT NOT NULL, created_at REAL NOT NULL);
 CREATE INDEX IF NOT EXISTS rate_bucket ON rate_limits(bucket, created_at);
 CREATE TABLE IF NOT EXISTS app_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS dodo_payment_orders (
+ payment_id TEXT NOT NULL, mode TEXT NOT NULL, order_id TEXT NOT NULL REFERENCES orders(id),
+ PRIMARY KEY(payment_id, mode));
+CREATE TABLE IF NOT EXISTS dodo_refunds (
+ payment_id TEXT NOT NULL, mode TEXT NOT NULL, PRIMARY KEY(payment_id, mode));
 CREATE TABLE IF NOT EXISTS orders (
  id TEXT PRIMARY KEY, plan TEXT NOT NULL, anon_id TEXT NOT NULL, session_id TEXT, status TEXT NOT NULL,
  mode TEXT NOT NULL, created_at REAL NOT NULL, paid_at REAL, dodo_ref TEXT);
 CREATE TABLE IF NOT EXISTS dodo_webhooks (id TEXT PRIMARY KEY, type TEXT NOT NULL, created_at REAL NOT NULL);
+CREATE INDEX IF NOT EXISTS orders_paid_by_anon ON orders(anon_id, status);
+CREATE TABLE IF NOT EXISTS verdict_audio (
+ check_id TEXT PRIMARY KEY REFERENCES checks(id), digest TEXT NOT NULL, mp3 BLOB NOT NULL);
 '''
 
-CACHE_REVISION = '2026-10-29-review-2'
+CACHE_REVISION = '2026-10-30-overnight'  # new S4 label, explanation script guard, claim definitions
 
 
 def connect(path: Path) -> sqlite3.Connection:
@@ -109,6 +117,18 @@ def cached_check(path: Path, key: str, lang: str, now: float | None = None) -> C
                              WHERE k.input_hash=? AND k.lang=? AND k.created_at>?''',
                           (key, lang, (now or time.time()) - 86400)).fetchone()
         return CheckView.model_validate_json(row[0]) if row else None
+
+
+def get_audio(path: Path, check_id: str, digest: str) -> bytes | None:
+    with session(path) as con:
+        row = con.execute('SELECT mp3 FROM verdict_audio WHERE check_id=? AND digest=?',
+                          (check_id, digest)).fetchone()
+        return bytes(row[0]) if row else None
+
+
+def save_audio(path: Path, check_id: str, digest: str, mp3: bytes) -> None:
+    with session(path) as con:
+        con.execute('INSERT OR REPLACE INTO verdict_audio VALUES (?,?,?)', (check_id, digest, mp3))
 
 
 def _ring(con: sqlite3.Connection, ids: list[str], before: float, exclude: str = '', script_id: str | None = None,
@@ -366,6 +386,11 @@ def fail_order(path: Path, order_id: str) -> None:
         con.execute("UPDATE orders SET status='failed' WHERE id=? AND status='pending'", (order_id,))
 
 
+def has_paid_order(path: Path, anon_id: str) -> bool:
+    with session(path) as con:
+        return con.execute("SELECT 1 FROM orders WHERE anon_id=? AND status='paid' LIMIT 1", (anon_id,)).fetchone() is not None
+
+
 def get_order(path: Path, order_id: str) -> dict | None:
     with session(path) as con:
         row = con.execute('SELECT * FROM orders WHERE id=?', (order_id,)).fetchone()
@@ -373,16 +398,24 @@ def get_order(path: Path, order_id: str) -> dict | None:
 
 
 def apply_dodo_event(path: Path, webhook_id: str, kind: str, order_id: str | None, status: str | None,
-                     dodo_ref: str | None) -> str:
-    """Record a verified Dodo webhook exactly once and move its order. Paid is final; failed only replaces pending,
+                     dodo_ref: str | None, payment_id: str | None = None) -> str:
+    """Record a verified Dodo webhook exactly once. Refunded is final; failed only replaces pending,
     so a late payment.failed from a declined first card can't undo the retry that succeeded."""
     now = time.time()
     with session(path) as con:
         con.execute('BEGIN IMMEDIATE')
-        if not con.execute('INSERT OR IGNORE INTO dodo_webhooks VALUES (?,?,?)', (webhook_id, kind, now)).rowcount:
+        fresh = con.execute('INSERT OR IGNORE INTO dodo_webhooks VALUES (?,?,?)', (webhook_id, kind, now)).rowcount
+        if status == 'paid' and payment_id:
+            con.execute('''INSERT OR IGNORE INTO dodo_payment_orders
+                SELECT ?,mode,id FROM orders WHERE id=?''', (payment_id, order_id))
+            if con.execute('''SELECT 1 FROM dodo_refunds r JOIN orders o ON o.mode=r.mode
+                              WHERE o.id=? AND r.payment_id=?''', (order_id, payment_id)).fetchone():
+                con.execute("UPDATE orders SET status='refunded',dodo_ref=? WHERE id=?", (payment_id, order_id))
+                return 'refunded'
+        if not fresh:
             return 'duplicate'
         if status == 'paid' and con.execute('''UPDATE orders SET status='paid',paid_at=?,dodo_ref=COALESCE(?,dodo_ref)
-                WHERE id=? AND status!='paid' ''', (now, dodo_ref, order_id)).rowcount:
+                WHERE id=? AND status IN ('pending','failed') ''', (now, dodo_ref, order_id)).rowcount:
             row = con.execute('SELECT anon_id,plan FROM orders WHERE id=?', (order_id,)).fetchone()
             _event(con, EventRequest(anon_id=row['anon_id'], event='checkout_paid', props={'plan': row['plan']}), now)
             return 'paid'
@@ -390,6 +423,20 @@ def apply_dodo_event(path: Path, webhook_id: str, kind: str, order_id: str | Non
                 WHERE id=? AND status='pending' ''', (dodo_ref, order_id)).rowcount:
             return 'failed'
         return 'unchanged'
+
+
+def apply_dodo_refund(path: Path, webhook_id: str, payment_id: str, mode: str) -> str:
+    """Called only after signature verification; refund metadata cannot select an order."""
+    with session(path) as con:
+        con.execute('BEGIN IMMEDIATE')
+        if not con.execute('INSERT OR IGNORE INTO dodo_webhooks VALUES (?,?,?)',
+                           (webhook_id, 'refund.succeeded', time.time())).rowcount:
+            return 'duplicate'
+        con.execute('INSERT OR IGNORE INTO dodo_refunds VALUES (?,?)', (payment_id, mode))
+        changed = con.execute('''UPDATE orders SET status='refunded' WHERE status='paid' AND mode=? AND
+            (id IN (SELECT order_id FROM dodo_payment_orders WHERE payment_id=? AND mode=?)
+             OR dodo_ref=?)''', (mode, payment_id, mode, payment_id)).rowcount
+        return 'refunded' if changed else 'refund recorded'
 
 
 def export_database(path: Path) -> bytes:
