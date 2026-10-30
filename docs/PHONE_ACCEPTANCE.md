@@ -59,6 +59,19 @@ Chrome or an Android phone. The reported upload checks still used a non-test
 ID, so the test-ID setup has not been confirmed. iPhone results cannot close
 the separate Android gate.
 
+## Emulated Android Chrome, 30 October, 20:15 IST (not a physical phone)
+
+Run by Claude on Samarth's laptop: real Chrome 156 in Playwright's Pixel 7 profile (Android 14 user agent, touch,
+390 x 915 screen) against the live site, with the test ID `u_test_android_emulated`. It checks the web flow in
+Chrome's Android mode: the upload buttons, the verdict and Listen. It does not test the Android file picker, the
+microphone app or the phone's speaker, so the physical Android gate stays open.
+
+| Case | Check ID | Result | Server / wall time |
+|---|---|---|---|
+| WhatsApp-style screenshot of a labelled fictional stock tip (PNG) | `chk_01M66MAYHT5JJBNQ` | High risk 100; text read correctly; nothing unchecked | 2.84 s / 4.25 s |
+| Listen on that verdict | (same) | MP3 returned (200, 108,908 bytes) | 11.95 s on the first tap (cold) |
+| Voice note of the fictional script (M4A, synthetic voice) | `chk_01M66MBFZQRMRHQ5` | Caution 30; transcript "Our investment plan guarantees your money will double in 7 days. Deposit today." | 1.82 s / 2.73 s |
+
 ## Synthetic live API preflight, 30 October
 
 These checks used `u_test` IDs and authored fixtures. They do not establish
