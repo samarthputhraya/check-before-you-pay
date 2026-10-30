@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'preact/hooks';
 import { apiFetch } from './api.js';
 import { html } from './html.js';
-import { defaultLang, LANGS, uiLang } from './i18n.js';
+import { defaultLang, LANGS, strings, uiLang } from './i18n.js';
+import { FONT_STACK, wrapToWidth } from './shareCard.js';
 import { anonId, track } from './session.js';
 
 const QUIZ_LANGS = ['en', 'hi', 'hinglish', 'mr']; // the languages with a quiz set; others start in English
+// The footer links here in all 8 languages, so a Tamil, Telugu, Kannada or Bengali reader is told why it's in English.
+const NOT_YET = {
+  ta: 'இந்த வினாடி வினா இப்போது ஆங்கிலம், இந்தி, ஹிங்லிஷ், மராத்தியில் மட்டும் உள்ளது.',
+  te: 'ఈ క్విజ్ ప్రస్తుతం ఇంగ్లీష్, హిందీ, హింగ్లీష్, మరాఠీలో మాత్రమే ఉంది.',
+  kn: 'ಈ ಕ್ವಿಜ್ ಸದ್ಯ ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ, ಹಿಂಗ್ಲಿಷ್ ಮತ್ತು ಮರಾಠಿಯಲ್ಲಿ ಮಾತ್ರ ಇದೆ.',
+  bn: 'এই কুইজ এখন শুধু ইংরেজি, হিন্দি, হিংলিশ আর মারাঠিতে আছে।',
+};
 
 const COPY = {
   en: {
@@ -26,7 +34,7 @@ const COPY = {
   hi: {
     title: 'धोखाधड़ी पहचानें', intro: 'हर संदेश पढ़ें और चुनें: धोखाधड़ी या सही? ये सभी संदेश उदाहरण हैं, जो हमने लिखे हैं।', loading: 'क्विज़ लोड हो रही है…',
     empty: 'अभी कोई क्विज़ संदेश उपलब्ध नहीं है।', question: (n, total) => `संदेश ${n} / ${total}`,
-    scam: 'धोखाधड़ी', genuine: 'सही', submit: 'मेरा स्कोर देखें', scoring: 'जवाब जाँचे जा रहे हैं…',
+    scam: 'धोखाधड़ी', genuine: 'असली', submit: 'मेरा स्कोर देखें', scoring: 'जवाब जाँचे जा रहे हैं…',
     score: (score, total) => `आपने ${score}/${total} पहचाने।`, sample: 'नमूना क्विज़ नतीजा', share: 'स्कोर साझा करें', youSaid: (answer) => `आपने ${answer} चुना`, answer: 'सही जवाब',
     shareText: (score, total) => `मैंने ${score}/${total} पहचाने। क्या आप पहचान सकते हैं?`, again: 'फिर खेलें', back: 'जाँच पर वापस जाएँ',
     error: 'क्विज़ लोड नहीं हो सकी। इंटरनेट देखें और फिर कोशिश करें।', answerError: 'जवाब सेव नहीं हो सके। फिर कोशिश करें।', retry: 'फिर कोशिश करें', explanation: 'क्यों',
@@ -51,14 +59,16 @@ function escapeXml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[char]);
 }
 
-async function createQuizCard(score, total, caption) {
+async function createQuizCard(score, total, caption, footer) {
+  const captionLines = wrapToWidth(caption, `600 48px ${FONT_STACK}`, 896, 3)
+    .map((line, i) => `<text x="92" y="${540 + i * 62}" class="caption">${escapeXml(line)}</text>`).join('');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
     <rect width="1080" height="1350" fill="#f6f7f5"/><rect x="48" y="48" width="984" height="1254" rx="32" fill="#fff" stroke="#d9dfda" stroke-width="3"/>
     <rect x="48" y="48" width="984" height="20" rx="10" fill="#0b6839"/><text x="92" y="170" class="brand">Check Before You Pay</text>
-    <text x="92" y="420" class="score">${Number(score)}/${Number(total)}</text><text x="92" y="540" class="caption">${escapeXml(caption)}</text>
-    <line x1="92" y1="1110" x2="988" y2="1110" stroke="#d9dfda" stroke-width="3"/><text x="92" y="1190" class="footer">Check evidence before you pay.</text>
+    <text x="92" y="420" class="score">${Number(score)}/${Number(total)}</text>${captionLines}
+    <line x1="92" y1="1110" x2="988" y2="1110" stroke="#d9dfda" stroke-width="3"/><text x="92" y="1190" class="footer">${escapeXml(footer)}</text>
     <text x="92" y="1250" class="url">${escapeXml(location.host)}</text>
-    <style>text{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}.brand{font-size:38px;font-weight:700;fill:#16201b}.score{font-size:180px;font-weight:800;fill:#0b6839}.caption{font-size:48px;font-weight:600;fill:#16201b}.footer{font-size:30px;fill:#344054}.url{font-size:26px;fill:#5b675f}</style>
+    <style>text{font-family:${FONT_STACK}}.brand{font-size:38px;font-weight:700;fill:#16201b}.score{font-size:180px;font-weight:800;fill:#0b6839}.caption{font-size:48px;font-weight:600;fill:#16201b}.footer{font-size:30px;fill:#344054}.url{font-size:26px;fill:#5b675f}</style>
   </svg>`;
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
   try {
@@ -121,7 +131,7 @@ export function QuizPage() {
     try {
       if (navigator.share) {
         let file;
-        try { file = await createQuizCard(score, total, caption); } catch { file = null; }
+        try { file = await createQuizCard(score, total, caption, strings(lang).cardFooter); } catch { file = null; }
         const payload = { title: shareInfo.card_title, text: shareInfo.card_title, url: shareInfo.url };
         if (file && navigator.canShare?.({ files: [file] })) payload.files = [file];
         await navigator.share(payload);
@@ -152,6 +162,7 @@ export function QuizPage() {
       <select id="quiz-language" value=${lang} disabled=${state.status === 'loading' || state.status === 'submitting'} onChange=${(event) => setLang(event.currentTarget.value)}>
         ${languageOptions.map((option) => html`<option value=${option.code}>${option.name}</option>`)}
       </select></div>
+    ${NOT_YET[defaultLang()] && html`<p class="note" lang=${defaultLang()}>${NOT_YET[defaultLang()]}</p>`}
     <h1>${label('title')}</h1><p class="muted">${label('intro')}</p>
     ${state.status === 'loading' || state.status === 'submitting'
       ? html`<div class="card empty" role="status"><span class="spinner" aria-hidden="true"></span><p>${state.status === 'submitting' ? label('scoring') : label('loading')}</p></div>`

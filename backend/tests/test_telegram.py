@@ -67,7 +67,7 @@ def test_text_reuses_pipeline_masks_evidence_and_keeps_referral(client):
     assert c.post('/api/telegram/webhook', json=update(text=text), headers=HEADERS).status_code == 200
     assert len(replies) == 1 and replies[0]['chat_id'] == 123
     body = replies[0]['text']
-    assert 'high_risk' in body and '/100' in body
+    assert telegram.BAND_LABELS['hi'][0] in body and 'high_risk' not in body and '/100' in body  # sender's language is hi
     assert 'sample@ybl' not in body
     assert '?ref=' + telegram.anon_id(123) in body
     assert 'parse_mode' not in replies[0]
@@ -84,7 +84,7 @@ def test_photo_uses_existing_media_validation(client):
     c, replies, path = client
     response = c.post('/api/telegram/webhook', headers=HEADERS,
         json=update(photo=[{'file_id': 'photo', 'width': 20, 'height': 20, 'file_size': 700}]))
-    assert response.status_code == 200 and 'high_risk' in replies[0]['text']
+    assert response.status_code == 200 and '/100' in replies[0]['text'] and 'high_risk' not in replies[0]['text']
     with db.session(path) as con:
         assert con.execute('SELECT input_type FROM checks').fetchone()[0] == 'image'
 
@@ -107,6 +107,15 @@ def test_rate_limit_is_applied_before_provider_or_media_download(client, monkeyp
     c.post('/api/telegram/webhook', headers=HEADERS, json=update(text='Pay sample@ybl'))
     assert 'Too many checks' in replies[0]['text']
     assert db.stats(path).checks == 0
+
+
+def test_commands_do_not_use_up_checks(client, monkeypatch):
+    calls = []
+    monkeypatch.setattr(rate_limit, 'enforce', lambda *args: calls.append(args))
+    c, replies, _ = client
+    for n, text in enumerate(['/start', '/help', '/lang hi'], 1):
+        c.post('/api/telegram/webhook', headers=HEADERS, json=update(n, text=text))
+    assert len(replies) == 3 and not calls
 
 
 def test_language_override_and_group_privacy(client):

@@ -18,7 +18,7 @@ const COPY = {
     users: 'People who visited',
     checks: 'Messages checked',
     reports: 'Reports sent',
-    rings: 'Linked groups of reports',
+    rings: 'Linked groups of high-risk checks',
     quiz: 'Quiz plays',
     shared: 'Verdicts shared',
     kFactor: 'New people per sharer',
@@ -39,7 +39,7 @@ const COPY = {
     users: 'साइट पर आए लोग',
     checks: 'जाँचे गए मैसेज',
     reports: 'भेजी गई रिपोर्टें',
-    rings: 'जुड़ी हुई रिपोर्टों के समूह',
+    rings: 'ज़्यादा ख़तरे वाली जुड़ी जाँचों के समूह',
     quiz: 'क्विज़ खेली गई',
     shared: 'शेयर किए गए नतीजे',
     kFactor: 'हर शेयर करने वाले से आए नए लोग',
@@ -49,7 +49,50 @@ const COPY = {
     updated: (time) => `${time} पर अपडेट हुआ। हर 30 सेकंड में ताज़ा होता है।`,
     seconds: (ms) => (ms < 100 ? '<0.1 सेकंड' : `${(ms / 1000).toFixed(1)} सेकंड`),
   },
+  mr: {
+    title: 'लाइव्ह आकडे',
+    intro: 'इथला प्रत्येक आकडा ही साइट वापरणाऱ्या लोकांकडून येतो. नमुना डेटा धरलेला नाही.',
+    loading: 'आकडे लोड होत आहेत…',
+    error: 'आकडे लोड झाले नाहीत. इंटरनेट तपासा आणि पुन्हा प्रयत्न करा.',
+    retry: 'पुन्हा प्रयत्न करा',
+    empty: 'अजून एकही तपासणी झालेली नाही. पहिला मेसेज तुम्ही तपासा.',
+    check: 'मेसेज तपासा',
+    users: 'साइटला भेट दिलेले लोक',
+    checks: 'तपासलेले मेसेज',
+    reports: 'पाठवलेले रिपोर्ट',
+    rings: 'जास्त धोक्याच्या जोडलेल्या तपासण्यांचे गट',
+    quiz: 'क्विझ किती वेळा खेळली',
+    shared: 'शेअर केलेले निकाल',
+    kFactor: 'प्रत्येक शेअर करणाऱ्यामुळे आलेले नवीन लोक',
+    speed: 'साधारण तपासणीचा वेळ',
+    slow: '20 पैकी सर्वात हळू 1 तपासणी',
+    languages: 'वापरलेल्या भाषा',
+    updated: (time) => `${time} ला अपडेट झाले. दर 30 सेकंदांनी ताजे होते.`,
+    seconds: (ms) => (ms < 100 ? '<0.1 सेकंद' : `${(ms / 1000).toFixed(1)} सेकंद`),
+  },
+  hinglish: {
+    title: 'Live numbers',
+    intro: 'Yahan ka har number is site ko use karne waalon se aata hai. Sample data shaamil nahi hai.',
+    loading: 'Numbers load ho rahe hain…',
+    error: 'Numbers load nahi hue. Internet check karo aur phir try karo.',
+    retry: 'Phir try karo',
+    empty: 'Abhi tak koi check nahi hua. Pehla message aap check karo.',
+    check: 'Message check karo',
+    users: 'Site pe aaye log',
+    checks: 'Check kiye gaye messages',
+    reports: 'Bheji gayi reports',
+    rings: 'High-risk checks ke jude hue groups',
+    quiz: 'Quiz kitni baar khela gaya',
+    shared: 'Share kiye gaye verdicts',
+    kFactor: 'Har share karne waale se aaye naye log',
+    speed: 'Aam taur pe check ka time',
+    slow: '20 mein se sabse dheemi 1 check',
+    languages: 'Use hui bhashayein',
+    updated: (time) => `${time} pe update hua. Har 30 second mein refresh hota hai.`,
+    seconds: (ms) => (ms < 100 ? '<0.1 s' : `${(ms / 1000).toFixed(1)} s`),
+  },
 };
+const TIME_LOCALE = { hi: 'hi-IN', mr: 'mr-IN' };
 
 const number = new Intl.NumberFormat('en-IN');
 const languageName = (code) => (LANGS.find((l) => l.code === code) || { name: code }).name;
@@ -59,7 +102,7 @@ function Tile({ label, value }) {
 }
 
 export function StatsPage() {
-  const lang = uiLang(defaultLang()) === 'hi' ? 'hi' : 'en';
+  const lang = COPY[defaultLang()] ? defaultLang() : 'en';
   const c = COPY[lang];
   const [state, setState] = useState({ status: 'loading' });
   const [reload, setReload] = useState(0);
@@ -106,10 +149,10 @@ export function StatsPage() {
           <span class="stat-lang-count">${number.format(n)}</span>
         </li>`)}</ul>
       </section>`}
-      <p class="fine">${c.updated(new Date(s.updated_at).toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-IN', { hour: '2-digit', minute: '2-digit' }))}</p>`;
+      <p class="fine">${c.updated(new Date(s.updated_at).toLocaleTimeString(TIME_LOCALE[lang] || 'en-IN', { hour: '2-digit', minute: '2-digit' }))}</p>`;
   }
 
-  return html`<main class="page stats-page" lang=${lang}>
+  return html`<main class="page stats-page" lang=${uiLang(lang)}>
     <h1>${c.title}</h1>
     <p class="muted">${c.intro}</p>
     ${body}
