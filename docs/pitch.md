@@ -23,7 +23,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | 0:30-0:50 | Samarth | **Today.** "SEBI warned about exactly these groups on 22 October. Look at what a family can check today. SEBI Check needs you to know it exists. The 1930 helpline is for after the money's gone. The I4C registry only knows numbers someone already reported, and scammers make a new UPI ID every day. Truecaller screens calls, not a stock-tip group's payment request." |
 | 0:50-2:00 | *(demo driver)* | **Demo:** write after the check works (see 3) |
 | 2:00-2:30 | *(B)* | **How:** write after the check works. The likely line: "The risk score is a fixed formula over facts we check, like whether the UPI ID is a SEBI @valid handle and whether the link copies a real broker. The AI only reads the message and explains the result, so the same message always gets the same score." |
-| 2:30-3:00 | Samarth | **Close:** "Families pay ₹49 a month to cover everyone's phones. Brokers and banks can call the same check before a payment leaves. Next we take it into the WhatsApp groups where these scams start. Sunita's son forwards her the next VIP group message, and this time she sees the red flags before she pays." Use real usage numbers here once we have them: users, checks, shares. |
+| 2:30-3:00 | Samarth | **Close:** "Families pay ₹99 a month to cover everyone's phones. Brokers and banks can call the same check before a payment leaves. Next we take it into the WhatsApp groups where these scams start. Sunita's son forwards her the next VIP group message, and this time she sees the red flags before she pays." Use real usage numbers here once we have them: users, checks, shares. |
 
 ## 3. Demo path (live, on a phone, about 70 seconds)
 
@@ -68,7 +68,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
    - Every check, ring link, report and quiz score on the live URL is real, and so are the numbers on /stats (sample data is excluded).
    - Messages labelled "(sample)" and the quiz messages are written by us; payments run in Dodo's test mode, so no real money moves.
 3. **Who pays, and why would they switch?**
-   - Families pay ₹49 a month because one stopped scam is worth years of it.
+   - Families pay ₹99 a month because one stopped scam is worth years of it.
    - Brokers and banks pay per check, because every scam payment that leaves through them becomes a dispute and a complaint.
 4. **What happens when the AI is wrong?**
    - The AI never decides the score: a fixed formula over checked facts does, and every signal shows its evidence.

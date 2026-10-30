@@ -66,9 +66,9 @@ The method and the misses are in docs/EVAL.md.
 **What's live and what isn't**
 - **Live:** every check on the link, the evidence, Listen, the share card and share page, reports, the ring links,
   the quiz and `/stats`.
-- **Not yet:**
-  - Dodo checkout: the code is built and tested against a mock of Dodo; it waits on a test-mode key.
-  - The viaSocket workflow: our webhook is built, but the workflow isn't set up.
+- **Live in test mode:** the Family (₹99 a month) and API (₹999 a month) plans on Dodo. A test purchase was checked end
+  to end; only Dodo's signed webhook can mark an order paid.
+- **Not yet:** the viaSocket workflow. Our webhook is built, but the workflow isn't set up.
 - **Samples:** messages labelled "(sample)" and the quiz questions. They never count in the numbers.
 
 **Challenges we ran into**
