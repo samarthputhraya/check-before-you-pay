@@ -20,7 +20,11 @@ gcloud compute ssh cbyp-web --zone us-central1-a --command "
   - https://34-45-129-243.sslip.io/api/health returns `"ok":true`.
 
 ## 2. Prime the demo (2 min)
-On the demo phone, run the pitch's message 1 once (`docs/pitch.md`, section 3), so the second message has an earlier check to link to. After this, use only test IDs that start with `u_test`.
+On the demo phone, run the pitch's message 1 once (`docs/pitch.md`, section 3), so the second message has an earlier check to link to.
+
+- **Our own testing never counts in `/stats`:** checks, events, reports, quiz plays and orders from anon IDs that start with `u_test` are left out. Visitors can't get such an ID: the web app's random IDs are hex, and Telegram's start with `u_tg_`.
+- For any test after the reset, use a `u_test` ID. In a browser console: `localStorage.setItem('cbyp_anon_id', 'u_testsamarth')`, then reload. The Playwright smoke tests already do this.
+- The demo phone's own checks do count. That's about 2 per rehearsal, so rehearse on a browser with a `u_test` ID.
 
 ## 3. Share the link
 - **The link:** https://34-45-129-243.sslip.io
