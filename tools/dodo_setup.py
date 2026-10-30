@@ -15,9 +15,10 @@ from dotenv import dotenv_values
 
 BASE = 'https://test.dodopayments.com'
 EVENTS = ['payment.succeeded', 'payment.failed', 'subscription.active', 'subscription.failed']
-# plan -> (env var, product name, description, price in rupees)
+# plan -> (env var, product name, description, price in rupees). Dodo refuses any payment under US$1.00 (seen live on
+# 30 Oct: "Minimum amount of 1.00 USD is required"), so ₹49 couldn't be paid; ₹99 is about US$1.10.
 PRODUCTS = {
-    'family': ('DODO_PRODUCT_FAMILY', 'Check Before You Pay: Family', 'Checks for the whole family, every month.', 49),
+    'family': ('DODO_PRODUCT_FAMILY', 'Check Before You Pay: Family', 'Checks for the whole family, every month.', 99),
     'api': ('DODO_PRODUCT_API', 'Check Before You Pay: API', 'The check API for apps and banks, every month.', 999),
 }
 
@@ -27,22 +28,34 @@ def fail(response: httpx.Response, what: str) -> None:
     raise SystemExit(f'{what} failed: HTTP {response.status_code} {response.text[:300]}')
 
 
+def monthly_inr(rupees: int) -> dict:
+    return {'type': 'recurring_price', 'currency': 'INR', 'price': rupees * 100, 'discount': 0, 'discount_bps': 0,
+            'purchasing_power_parity': False, 'tax_inclusive': True,
+            'payment_frequency_count': 1, 'payment_frequency_interval': 'Month',
+            'subscription_period_count': 10, 'subscription_period_interval': 'Year'}
+
+
 def product(client: httpx.Client, name: str, description: str, rupees: int) -> str:
+    """The product with this name, created if missing and repriced if Dodo has a different price."""
     listed = client.get('/products', params={'page_size': 100, 'archived': 'false'})
     if listed.status_code != 200:
         fail(listed, 'listing products')
-    for item in listed.json().get('items', []):
-        if item.get('name') == name:
-            return item['product_id']
-    created = client.post('/products', json={
-        'name': name, 'description': description, 'tax_category': 'saas',
-        'price': {'type': 'recurring_price', 'currency': 'INR', 'price': rupees * 100, 'discount': 0,
-                  'discount_bps': 0, 'purchasing_power_parity': False, 'tax_inclusive': True,
-                  'payment_frequency_count': 1, 'payment_frequency_interval': 'Month',
-                  'subscription_period_count': 10, 'subscription_period_interval': 'Year'}})
-    if created.status_code not in (200, 201):
-        fail(created, f'creating {name!r}')
-    return created.json()['product_id']
+    found = next((item['product_id'] for item in listed.json().get('items', []) if item.get('name') == name), None)
+    if found is None:
+        created = client.post('/products', json={'name': name, 'description': description, 'tax_category': 'saas',
+                                                 'price': monthly_inr(rupees)})
+        if created.status_code not in (200, 201):
+            fail(created, f'creating {name!r}')
+        return created.json()['product_id']
+    current = client.get(f'/products/{found}')
+    if current.status_code != 200:
+        fail(current, f'reading {name!r}')
+    if (current.json().get('price') or {}).get('price') != rupees * 100:
+        updated = client.patch(f'/products/{found}', json={'price': monthly_inr(rupees)})
+        if updated.status_code not in (200, 204):
+            fail(updated, f'repricing {name!r}')
+        print(f'{name}: repriced to Rs {rupees}')
+    return found
 
 
 def webhook(client: httpx.Client, url: str) -> tuple[str, str]:
