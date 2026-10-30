@@ -27,13 +27,18 @@ wait. Failed conversion or storage returns the same plain 503, without logging
 provider details. Audio adds at most about 480 KB per generated check; monitor
 the persistent volume as usage grows.
 
-## Acceptance still needed after deployment
+## Phone acceptance
 
 On Android Chrome, create Hindi and Tamil checks using `u_test` IDs. Play each
 verdict, confirm all three pieces are spoken naturally in the chosen language,
 and time the first play. Reload and replay to verify the cache. Have native
 speakers check pronunciation. Record device, time, check IDs and result; offline
 codec tests do not establish provider quality or phone playback.
+
+On 30 October, Risheeth reported that both fresh Hindi and Tamil audio links
+worked, responding to the Android Chrome playback prompt. Record this as
+user-reported Android MP3 playback passed. Phone model, playback timings,
+Listen-button behavior and separate native pronunciation review were not supplied.
 
 References: [Google Gen AI Python speech API](https://googleapis.github.io/python-genai/)
 and [Google speech formats](https://ai.google.dev/gemini-api/docs/speech-generation).
@@ -79,6 +84,8 @@ checks were created using `u_test_android_acceptance_hi` and
 
 Both audio endpoints returned 200 `audio/mpeg`; ffprobe confirmed durations
 under 60 seconds. The user was sent the fresh `/api/check/{id}/audio` links for
-an Android Chrome check. Physical playback, complete spoken meaning and native
-pronunciation remain pending until the user reports results. The reason the
-older IDs disappeared was not established; earlier measurements remain historical.
+an Android Chrome check. Risheeth subsequently replied that the replacement
+links were working, confirming basic playback in response to that prompt.
+No device model or measured phone latency was supplied, and detailed native
+pronunciation review remains pending. The reason the older IDs disappeared was
+not established; earlier measurements remain historical.
