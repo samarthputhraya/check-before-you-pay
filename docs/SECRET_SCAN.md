@@ -1,8 +1,8 @@
 # Repository history scan — 30 October 2026
 
-Samarth: no real credential was identified by this scan. The repository has not
-been made public. MIT is added as requested; existing vendor license notices
-remain in `web/vendor/`.
+Samarth: no real credential was identified by this scan. The repository is public
+(it was made public after the first scan; the rescan at the end of this file covers
+it). MIT is added as requested; existing vendor license notices remain in `web/vendor/`.
 
 At approximately 03:26 IST, after `git fetch origin --tags`, the checkout was
 not shallow and **126 reachable commits** were scanned across all local and
@@ -50,3 +50,10 @@ commits**. No `.env` or `.env.railway` path was committed. The only candidates
 remain the two exact public test vectors described above. This snapshot includes
 the pending Role B branches and PR #17; rerun after later commits before making
 the repository public. No repository visibility change was made.
+
+## Rescan on the public repository, Fri 30 Oct, 20:05 IST
+
+The repository is public. After `git fetch origin`, the integration of main `95fafa9` with PRs #9, #10, #13, #14 and
+#16 passed the same scan over **184 reachable commits** across all fetched refs (exit 0). No `.env` or `.env.railway`
+path was ever committed. The only candidates are still the two exact public test vectors above. Rerun after any later
+merge.

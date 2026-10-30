@@ -34,8 +34,8 @@ is not on Samarth's laptop. Transfer the original M4A privately as a file and
 save it outside Git, for example in
 `C:\Users\samar\Documents\cbyp-private\voice-tests\` on Samarth's machine.
 Use a fresh local database for replay; a same-file live request can return a
-cached verdict with no transcript. A dedicated replay utility was proposed but
-has not been implemented or tested. Preserve the original bytes for diagnosis.
+cached verdict with no transcript. Run `python tools/replay_check.py <file>`, which uses a fresh throwaway
+database and prints the transcript. Preserve the original bytes for diagnosis.
 
 The phone used a non-test anonymous ID for these checks. Samarth must relabel
 that known test identity and associated usage as testing before any usage claims.

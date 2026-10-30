@@ -150,8 +150,9 @@ Samarth. Save outside Git, for example at
 `C:\Users\samar\Documents\cbyp-private\voice-tests\` on his machine.
 Replay through the local backend with a fresh private database to inspect the
 transcript and extracted/verified claims. A new recording or synthetic version
-cannot reproduce the original input. The proposed dedicated replay utility
-has **not been implemented or tested**; no PR exists for it.
+cannot reproduce the original input. Replay with `python tools/replay_check.py <file>`: it runs the real check on a fresh
+throwaway database and prints the transcript, claims and verdict. Tried on a synthetic M4A of the script
+on 30 Oct: caution 30, correct transcript.
 
 The uploads used a non-test phone ID. Samarth's relabelling of that identity
 and associated usage is pending. Setting `cbyp_anon_id` to
@@ -233,4 +234,4 @@ order/deployment; #17 does not automatically merge the five open follow-ups.
 Keep keys, webhook URLs, original recordings, consent receipts and database
 exports out of this register and Git. As of this snapshot, real collection has
 not happened, clip delivery and fluent approval are pending, the original voice
-failure is unresolved, and the replay utility is not delivered.
+failure is unresolved. The replay tool exists (`tools/replay_check.py`).
