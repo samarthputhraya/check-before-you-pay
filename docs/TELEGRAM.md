@@ -1,7 +1,13 @@
 # Telegram bot
 
-Code is ready for offline review. **Bot creation, a deployed webhook and a real
-test-chat reply are still pending.** No token has been obtained in this session.
+**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot), and its
+webhook is registered on the live site with only `message` updates.
+
+- Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
+  `200`, and a group-chat update is ignored.
+- **Still to check:** a real reply in a private chat. Send the bot a stock-tip message and a 3–5 MB screenshot.
+- To change the token or secret later: edit `.env.railway`, run `bash deploy/gce/push_env.sh TELEGRAM_`, then
+  `sudo docker exec app python -m backend.telegram_setup` on the VM.
 
 ## Setup
 

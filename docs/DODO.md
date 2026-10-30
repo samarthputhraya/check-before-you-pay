@@ -1,7 +1,34 @@
 # Dodo Payments setup (test mode)
 
 The backend code is done and tested offline against a mocked Dodo. It has not made a real Dodo call yet, because we
-have no key. These steps take about 15 minutes in the Dodo dashboard, and step 6 is the first real end-to-end test.
+have no working key: the key we had returns 401 in test mode (checked 30 Oct, 07:50).
+
+## Quick setup: one key, two commands (about 5 minutes)
+
+Only step 1 needs a person in the dashboard. The tool does steps 2 to 4 of the manual setup below through Dodo's API.
+
+1. Sign in at https://app.dodopayments.com, switch to **Test Mode**, open **Developer → API Keys**, create a key and
+   paste it into `.env.railway` as `DODO_API_KEY=…`. It is shown once.
+2. Create the products and the webhook, and write the settings:
+
+   ```bash
+   python tools/dodo_setup.py .env.railway
+   ```
+
+   - It creates **Check Before You Pay: Family** (₹49 a month) and **Check Before You Pay: API** (₹999 a month), both
+     INR and billed monthly, and a webhook to `<PUBLIC_BASE_URL>/api/dodo/webhook` for the four events in step 3.
+   - It reuses products with those names and a webhook with that URL, so running it again creates nothing new.
+   - It writes `DODO_MODE`, both product IDs, both fallback prices and `DODO_WEBHOOK_SECRET` into the file. It prints
+     the IDs, never the key or the secret.
+   - It has been run against a mock of Dodo's API, not the real one yet. If Dodo rejects a request, it prints Dodo's
+     error code; fall back to the manual steps.
+3. Copy the settings to the VM and restart the app (about 10 seconds of downtime):
+
+   ```bash
+   bash deploy/gce/push_env.sh DODO_
+   ```
+
+4. Check with step 5 (`/api/plans`), then pay with a test card as in step 6.
 
 ## Read first: ₹49 may be below Dodo's subscription minimum
 
@@ -15,12 +42,14 @@ subscription with `TOTAL_PAYMENT_AMOUNT_BELOW_MINIMUM_AMOUNT`.
 - If it does, raise the Family price in Dodo to ₹99 a month (about US$1.10). The pricing page reads its prices from
   Dodo, so no code change is needed. The brief and the contract say ₹49, so tell role A before you change it.
 
-## 1. Test mode and an API key
+## Manual setup
+
+### 1. Test mode and an API key
 
 1. Open the Dodo dashboard and switch to **Test Mode**. A test-mode key only works against test mode.
 2. Go to **Developer → API Keys**, create a key and copy it. It is shown once.
 
-## 2. Create the two products
+### 2. Create the two products
 
 Go to **Products → Add product** and create both of these:
 
@@ -36,7 +65,7 @@ Go to **Products → Add product** and create both of these:
   shows a price Dodo won't charge.
 - Dodo always treats INR-to-INR payments as tax-inclusive, so the price on the page is the amount charged.
 
-## 3. Add the webhook endpoint
+### 3. Add the webhook endpoint
 
 1. Go to **Developer → Webhooks → Add endpoint**.
 2. URL: `https://34-45-129-243.sslip.io/api/dodo/webhook`
@@ -44,7 +73,7 @@ Go to **Products → Add product** and create both of these:
    Don't leave the selection empty, because an empty selection sends every event type.
 4. Click **Create endpoint**, then copy the signing secret (`whsec_…`) from the endpoint's **Overview** tab.
 
-## 4. Set the environment variables
+### 4. Set the environment variables
 
 For local runs, put these in `.env`. For the VM, put them in `/opt/cbyp/app.env`, which reaches the VM with
 `gcloud compute scp` (see the Deploy section of the README). Then restart or redeploy.
@@ -65,7 +94,7 @@ PUBLIC_BASE_URL=https://34-45-129-243.sslip.io
 - Checkout stays off until the key, the webhook secret and that plan's product ID are all set. Without the secret,
   no payment could ever be confirmed.
 
-## 5. Check the configuration
+### 5. Check the configuration
 
 ```bash
 curl https://34-45-129-243.sslip.io/api/plans
@@ -81,7 +110,7 @@ shows `false`, the server log names the cause:
 | `dodo product for api is off sale: not billed in INR every month` | Fix the product's currency or billing period |
 | `dodo price lookup for api failed: ConnectTimeout` | Dodo didn't answer. The plan stays on sale at the fallback price, and the lookup is retried after a minute |
 
-## 6. Test end to end
+### 6. Test end to end
 
 1. Open `https://34-45-129-243.sslip.io/pricing`, choose Family and pay on Dodo's page with a
    [test card](https://docs.dodopayments.com/miscellaneous/testing-process.md):
@@ -96,7 +125,7 @@ shows `false`, the server log names the cause:
 5. **Send example** on the webhook page should also get `200`. The example's metadata doesn't name any of our orders,
    so it changes nothing, but a `200` proves the signing secret is right. A `401` means the secret is wrong.
 
-## 7. What the pricing page must do (role C)
+### 7. What the pricing page must do (role C)
 
 1. **Read the plans.** Read `GET /api/plans` and show each `price_inr` per month.
    - If `available` is `false`, disable that plan's button and show "Coming soon".
