@@ -47,7 +47,7 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 | 2 | The verdict appears (High risk) | "Under five seconds. Point at the evidence: this UPI ID isn't a SEBI @valid handle, the app link copies Zerodha, and here is the exact line where they promise 30% a month. The AI didn't decide this score. Fixed checks did, and every point has its proof." |
 | 3 | Tap **परिवार को भेजें** | "One tap sends this card to the family group on WhatsApp. That's how the warning travels as fast as the scam." |
 | 4 | Tap **दूसरा मैसेज जाँचें**, paste message 2, check | "A different message, from a different group, the next day." |
-| 5 | Point at "Linked to 1 earlier check through the same UPI ID" | "Scammers change messages every day. They can't hide that the money goes to the same place. Every check makes the next one smarter." |
+| 5 | Point at "Linked to 2 earlier checks … through the same UPI ID" (the morning run and step 1 both count) | "Scammers change messages every day. They can't hide that the money goes to the same place. Every check makes the next one smarter." |
 | 6 | Open `/stats` | "And this is live: real people, real checks, in these languages, since Friday." |
 
 **What the judge should notice:** the language, the speed, the evidence quotes, and the ring link in step 5.
@@ -55,8 +55,9 @@ Sources: NewsBytes, Jan 2026 (the ₹11 crore case); ThePrint, citing Ministry o
 **Fallback line:** "The venue Wi-Fi is fighting us, so here's the same check recorded this morning." Then play the video from the same step.
 
 **Before the demo:**
-- Run message 1 once in the morning, so step 5 has a link to show.
-- Never run message 2 first.
+- Message 1 was run once on the live site after the stats reset (Fri 30 Oct, 08:15, test ID `u_testdemoprime`: high risk, 100). So step 1 answers from the cache in under a second with the same verdict, and step 5 has a link to show even if step 1 is skipped.
+- Each extra run of message 1 adds one to the count in step 5. Copies of message 2 never count, because a message never links to its own copies.
+- Never run message 2 before the demo.
 
 ## 4. Hard questions (2-sentence answers)
 

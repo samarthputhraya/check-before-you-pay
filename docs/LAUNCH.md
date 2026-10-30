@@ -2,7 +2,10 @@
 
 Do these in order before the creators post.
 
-## 1. Start the numbers from zero (5 min)
+## 1. Start the numbers from zero (5 min). Done: Fri 30 Oct, 08:13 IST
+
+The old database is at `/opt/cbyp/data/backups/pre-launch-app.db`. Everything in it was our own testing: the 38 checks not made with `u_test` IDs were the load test at 23:08–23:22 and two QA runs.
+
 `/stats` currently counts our own testing. Clear it once, right before launch, so every number we pitch is real:
 
 ```bash
@@ -19,7 +22,7 @@ gcloud compute ssh cbyp-web --zone us-central1-a --command "
   - https://34-45-129-243.sslip.io/stats shows "No checks yet";
   - https://34-45-129-243.sslip.io/api/health returns `"ok":true`.
 
-## 2. Prime the demo (2 min)
+## 2. Prime the demo (2 min). Done: 08:15, with `u_testdemoprime` so it isn't counted
 On the demo phone, run the pitch's message 1 once (`docs/pitch.md`, section 3), so the second message has an earlier check to link to.
 
 - **Our own testing never counts in `/stats`:** checks, events, reports, quiz plays and orders from anon IDs that start with `u_test` are left out. Visitors can't get such an ID: the web app's random IDs are hex, and Telegram's start with `u_tg_`.
