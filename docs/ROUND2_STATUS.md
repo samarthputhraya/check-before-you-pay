@@ -1,5 +1,8 @@
 # Round 2 handoff — Friday 30 October
 
+For original B1–B7 assignments, Round 2 tasks, PR states, owners and completion
+criteria, see [the Role B task register](ROLE_B_TASK_REGISTER.md).
+
 Role B code is in separate PRs; Samarth reviews/merges and deploys. The initial
 Telegram, Listen and correctness work is now on main through PR #11, merged as
 `afd5f77`. Samarth also deployed that feature set and added the Listen UI. Later
