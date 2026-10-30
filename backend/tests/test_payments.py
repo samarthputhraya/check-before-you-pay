@@ -120,7 +120,7 @@ def assert_error(response, code, http_status):
 
 def test_unconfigured_plans_are_unavailable_at_default_prices(client, offline):
     assert client.get('/api/plans').json() == {'test_mode': True, 'plans': [
-        {'id': 'family', 'name': 'Family', 'price_inr': 49, 'interval': 'month', 'available': False},
+        {'id': 'family', 'name': 'Family', 'price_inr': 99, 'interval': 'month', 'available': False},
         {'id': 'api', 'name': 'API', 'price_inr': 999, 'interval': 'month', 'available': False}]}
 
 
@@ -185,8 +185,8 @@ def test_price_falls_back_when_dodo_is_unreachable(client, dodo, monkeypatch, re
 
 
 def test_invalid_fallback_price_uses_the_built_in_default(client, offline, monkeypatch):
-    monkeypatch.setenv('DODO_PRICE_FAMILY_INR', 'forty-nine')
-    assert client.get('/api/plans').json()['plans'][0]['price_inr'] == 49
+    monkeypatch.setenv('DODO_PRICE_FAMILY_INR', 'ninety-nine')
+    assert client.get('/api/plans').json()['plans'][0]['price_inr'] == 99
 
 
 @pytest.mark.parametrize('respond', [

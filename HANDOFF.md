@@ -1,35 +1,47 @@
-# Handoff: Fri 30 Oct, about 02:00 IST (end of the overnight session)
+# Handoff: Fri 30 Oct, 13:30 IST
 
 ## What's live
-- **Site:** https://34-45-129-243.sslip.io runs branch `feat/pricing` (latest deploy: deff58e).
-  - It was deployed from the branch because merging my own PR into `main` was blocked as "merge without review".
-  - `main` is behind until PR #11 merges.
-- **Health:** `/api/health` returns ok; the LLM and the database are up.
-- **Security headers are live:** CSP, X-Frame-Options, Permissions-Policy and HSTS.
-- **Tests:** 537 pass.
-- **Browser check at 360 px in all 8 languages:**
-  - headings, overflow, the ring line and back navigation;
-  - focus on a report error;
-  - share cards (ta, kn, hi and no-signals) and the stats page (mr, hinglish);
-  - the quiz;
-  - Listen (hi, ta, and a 503), plus the share-page audio.
+- **Site:** https://34-45-129-243.sslip.io runs branch `ops/launch` at `ccdfb52`. Health is ok.
+  - PR #15 (`ops/launch` into `main`) is open and mergeable. Claude can't merge its own PR; a person has to.
+- **Dodo:** live in test mode. Family is ₹99 a month (Dodo refuses payments under US$1.00, so ₹49 couldn't be charged); API is ₹999.
+  - A test purchase paid end to end: Indian test card 4576 2389 1277 1450, then "Simulate Success" on Cashfree's page. The signed webhook marked the order paid in 1.9 s.
+  - The failure path works too (card 4242 fails at once for INR subscriptions). See docs/DODO.md.
+- **Telegram:** @CheckBeforeYouPayBot. The webhook is registered and has no errors, but no real chat has reached it yet.
+- **/stats:** reset at 08:13. It is still at **0 users**. Our own testing (`u_test` IDs) never counts.
+- **Link previews:** the plain site link shows a picture card (`web/og/home.png`), like the shared verdict links already did.
+- **Tests:** 539 pass.
 
-## Needs a person this morning, in this order
-1. **Merge PR #11** (`feat/pricing` into `main`): https://github.com/samarthputhraya/check-before-you-pay/pull/11
-   - It includes Risheeth's #9 (Telegram) and #10 (Listen), plus `codex/round2-correctness`. Those close as merged.
-   - After merging, `bash deploy/gce/deploy.sh origin/main` deploys the same code that's live now.
-2. **Telegram token:** `TELEGRAM_BOT_TOKEN` in `.env.railway` is 35 characters with no colon. That's only the part after the colon.
-   - Paste the full token from BotFather (`<digits>:<secret>`).
-   - Then follow docs/TELEGRAM.md: copy `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` and `TRUST_PROXY=caddy` into `/opt/cbyp/app.env` on the VM.
-   - Restart the app, then run `docker exec app python -m backend.telegram_setup`.
-   - Until then, `POST /api/telegram/webhook` returns 503 (not configured), which is correct.
-3. **Dodo:** the key in `.env.railway` returns 401 in both test and live mode.
-   - Rishabh needs to create a fresh **test-mode** API key and webhook secret (docs/DODO.md).
-   - Until then, `/pricing` shows the plans as unavailable, by design.
-4. **Reset `/stats` right before launch** (docs/LAUNCH.md, step 1). Tonight's QA, the eval smoke checks and the demo recording added checks.
-5. **Demo video:** see "Demo video" below.
+## Needs a person, in this order
+1. **Get real users.** Every judging round asks "is anyone using it?", and we're at 0.
+   - **Posts:** copy is in docs/SUBMISSION.md, ready to paste, each with its own `?ref=` tag (X, LinkedIn, WhatsApp in Hindi and English, Instagram).
+   - **Creators:** ask the House of NGMI creators to check a real message they received.
+   - **Posters:** print docs/poster.pdf (A4, with a QR code) for the house and the demo stage.
+2. **Submit on Devfolio.** No Devfolio confirmation email has arrived, so Phase 1 may not be submitted.
+   - Final close: **Sat 31 Oct, 9:59 AM; aim for 7:59 AM.**
+   - Fields: docs/SUBMISSION.md. Gallery: docs/screenshots/. Diagrams: docs/diagrams/.
+   - Video: docs/demo.mp4. Upload it to YouTube as unlisted if the form wants a link.
+3. **Merge PR #15**, then `bash deploy/gce/deploy.sh origin/main`. It deploys the code that's already live.
+4. **Telegram:** open https://t.me/CheckBeforeYouPayBot, send /start, then a stock-tip message and a screenshot. Check the replies.
+5. **viaSocket:** create an account (coupon HHGOA26-VIASOCKET) and follow docs/VIASOCKET.md. Our webhook side is built.
+6. **AI Grants:** the form needs Samarth's WhatsApp (docs/AI_GRANTS.md).
 
-## What changed tonight
+## TigerGraph Final Round (separate repo, FraudLens)
+- **Submitted** by email to Devanshu on 30 Oct: frozen commit `65f8a54692d96bc84523ef98c89ee7d7b1de635a` on `round2`.
+- **Turn off auto-suspend on the Savanna workspace**, and keep it running until 2 Nov. If it pauses while judges re-run a case, the run can't be reproduced.
+- Watch for Devanshu's reply with the freeze, Stage 1 and demo times.
+
+## What changed this morning
+- **Stats leave out our testing.**
+  - Every `/api/stats` figure ignores anon IDs that start with `u_test`. Visitors can't get one: web IDs are hex, Telegram IDs start `u_tg_`.
+  - Test with a `u_test` ID: `localStorage.setItem('cbyp_anon_id', 'u_testyourname')`.
+- **Dodo setup is one command once there's a key:** `tools/dodo_setup.py` creates both products and the webhook, then writes the settings.
+  - It was tested against a mock of Dodo only.
+- **`deploy/gce/push_env.sh PREFIX`** copies settings to the VM without printing them, then restarts the app.
+- **README honesty:** the partner rows say the Dodo key, the viaSocket workflow and AI Grants credits aren't set up yet.
+- **Pitch step 5** no longer quotes "1 earlier check": with the morning run plus step 1, it reads 2.
+- **LLM:** a failed Gemini model discovery now logs its exception type. It failed silently once at 08:13, and recovered after 30 s.
+
+## What changed overnight
 - **Web QA sweep:**
   - **Share card:**
     - wraps by measured width in every script and uses the check's language;
@@ -90,14 +102,16 @@
 - **How it was recorded:**
   - On a fresh local database, at commit 4422bfb, with the real Gemini key. The Hindi screens it shows haven't changed since.
   - The live database already holds tonight's test checks. Those would link Sunita's *first* message to earlier ones and spoil the story.
-- **To re-record on the live site** after the stats reset (LAUNCH.md, step 1): `python tools/demo_video.py https://34-45-129-243.sslip.io out_dir`.
+- **To re-record:** run `python tools/demo_video.py http://127.0.0.1:8000 out_dir` against a fresh local server.
+  - It uses a `u_test` ID now, so a recording never counts in `/stats`.
+  - Don't record on the live site before the pitch: it runs message 2, and the demo needs message 2 to be new.
 
 ## Known limits
 - The model's reading of a message varies a little between runs, even at temperature 0. Same message, different run: the band can move between caution and high risk.
 - The quiz exists in 4 languages (en, hi, hinglish, mr). The footer's quiz link in ta/te/kn/bn opens it in English.
 - An invite-only VIP group pitch that hasn't asked for money yet scores 15. That's an honest limit, documented in EVAL.md.
 
-## For Risheeth (from a code review of PR #11, not fixed tonight; Telegram isn't live yet)
+## For Risheeth (from a code review of PR #11; Telegram is live now, so these matter more)
 - **Shared rate limit:** Telegram checks use the literal IP `telegram`, so every bot user shares one 3000/hour bucket.
 - **Fixed tonight:** `/start`, `/help` and `/lang` no longer count against the 30-checks-an-hour limit.
 - **Partly fixed tonight:** the getFile-plus-download limit is now 3 s, up from 2. Test it with a real 3–5 MB screenshot once the bot is live.

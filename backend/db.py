@@ -304,6 +304,12 @@ def allow_request(path: Path, buckets: list[tuple[str, int]], now: float | None 
         return True
 
 
+def _real(column: str = 'anon_id') -> str:
+    """SQL that leaves out our own testing. Team tests use anon IDs starting u_test; the web app's random IDs are hex
+    and Telegram's start u_tg_, so no visitor ever gets one."""
+    return f"substr({column},1,6) <> 'u_test'"
+
+
 def top_rings(path: Path, k: int | None = 10, include_samples: bool = False) -> list[list[str]]:
     with session(path) as con:
         con.execute('BEGIN')  # One WAL snapshot across the node and edge reads.
@@ -311,39 +317,44 @@ def top_rings(path: Path, k: int | None = 10, include_samples: bool = False) -> 
         # Fold its copies into one node, retaining all discovered entity edges.
         representatives: dict[str, str] = {}
         nodes: dict[str, str] = {}
-        for row in con.execute('''SELECT id,input_hash FROM checks WHERE band='high_risk'
-                AND (? OR is_sample=0) ORDER BY created_at,id''', (include_samples,)):
+        for row in con.execute(f'''SELECT id,input_hash FROM checks WHERE band='high_risk'
+                AND (? OR (is_sample=0 AND {_real()})) ORDER BY created_at,id''', (include_samples,)):
             nodes[row['id']] = representatives.setdefault(row['input_hash'], row['id'])
-        rows = con.execute('''SELECT c.id,ce.entity_id FROM checks c JOIN check_entities ce ON ce.check_id=c.id
-            JOIN entities e ON e.id=ce.entity_id WHERE c.band='high_risk' AND (? OR c.is_sample=0)
+        rows = con.execute(f'''SELECT c.id,ce.entity_id FROM checks c JOIN check_entities ce ON ce.check_id=c.id
+            JOIN entities e ON e.id=ce.entity_id WHERE c.band='high_risk' AND (? OR (c.is_sample=0 AND {_real('c.anon_id')}))
             AND e.type IN ('upi','phone','domain','group_link','wallet')''', (include_samples,)).fetchall()
-        scripts = con.execute("SELECT id,'script:'||script_id FROM checks WHERE band='high_risk' AND script_id IS NOT NULL AND (? OR is_sample=0)",
-                              (include_samples,)).fetchall()
+        scripts = con.execute(f'''SELECT id,'script:'||script_id FROM checks WHERE band='high_risk'
+            AND script_id IS NOT NULL AND (? OR (is_sample=0 AND {_real()}))''', (include_samples,)).fetchall()
         return connected_groups([(nodes[r[0]], r[1]) for r in [*rows, *scripts]], k)
 
 
 def stats(path: Path, dodo_mode: str = 'test_mode') -> StatsResponse:
+    """Public totals: sample checks and the team's u_test activity never count."""
     with session(path) as con:
         # Only the current Dodo mode: once live, test-mode payments never count as paid orders.
-        orders_paid = con.execute("SELECT COUNT(*) FROM orders WHERE status='paid' AND mode=?", (dodo_mode,)).fetchone()[0]
-        checks = con.execute('SELECT id,anon_id,lang,response_json FROM checks WHERE is_sample=0').fetchall()
+        orders_paid = con.execute(f"SELECT COUNT(*) FROM orders WHERE status='paid' AND mode=? AND {_real()}",
+                                  (dodo_mode,)).fetchone()[0]
+        checks = con.execute(f'SELECT id,anon_id,lang,response_json FROM checks WHERE is_sample=0 AND {_real()}').fetchall()
         users = {r['anon_id'] for r in checks}
-        users.update(r[0] for r in con.execute('SELECT DISTINCT anon_id FROM events'))
+        users.update(r[0] for r in con.execute(f'SELECT DISTINCT anon_id FROM events WHERE {_real()}'))
         languages: dict[str, int] = {}
         latencies = []
         for row in checks:
             languages[row['lang']] = languages.get(row['lang'], 0) + 1
             latencies.append(json.loads(row['response_json'])['latency_ms'])
-        reports = con.execute('SELECT COUNT(*) FROM reports r JOIN checks c ON c.id=r.check_id WHERE c.is_sample=0').fetchone()[0]
-        shared = con.execute("SELECT COUNT(DISTINCT e.check_id) FROM events e JOIN checks c ON c.id=e.check_id WHERE e.event='share_clicked' AND c.is_sample=0").fetchone()[0]
-        sharers = {r[0] for r in con.execute("SELECT DISTINCT anon_id FROM events WHERE event IN ('share_clicked','quiz_shared')")}
+        reports = con.execute(f'''SELECT COUNT(*) FROM reports r JOIN checks c ON c.id=r.check_id
+            WHERE c.is_sample=0 AND {_real('c.anon_id')} AND {_real('r.anon_id')}''').fetchone()[0]
+        shared = con.execute(f'''SELECT COUNT(DISTINCT e.check_id) FROM events e JOIN checks c ON c.id=e.check_id
+            WHERE e.event='share_clicked' AND c.is_sample=0 AND {_real('c.anon_id')} AND {_real('e.anon_id')}''').fetchone()[0]
+        sharers = {r[0] for r in con.execute(
+            f"SELECT DISTINCT anon_id FROM events WHERE event IN ('share_clicked','quiz_shared') AND {_real()}")}
         # Credit the source that first brought a user. A returning user clicking
         # another share is not a newly acquired user, and can't inflate k-factor.
-        first_touches = con.execute('''SELECT anon_id,ref FROM (
+        first_touches = con.execute(f'''SELECT anon_id,ref FROM (
             SELECT anon_id,ref,ROW_NUMBER() OVER (PARTITION BY anon_id ORDER BY created_at,rowid) AS position
-            FROM events) WHERE position=1''')
+            FROM events WHERE {_real()}) WHERE position=1''')
         referred = {r[0] for r in first_touches if r[1] in sharers and r[0] != r[1]}
-        quiz_plays = con.execute('SELECT COUNT(*) FROM quiz_results').fetchone()[0]
+        quiz_plays = con.execute(f'SELECT COUNT(*) FROM quiz_results WHERE {_real()}').fetchone()[0]
     return StatsResponse(users=len(users), checks=len(checks), reports=reports, languages=languages,
                          rings=len(top_rings(path, None)), share_rate=shared / len(checks) if checks else 0,
                          k_factor=len(referred) / len(sharers) if sharers else 0,

@@ -95,7 +95,8 @@ with sync_playwright() as p:
     b = p.chromium.launch(channel='chrome')
     ctx = b.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, record_video_dir=str(OUT / 'raw'),
                         record_video_size={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
-    ctx.add_init_script("localStorage.setItem('cbyp_lang', 'hi')")
+    # A u_test ID, so a recording never counts in /stats.
+    ctx.add_init_script("localStorage.setItem('cbyp_lang', 'hi'); localStorage.setItem('cbyp_anon_id', 'u_testdemovideo')")
     pg = ctx.new_page()
     t0 = time.monotonic()
 

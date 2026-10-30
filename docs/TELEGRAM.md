@@ -1,9 +1,18 @@
 # Telegram bot
 
-Code is ready for offline review. Risheeth confirmed the public username
-**[CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot)**. The local token,
-deployed webhook and real test-chat reply are still pending. No token has been
-obtained in this session.
+**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://telegram.me/CheckBeforeYouPayBot), and its
+webhook is registered on the live site with only `message` updates.
+
+- Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
+  `200`, and a group-chat update is ignored.
+- **Still to check:** a real reply in a private chat. Send the bot a stock-tip message and a 3–5 MB screenshot.
+- To change the token or secret later: edit `.env.railway`, run `bash deploy/gce/push_env.sh TELEGRAM_`, then
+  `sudo docker exec app python -m backend.telegram_setup` on the VM.
+
+
+The local token also passed `getMe` for the exact username; the existing live
+registration was preserved. Do not run setup with a locally generated secret
+until it matches the deployed server configuration.
 
 ## Setup
 
@@ -33,7 +42,7 @@ The same input validation, 30-check/hour user limit, coarse adapter limit and
 `pipeline.run_check` apply. Files are capped at 5 MB, images at 25 megapixels,
 voice at two minutes, and text at 5,000 characters. Media is fetched only from
 Telegram's fixed API host, with redirects disabled, size checks during download
-and a two-second download budget; submitted links are never fetched.
+and a three-second download budget; submitted links are never fetched.
 
 The returned verdict is masked, with its band/score, top three signals, next
 steps and the public `/c/{id}?ref={anon_id}` link. Plain text avoids interpreting
