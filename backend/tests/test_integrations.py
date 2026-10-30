@@ -180,6 +180,18 @@ async def test_explanation_receives_only_masked_evidence():
 
 
 @pytest.mark.asyncio
+async def test_explanation_mentions_skipped_checks_only_when_some_were_skipped():
+    provider = llm.Providers()
+    signals = evaluate('Investment: pay sample@ybl', regex_extract('Investment: pay sample@ybl'), {})
+    provider.structured = AsyncMock(return_value=llm.Explanation(explanation='Verify first.', signals=[]))
+    await provider.explain(signals, 'caution', 'en', [])
+    prompt = provider.structured.call_args.args[1]
+    assert 'never say that any check could not be completed' in prompt and 'this message' in prompt
+    await provider.explain(signals, 'caution', 'en', ['domain_age'])
+    assert 'add that some checks could not be completed' in provider.structured.call_args.args[1]
+
+
+@pytest.mark.asyncio
 async def test_webhook_sends_masked_metadata_and_tracks_delivery(client, tmp_path, monkeypatch):
     check = submit(client)
     report = client.post('/api/report', json={'check_id': check['check_id'], 'anon_id': 'u_owner',
