@@ -6,6 +6,22 @@ Telegram, Listen and correctness work is now on main through PR #11, merged as
 follow-ups remain in PRs; the 9 AM merge cutoff has passed, so their rollout is
 for Samarth's post-freeze review.
 
+## Current combined verification
+
+Against main `afd5f77`, all pending Role B branches plus the test-isolation fix
+in [#16](https://github.com/samarthputhraya/check-before-you-pay/pull/16) merged
+locally without conflicts. The combined suite passed **551 tests in 53.07 s**:
+`python -m pytest -o addopts='' -q --tb=short`.
+The test-isolation fix clears the developer's `PUBLIC_BASE_URL` in the offline
+fixture: otherwise a live HTTPS URL makes the HTTP test client's event cookie
+Secure and causes shares to be omitted. Production cookie security is unchanged.
+The combined diff against this main leaves scoring files and `web/` unchanged.
+The integration branch remains local and is not a deployment branch.
+A history scan at integration commit `e405cb4` covered **149 reachable commits**:
+no committed `.env` or `.env.railway`, and only the two documented public
+Standard Webhooks test vectors. This is a heuristic scan; rerun it before
+making the repository public.
+
 ## Earlier combined verification (before PR #11 merged)
 
 On Friday morning, all five branches merged locally into
@@ -17,7 +33,7 @@ environment files and only the two previously reviewed public test vectors.
 The integration branch is a local test branch. This 508-test result applies to
 the earlier base; subsequent verification must use the newer main described above.
 
-R1 now has 20 focused tests and verifies the confirmed bot identity before
+R1 now has 21 focused tests and verifies the confirmed bot identity before
 registering its webhook. R2's final real-provider backend probes returned Hindi
 MP3 in 4.23 s and Tamil MP3 in 4.60 s; cached retrieval took 15/16 ms without
 another model call. Earlier Hindi timeout failures and their diagnostic are
@@ -39,6 +55,12 @@ already points to the live endpoint, with zero pending updates and no recent
 delivery error. The existing registration was preserved. Real chat acceptance
 is still required; registration alone is not proof of a reply. No viaSocket
 webhook URL has been supplied. Keep credentials out of PRs and chat.
+
+The user's browser timed out reaching `t.me`, before opening the chat. They were
+directed to search for `@CheckBeforeYouPayBot` inside the Telegram app. This is
+not evidence of a bot response or a bot failure. The locally generated webhook
+secret did not match the existing server configuration; do not run setup with
+that local value until Samarth aligns the server and registration privately.
 
 The local computer-control tool could not establish the browser URL sufficiently
 to operate it, and no Telegram/viaSocket connector was available. viaSocket
