@@ -189,6 +189,9 @@ async def test_explanation_mentions_skipped_checks_only_when_some_were_skipped()
     assert 'never say that any check could not be completed' in prompt and 'this message' in prompt
     await provider.explain(signals, 'caution', 'en', ['domain_age'])
     assert 'add that some checks could not be completed' in provider.structured.call_args.args[1]
+    assert 'Devanagari' not in provider.structured.call_args.args[1]
+    await provider.explain(signals, 'caution', 'hi', [])
+    assert 'Write every word in Devanagari letters' in provider.structured.call_args.args[1]
 
 
 @pytest.mark.asyncio
