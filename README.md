@@ -53,10 +53,10 @@ The method, the data, the confidence intervals and the misses are in [docs/EVAL.
 | Partner | What it does here |
 |---|---|
 | **Gemini** (organisers' key) | Reads screenshots and WhatsApp voice notes, extracts claims with verified quotes, and explains every verdict in 8 languages. Model names are discovered from the key at startup and retried if discovery fails |
-| **Dodo Payments** | The Family plan (₹49 a month) and the API plan, sold through Dodo's hosted checkout in test mode. Only Dodo's signed webhook can mark an order paid. [Setup](docs/DODO.md) |
-| **viaSocket** | Every report fires a webhook (masked fields only, never message text) that a viaSocket workflow turns into a family alert and a sheet row. `/api/check` also works as an HTTP step in any viaSocket workflow. [Setup](docs/VIASOCKET.md) |
+| **Dodo Payments** | The Family plan (₹49 a month) and the API plan, sold through Dodo's hosted checkout in test mode. Only Dodo's signed webhook can mark an order paid. **Status:** the code is built and tested against a mock of Dodo. The plans show "Coming soon" until our test-mode key is set up. [Setup](docs/DODO.md) |
+| **viaSocket** | Every report can fire a webhook (masked fields only, never message text) for a viaSocket workflow to turn into a family alert and a sheet row. `/api/check` also works as an HTTP step in any viaSocket workflow. **Status:** our side is built and tested offline; the viaSocket workflow itself isn't set up yet. [Setup](docs/VIASOCKET.md) |
 | **Cake Wallet** | Ethereum, Bitcoin and Tron wallet addresses are extracted, masked and ring-linked like UPI IDs, with no login and no raw data stored |
-| **AI Grants India** | Credits for the fallback model provider behind the same wrapper |
+| **AI Grants India** | Not used yet. The LLM wrapper already falls back to an OpenAI model when one is configured; AI Grants credits would pay for it. The application is drafted in [docs/AI_GRANTS.md](docs/AI_GRANTS.md) |
 | **TigerGraph** | Not in this app. Samarth's FraudLens is our entry in TigerGraph's separate six-team Final Round |
 
 ## What's real, and what's sample
