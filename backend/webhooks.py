@@ -13,11 +13,15 @@ from backend import db
 from backend.config import get_settings
 
 _delivery_lock = asyncio.Lock()
+# viaSocket runs the whole workflow (a sheet row and an email) before it answers the webhook, which takes several
+# seconds. Delivery happens in the background after the report is saved, so nobody waits on this.
+DELIVERY_TIMEOUT = 10.0
+BATCH_TIMEOUT = 120.0   # at most 10 reports a batch (db.pending_webhooks)
 
 
 async def deliver_pending() -> None:
     try:
-        async with asyncio.timeout(25):
+        async with asyncio.timeout(BATCH_TIMEOUT):
             await _deliver_pending()
     except Exception as exc:
         # Never expose a webhook URL, payload, credential or provider exception text.
@@ -35,7 +39,7 @@ async def _deliver_pending() -> None:
             reports = await asyncio.to_thread(db.pending_webhooks, path)
         except (OSError, sqlite3.Error):
             return
-        async with httpx.AsyncClient(timeout=2, follow_redirects=False) as client:
+        async with httpx.AsyncClient(timeout=DELIVERY_TIMEOUT, follow_redirects=False) as client:
             for report in reports:
                 try:
                     view = await asyncio.to_thread(db.get_check, path, report['check_id'])
@@ -46,7 +50,7 @@ async def _deliver_pending() -> None:
                                'band':view.band, 'score':view.score, 'lang':view.lang,
                                'entities':[e.model_dump() for e in view.entities],
                                'url':view.share.url.split('?')[0]}
-                    async with asyncio.timeout(2):
+                    async with asyncio.timeout(DELIVERY_TIMEOUT):
                         response = await client.post(url, json=payload,
                             headers={'Idempotency-Key':report['id']})
                         response.raise_for_status()

@@ -1,11 +1,11 @@
 # Telegram bot
 
-**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot), and its
+**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://telegram.me/CheckBeforeYouPayBot), and its
 webhook is registered on the live site with only `message` updates.
 
 - Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
   `200`, and a group-chat update is ignored.
-- **Still to check:** a real reply in a private chat. Send the bot a stock-tip message and a 3–5 MB screenshot.
+- **Checked in a real chat** on 30 Oct: text, a screenshot and a voice note each got a verdict. See "Validation and acceptance" below.
 - To change the token or secret later: edit `.env.railway`, run `bash deploy/gce/push_env.sh TELEGRAM_`, then
   `sudo docker exec app python -m backend.telegram_setup` on the VM.
 
@@ -74,11 +74,18 @@ photos, unsupported input, size/rate limits, HMAC IDs, language selection,
 private-chat behavior, replay suppression, log redaction and fast acknowledgment.
 HTTP calls and model providers are mocked in tests.
 
-After Samarth deploys and provider health is up, record the public bot username
-and test-chat evidence here: forward a labelled scam sample; verify localized
-band, score, three-or-fewer evidence entries and a working referral URL. Repeat
-with a screenshot and voice note; time arrival-to-reply on the phone. Check
-`/lang hi` and a rejected unsupported file. No live acceptance is claimed yet.
+**Checked live in a real private chat on Fri 30 Oct, 16:36–17:22 IST** (Samarth's phone). Times are the server's
+`latency_ms` for each check:
+
+| Sent | Verdict | Server time |
+|---|---|---|
+| A made-up "invite-only" stock tip with a `@ybl` UPI ID, as text | High risk, 90 (investment payment handle + claims) | 2.3 s |
+| An ordinary rent request to a personal UPI ID | No known scam signals, 0 | 1.7 s |
+| A voice note (the claim it heard: "guaranteed returns daily 250%") | Caution, 30 (claims). No payment ID was detected in it, so it can't reach High risk | 2.3 s |
+| A screenshot of the stock tip | High risk, 100 (adds the link to the earlier check of the same UPI ID) | 5.0 s |
+
+Not checked live yet: `/lang hi` and an unsupported file. These were Samarth's own tests, so they show on `/stats` as
+1 user and 4 checks.
 
 Official references: [Bot creation](https://core.telegram.org/bots/tutorial#obtain-your-bot-token),
 [webhook authentication](https://core.telegram.org/bots/api#setwebhook),
