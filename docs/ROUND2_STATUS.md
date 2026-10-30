@@ -101,6 +101,12 @@ MP3 duration 12.74 s. Repeat audio downloads took 0.94/0.92 s and returned
 identical bytes. These synthetic API checks do not establish physical phone or
 native-speaker acceptance. Samarth's viewport/browser checks are in `HANDOFF.md`.
 
+Later that afternoon, the older check IDs returned 404. Fresh `u_test` checks
+and MP3s returned 200: Hindi `chk_01M66A8YW0A5QB37` (check 3.75 s, audio 6.30 s,
+MP3 9.46 s) and Tamil `chk_01M66A98E5YK122P` (check 2.87 s, audio 9.12 s,
+MP3 14.78 s). Fresh links were sent to Risheeth for Android playback acceptance;
+his result is pending. This API verification does not count as a phone test.
+
 ## Instructions ready for the human handoff
 
 - `docs/VIASOCKET.md`: exact masked fields, private demo Sheet, own-email recipient,
