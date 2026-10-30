@@ -12,7 +12,7 @@ docs/EVAL.md. If a number changes there, change it here too.
 | Quiz | https://34-45-129-243.sslip.io/quiz |
 | Code | https://github.com/samarthputhraya/check-before-you-pay |
 | Demo video (88 s) | https://github.com/samarthputhraya/check-before-you-pay/blob/main/docs/demo.mp4 (upload it to YouTube as unlisted if the form wants a video link) |
-| Telegram bot | https://t.me/CheckBeforeYouPayBot (add it only once a real chat reply has been checked) |
+| Telegram bot | https://telegram.me/CheckBeforeYouPayBot (add it only once a real chat reply has been checked) |
 | QR code for posters and slides | [`docs/qr-live.png`](qr-live.png), which opens the site with `?ref=u_qr_poster` |
 | A4 poster with the QR, ready to print | [`docs/poster.pdf`](poster.pdf) (preview: [`docs/poster.png`](poster.png)); rebuild with `python tools/poster.py` |
 | Gallery images for the submission form | [`docs/screenshots/`](screenshots/): 8 phone screenshots of the live site (home, a Hindi verdict with its evidence, the share page, quiz, stats, pricing) |

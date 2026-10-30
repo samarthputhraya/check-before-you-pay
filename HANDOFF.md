@@ -20,9 +20,10 @@
    - Final close: **Sat 31 Oct, 9:59 AM; aim for 7:59 AM.**
    - Fields: docs/SUBMISSION.md. Gallery: docs/screenshots/. Diagrams: docs/diagrams/.
    - Video: docs/demo.mp4. Upload it to YouTube as unlisted if the form wants a link.
-3. **Merge PR #15**, then `bash deploy/gce/deploy.sh origin/main`. It deploys the code that's already live.
-4. **Telegram:** open https://t.me/CheckBeforeYouPayBot, send /start, then a stock-tip message and a screenshot. Check the replies.
-5. **viaSocket:** done. The flow is live and tested; see docs/VIASOCKET.md. The coupon wasn't applied: the free plan covers it.
+3. **Merge PR #17** (PR #15 is merged). The live site already runs its code, so no deploy is needed.
+4. **Telegram:** open https://telegram.me/CheckBeforeYouPayBot (or search CheckBeforeYouPayBot in the Telegram app), send /start, then a stock-tip message and a screenshot. Check the replies.
+   - `t.me` and `telegram.org` time out on the hotel Wi-Fi (its DNS sends `t.me` to a different address than Google DNS does). `telegram.me`, `web.telegram.org` and the bot API all work, so the docs link to `telegram.me`.
+5. **viaSocket:** done. The flow is live and tested; see docs/VIASOCKET.md. The coupon wasn't applied: the free plan covers it. The two test rows were deleted from the sheet on 30 Oct; it holds only the header now.
 6. **AI Grants:** the form needs Samarth's WhatsApp (docs/AI_GRANTS.md).
 
 ## TigerGraph Final Round (separate repo, FraudLens)

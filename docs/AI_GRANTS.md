@@ -30,10 +30,8 @@
 >
 > The model only reads screenshots and voice notes and explains the result, so it can't talk a scam into a pass. On 128 held-out messages in 8 languages it flags 61 of 64 scams and none of 64 ordinary payments.
 >
-> We launch on Friday 30 Oct with creators from House of NGMI. Credits keep it free for families while we find out who pays.
+> It is live now at the link above. Credits keep it free for families while we find out who pays.
 >
 > I also built FraudLens, a bank fraud-investigation agent on TigerGraph that is in their six-team final (picked from 215 teams), and won 1st place in the Promtal track at Tri-City AI-Thon 2026.
 
-That's 194 words. Before you send it:
-- check "launch on Friday" is still true;
-- update the FraudLens line after the Final Round results.
+Update the FraudLens line after the Final Round results. The form has an hCaptcha and ends on WhatsApp, so a person has to send it.

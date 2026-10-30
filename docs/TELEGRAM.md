@@ -1,6 +1,6 @@
 # Telegram bot
 
-**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://t.me/CheckBeforeYouPayBot), and its
+**Live since Fri 30 Oct, 08:00 IST:** the bot is [@CheckBeforeYouPayBot](https://telegram.me/CheckBeforeYouPayBot), and its
 webhook is registered on the live site with only `message` updates.
 
 - Checked live: a webhook call without the secret, or with a wrong one, gets `401`. One with the right secret gets
