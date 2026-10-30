@@ -158,3 +158,29 @@ async def test_provider_normalizes_real_response_shapes(monkeypatch, mime, paylo
     with wave.open(io.BytesIO(result)) as f:
         assert f.getnframes() == 24000
     assert generate.call_args.kwargs['model'] == 'discovered-test-tts'
+
+
+@pytest.mark.asyncio
+async def test_warmer_reaps_process_on_shutdown(monkeypatch):
+    started = asyncio.Event()
+    class Child:
+        returncode = None
+        killed = False
+        waits = 0
+        async def wait(self):
+            self.waits += 1
+            started.set()
+            if self.returncode is None:
+                await asyncio.Event().wait()
+            return self.returncode
+        def kill(self):
+            self.killed = True
+            self.returncode = -9
+    child = Child()
+    monkeypatch.setattr(audio.asyncio, 'create_subprocess_exec', AsyncMock(return_value=child))
+    task = asyncio.create_task(audio.keep_warm())
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert child.killed and child.waits == 2
