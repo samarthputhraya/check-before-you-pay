@@ -4,11 +4,13 @@ Samarth's newer handoff in PR #17 reports a separate production workflow live
 since 30 October, 14:20 IST, in his workspace, using his sheet and alert address.
 He reports successful row/email delivery and duplicate suppression. Those are
 Samarth's observations; this branch has not independently repeated them.
+The user confirmed that this existing production workflow is the one to keep.
+Its sheet and alert recipient remain Samarth's; no replacement server setting
+or new private webhook handoff is required from this work.
 
 A five-step plan has also been generated in Risheeth's viaSocket account.
 Google Sheets and Gmail connections now show ready. This draft is inactive:
-expected webhook payload and action mappings still need configuration. Coordinate
-with Samarth before switching the server or activating a replacement workflow.
+expected webhook payload and action mappings are incomplete. Leave it inactive.
 
 ## What the backend does
 
@@ -18,8 +20,10 @@ and skips delivery for that report. Adding a URL later does not send old skipped
 reports.
 
 If configured, a background task POSTs JSON after sending the report response.
-The network request has a two-second total timeout. Failure never changes report
-success. Pending deliveries survive restarts and retry after at least 60 seconds,
+This branch uses a two-second delivery timeout. Samarth's deployed change in
+PR #17 raises it to ten seconds because the live workflow completes its sheet
+and email actions before responding. Failure never changes report success.
+Pending deliveries survive restarts and retry after at least 60 seconds,
 up to three attempts total. The worker checks pending deliveries every 30 seconds.
 An HTTP redirect is treated as failure. The URL must use HTTPS.
 
@@ -84,7 +88,11 @@ route HTTP errors using their `error.code` and `error.message`. The normal
 30-checks/hour per anonymous ID limit still applies. No model key belongs in
 the workflow request.
 
-## Agreed demo setup and handoff
+## Inactive Risheeth demo draft
+
+The following setup was prepared before the existing production workflow was
+discovered. The user chose to keep Samarth's live workflow. Do not activate this
+draft or replace the server URL with it.
 
 Risheeth creates the Google Sheet himself at sheets.new while signed into his
 own account. Name it **Check Before You Pay – reports (demo)** and share Editor
@@ -115,9 +123,11 @@ and sends the email for a new ID. Risheeth completed Google authorization and
 viaSocket shows both connections ready. The builder has created a webhook
 trigger and is waiting for expected payload/Continue; the remaining actions and
 their mappings have not been verified. No URL from this draft has been obtained
-or sent, and this draft has not been activated or tested. A decision is pending
-on retaining Samarth's existing production flow versus finishing this replacement
-for a coordinated switch. No 20-second clip has been recorded by this work.
+or sent, and this draft has not been activated or tested. The user's final
+decision is to retain Samarth's existing production flow and leave this draft
+inactive. No 20-second clip has been recorded by this work. Recording production
+proof requires access to Samarth's live sheet and workflow; keep webhook URLs
+and inbox contents out of the recording.
 See `docs/ROUND2_STATUS.md` for the remaining acceptance work.
 
 References: [viaSocket webhook triggers](https://viasocket.com/help/workflow/trigger/instant-triggers),

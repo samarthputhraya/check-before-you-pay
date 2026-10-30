@@ -45,7 +45,7 @@ documented in `docs/LISTEN.md`. Android/native-speaker acceptance remains pendin
 | R2 Listen | Backend and button on main/live; later model/warmup fixes in [#10](https://github.com/samarthputhraya/check-before-you-pay/pull/10) | Physical Android playback and native pronunciation |
 | R3 correctness | [#12](https://github.com/samarthputhraya/check-before-you-pay/pull/12), merged through #11 | Dodo test-mode delivery when valid server keys exist |
 | R4 public readiness | [#13](https://github.com/samarthputhraya/check-before-you-pay/pull/13) | Samarth reviews scan; rerun before visibility change |
-| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14), instructions prepared | viaSocket sheet/email proof and clip; consented corpus; native quiz signoff; Android tests |
+| R5 people work | [#14](https://github.com/samarthputhraya/check-before-you-pay/pull/14); retain Samarth's live viaSocket workflow per user decision | viaSocket clip; consented corpus; native quiz signoff; Android tests |
 
 The confirmed public bot username is **CheckBeforeYouPayBot**:
 https://t.me/CheckBeforeYouPayBot. The user supplied the token in `.env.example`;
@@ -75,10 +75,11 @@ action mappings. This draft has not been activated or tested.
 Samarth's newer PR #17 reports a separate production viaSocket flow live since
 14:20 IST in his own workspace, with his sheet/email, two test reports and a
 successful duplicate test. This is attributed handoff evidence, not a new test
-by this work. The user has been asked whether to retain that production flow
-or finish the Risheeth draft for a coordinated switch. No server setting has been
-changed and no second workflow has been activated. A 20-second clip is still
-pending here.
+by this work. The user explicitly chose to retain Samarth's production workflow
+and leave the Risheeth draft inactive. No server setting has been changed and
+no second workflow has been activated. A 20-second clip is still pending here;
+it requires access to Samarth's live sheet and workflow, with webhook URLs and
+inbox contents excluded from capture.
 
 ## Live API smoke evidence
 
